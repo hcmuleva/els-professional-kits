@@ -1,0 +1,1226 @@
+{
+  "consumer": {
+    "name": "lms-frontend"
+  },
+  "interactions": [
+    {
+      "description": "a login request with invalid credentials",
+      "providerStates": [
+        {
+          "name": "user exists but password is incorrect"
+        }
+      ],
+      "request": {
+        "body": {
+          "identifier": "test@example.com",
+          "password": "wrongpassword"
+        },
+        "headers": {
+          "Accept": "application/json",
+          "Content-Type": "application/json"
+        },
+        "method": "POST",
+        "path": "/auth/local"
+      },
+      "response": {
+        "body": {
+          "error": {
+            "message": "Invalid identifier or password",
+            "name": "ValidationError",
+            "status": 400
+          }
+        },
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "matchingRules": {
+          "body": {
+            "$": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ]
+            }
+          }
+        },
+        "status": 400
+      }
+    },
+    {
+      "description": "a login request with valid credentials",
+      "providerStates": [
+        {
+          "name": "user exists with valid credentials"
+        }
+      ],
+      "request": {
+        "body": {
+          "identifier": "test@example.com",
+          "password": "password123"
+        },
+        "headers": {
+          "Accept": "application/json",
+          "Content-Type": "application/json"
+        },
+        "method": "POST",
+        "path": "/auth/local"
+      },
+      "response": {
+        "body": {
+          "jwt": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.mock.token",
+          "user": {
+            "blocked": false,
+            "confirmed": true,
+            "email": "test@example.com",
+            "first_name": "Test",
+            "gender": "MALE",
+            "id": 1,
+            "last_name": "User",
+            "mobile_number": "1234567890",
+            "role": {
+              "id": 1,
+              "name": "Authenticated",
+              "type": "authenticated"
+            },
+            "username": "testuser"
+          }
+        },
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "matchingRules": {
+          "body": {
+            "$": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ]
+            }
+          }
+        },
+        "status": 200
+      }
+    },
+    {
+      "description": "a registration request with existing email",
+      "providerStates": [
+        {
+          "name": "user already exists with this email"
+        }
+      ],
+      "request": {
+        "body": {
+          "email": "existing@example.com",
+          "first_name": "Existing",
+          "gender": "FEMALE",
+          "last_name": "User",
+          "mobile_number": "1111111111",
+          "password": "password123",
+          "username": "existinguser"
+        },
+        "headers": {
+          "Accept": "application/json",
+          "Content-Type": "application/json"
+        },
+        "method": "POST",
+        "path": "/auth/local/register"
+      },
+      "response": {
+        "body": {
+          "error": {
+            "message": "Email is already taken",
+            "name": "ValidationError",
+            "status": 400
+          }
+        },
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "matchingRules": {
+          "body": {
+            "$": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ]
+            }
+          }
+        },
+        "status": 400
+      }
+    },
+    {
+      "description": "a registration request with valid data",
+      "providerStates": [
+        {
+          "name": "no user exists with this email"
+        }
+      ],
+      "request": {
+        "body": {
+          "email": "newuser@example.com",
+          "first_name": "New",
+          "gender": "MALE",
+          "last_name": "User",
+          "mobile_number": "9876543210",
+          "password": "password123",
+          "username": "newuser"
+        },
+        "headers": {
+          "Accept": "application/json",
+          "Content-Type": "application/json"
+        },
+        "method": "POST",
+        "path": "/auth/local/register"
+      },
+      "response": {
+        "body": {
+          "jwt": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.new.token",
+          "user": {
+            "blocked": false,
+            "confirmed": false,
+            "email": "newuser@example.com",
+            "first_name": "New",
+            "gender": "MALE",
+            "id": 2,
+            "last_name": "User",
+            "mobile_number": "9876543210",
+            "role": {
+              "id": 1,
+              "name": "Authenticated",
+              "type": "authenticated"
+            },
+            "username": "newuser"
+          }
+        },
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "matchingRules": {
+          "body": {
+            "$": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ]
+            }
+          }
+        },
+        "status": 200
+      }
+    },
+    {
+      "description": "a request to create a new user",
+      "providerStates": [
+        {
+          "name": "authenticated user can create users"
+        }
+      ],
+      "request": {
+        "body": {
+          "email": "newuser@example.com",
+          "first_name": "New",
+          "gender": "MALE",
+          "last_name": "User",
+          "mobile_number": "9876543210",
+          "password": "password123",
+          "role": 1,
+          "username": "newuser"
+        },
+        "headers": {
+          "Accept": "application/json",
+          "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.valid.token",
+          "Content-Type": "application/json"
+        },
+        "method": "POST",
+        "path": "/users"
+      },
+      "response": {
+        "body": {
+          "blocked": false,
+          "confirmed": false,
+          "email": "newuser@example.com",
+          "first_name": "New",
+          "gender": "MALE",
+          "id": 3,
+          "last_name": "User",
+          "mobile_number": "9876543210",
+          "role": {
+            "id": 1,
+            "name": "Authenticated",
+            "type": "authenticated"
+          },
+          "username": "newuser"
+        },
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "matchingRules": {
+          "body": {
+            "$": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ]
+            }
+          }
+        },
+        "status": 200
+      }
+    },
+    {
+      "description": "a request to create user with existing email",
+      "providerStates": [
+        {
+          "name": "user with email already exists"
+        }
+      ],
+      "request": {
+        "body": {
+          "email": "existing@example.com",
+          "first_name": "Duplicate",
+          "gender": "FEMALE",
+          "last_name": "User",
+          "mobile_number": "1111111111",
+          "password": "password123",
+          "role": 1,
+          "username": "duplicateuser"
+        },
+        "headers": {
+          "Accept": "application/json",
+          "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.valid.token",
+          "Content-Type": "application/json"
+        },
+        "method": "POST",
+        "path": "/users"
+      },
+      "response": {
+        "body": {
+          "error": {
+            "details": {
+              "errors": [
+                {
+                  "message": "This email is already registered",
+                  "path": [
+                    "email"
+                  ]
+                }
+              ]
+            },
+            "message": "Email is already taken",
+            "name": "ValidationError",
+            "status": 400
+          }
+        },
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "matchingRules": {
+          "body": {
+            "$": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ]
+            }
+          }
+        },
+        "status": 400
+      }
+    },
+    {
+      "description": "a request to create user with invalid data",
+      "providerStates": [
+        {
+          "name": "authenticated user sends invalid data"
+        }
+      ],
+      "request": {
+        "body": {
+          "email": "invalid-email",
+          "first_name": "",
+          "gender": "INVALID",
+          "last_name": "",
+          "mobile_number": "invalid",
+          "password": "123",
+          "role": 1,
+          "username": ""
+        },
+        "headers": {
+          "Accept": "application/json",
+          "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.valid.token",
+          "Content-Type": "application/json"
+        },
+        "method": "POST",
+        "path": "/users"
+      },
+      "response": {
+        "body": {
+          "error": {
+            "details": {
+              "errors": [
+                {
+                  "message": "Username is required",
+                  "path": [
+                    "username"
+                  ]
+                },
+                {
+                  "message": "Email format is invalid",
+                  "path": [
+                    "email"
+                  ]
+                },
+                {
+                  "message": "Password must be at least 6 characters",
+                  "path": [
+                    "password"
+                  ]
+                },
+                {
+                  "message": "Mobile number format is invalid",
+                  "path": [
+                    "mobile_number"
+                  ]
+                }
+              ]
+            },
+            "message": "Validation failed",
+            "name": "ValidationError",
+            "status": 400
+          }
+        },
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "matchingRules": {
+          "body": {
+            "$": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ]
+            }
+          }
+        },
+        "status": 400
+      }
+    },
+    {
+      "description": "a request to create user without authentication",
+      "providerStates": [
+        {
+          "name": "user is not authenticated"
+        }
+      ],
+      "request": {
+        "body": {
+          "email": "unauthorized@example.com",
+          "first_name": "Unauthorized",
+          "gender": "MALE",
+          "last_name": "User",
+          "mobile_number": "2222222222",
+          "password": "password123",
+          "role": 1,
+          "username": "unauthorizeduser"
+        },
+        "headers": {
+          "Accept": "application/json",
+          "Content-Type": "application/json"
+        },
+        "method": "POST",
+        "path": "/users"
+      },
+      "response": {
+        "body": {
+          "error": {
+            "message": "Unauthorized",
+            "name": "UnauthorizedError",
+            "status": 401
+          }
+        },
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "matchingRules": {
+          "body": {
+            "$": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ]
+            }
+          }
+        },
+        "status": 401
+      }
+    },
+    {
+      "description": "a request to delete a user",
+      "providerStates": [
+        {
+          "name": "user with ID 2 exists and can be deleted"
+        }
+      ],
+      "request": {
+        "headers": {
+          "Accept": "application/json",
+          "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.valid.token"
+        },
+        "method": "DELETE",
+        "path": "/users/2"
+      },
+      "response": {
+        "body": {
+          "deleted": true,
+          "id": 2,
+          "message": "User successfully deleted"
+        },
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "matchingRules": {
+          "body": {
+            "$": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ]
+            }
+          }
+        },
+        "status": 200
+      }
+    },
+    {
+      "description": "a request to delete non-existent user",
+      "providerStates": [
+        {
+          "name": "user with ID 999 does not exist"
+        }
+      ],
+      "request": {
+        "headers": {
+          "Accept": "application/json",
+          "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.valid.token"
+        },
+        "method": "DELETE",
+        "path": "/users/999"
+      },
+      "response": {
+        "body": {
+          "error": {
+            "message": "User not found",
+            "name": "NotFoundError",
+            "status": 404
+          }
+        },
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "matchingRules": {
+          "body": {
+            "$": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ]
+            }
+          }
+        },
+        "status": 404
+      }
+    },
+    {
+      "description": "a request to delete own user account",
+      "providerStates": [
+        {
+          "name": "user tries to delete their own account"
+        }
+      ],
+      "request": {
+        "headers": {
+          "Accept": "application/json",
+          "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.valid.token"
+        },
+        "method": "DELETE",
+        "path": "/users/1"
+      },
+      "response": {
+        "body": {
+          "error": {
+            "message": "Cannot delete your own account",
+            "name": "ForbiddenError",
+            "status": 403
+          }
+        },
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "matchingRules": {
+          "body": {
+            "$": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ]
+            }
+          }
+        },
+        "status": 403
+      }
+    },
+    {
+      "description": "a request to delete user without authentication",
+      "providerStates": [
+        {
+          "name": "user is not authenticated"
+        }
+      ],
+      "request": {
+        "headers": {
+          "Accept": "application/json"
+        },
+        "method": "DELETE",
+        "path": "/users/2"
+      },
+      "response": {
+        "body": {
+          "error": {
+            "message": "Unauthorized",
+            "name": "UnauthorizedError",
+            "status": 401
+          }
+        },
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "matchingRules": {
+          "body": {
+            "$": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ]
+            }
+          }
+        },
+        "status": 401
+      }
+    },
+    {
+      "description": "a request to delete user without sufficient permissions",
+      "providerStates": [
+        {
+          "name": "user lacks permission to delete other users"
+        }
+      ],
+      "request": {
+        "headers": {
+          "Accept": "application/json",
+          "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.valid.token"
+        },
+        "method": "DELETE",
+        "path": "/users/3"
+      },
+      "response": {
+        "body": {
+          "error": {
+            "message": "Insufficient permissions to delete user",
+            "name": "ForbiddenError",
+            "status": 403
+          }
+        },
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "matchingRules": {
+          "body": {
+            "$": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ]
+            }
+          }
+        },
+        "status": 403
+      }
+    },
+    {
+      "description": "a request to get all users with valid authentication",
+      "providerStates": [
+        {
+          "name": "users exist in the system"
+        }
+      ],
+      "request": {
+        "headers": {
+          "Accept": "application/json",
+          "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.valid.token"
+        },
+        "method": "GET",
+        "path": "/users"
+      },
+      "response": {
+        "body": [
+          {
+            "blocked": false,
+            "confirmed": true,
+            "email": "user1@example.com",
+            "first_name": "John",
+            "gender": "MALE",
+            "id": 1,
+            "last_name": "Doe",
+            "mobile_number": "1234567890",
+            "role": {
+              "id": 1,
+              "name": "Authenticated",
+              "type": "authenticated"
+            },
+            "username": "user1"
+          },
+          {
+            "blocked": false,
+            "confirmed": true,
+            "email": "user2@example.com",
+            "first_name": "Jane",
+            "gender": "FEMALE",
+            "id": 2,
+            "last_name": "Smith",
+            "mobile_number": "0987654321",
+            "role": {
+              "id": 1,
+              "name": "Authenticated",
+              "type": "authenticated"
+            },
+            "username": "user2"
+          }
+        ],
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "matchingRules": {
+          "body": {
+            "$": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ]
+            }
+          }
+        },
+        "status": 200
+      }
+    },
+    {
+      "description": "a request to get all users without authentication",
+      "providerStates": [
+        {
+          "name": "user is not authenticated"
+        }
+      ],
+      "request": {
+        "headers": {
+          "Accept": "application/json"
+        },
+        "method": "GET",
+        "path": "/users"
+      },
+      "response": {
+        "body": {
+          "error": {
+            "message": "Unauthorized",
+            "name": "UnauthorizedError",
+            "status": 401
+          }
+        },
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "matchingRules": {
+          "body": {
+            "$": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ]
+            }
+          }
+        },
+        "status": 401
+      }
+    },
+    {
+      "description": "a request to get non-existent user by ID",
+      "providerStates": [
+        {
+          "name": "user with ID 999 does not exist"
+        }
+      ],
+      "request": {
+        "headers": {
+          "Accept": "application/json",
+          "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.valid.token"
+        },
+        "method": "GET",
+        "path": "/users/999"
+      },
+      "response": {
+        "body": {
+          "error": {
+            "message": "User not found",
+            "name": "NotFoundError",
+            "status": 404
+          }
+        },
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "matchingRules": {
+          "body": {
+            "$": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ]
+            }
+          }
+        },
+        "status": 404
+      }
+    },
+    {
+      "description": "a request to get user by ID",
+      "providerStates": [
+        {
+          "name": "user with ID 1 exists"
+        }
+      ],
+      "request": {
+        "headers": {
+          "Accept": "application/json",
+          "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.valid.token"
+        },
+        "method": "GET",
+        "path": "/users/1"
+      },
+      "response": {
+        "body": {
+          "blocked": false,
+          "confirmed": true,
+          "email": "test@example.com",
+          "first_name": "Test",
+          "gender": "MALE",
+          "id": 1,
+          "last_name": "User",
+          "mobile_number": "1234567890",
+          "role": {
+            "id": 1,
+            "name": "Authenticated",
+            "type": "authenticated"
+          },
+          "username": "testuser"
+        },
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "matchingRules": {
+          "body": {
+            "$": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ]
+            }
+          }
+        },
+        "status": 200
+      }
+    },
+    {
+      "description": "a request to get user by ID without authentication",
+      "providerStates": [
+        {
+          "name": "user is not authenticated"
+        }
+      ],
+      "request": {
+        "headers": {
+          "Accept": "application/json"
+        },
+        "method": "GET",
+        "path": "/users/1"
+      },
+      "response": {
+        "body": {
+          "error": {
+            "message": "Unauthorized",
+            "name": "UnauthorizedError",
+            "status": 401
+          }
+        },
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "matchingRules": {
+          "body": {
+            "$": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ]
+            }
+          }
+        },
+        "status": 401
+      }
+    },
+    {
+      "description": "a request to update non-existent user",
+      "providerStates": [
+        {
+          "name": "user with ID 999 does not exist"
+        }
+      ],
+      "request": {
+        "body": {
+          "first_name": "Updated",
+          "last_name": "Name"
+        },
+        "headers": {
+          "Accept": "application/json",
+          "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.valid.token",
+          "Content-Type": "application/json"
+        },
+        "method": "PUT",
+        "path": "/users/999"
+      },
+      "response": {
+        "body": {
+          "error": {
+            "message": "User not found",
+            "name": "NotFoundError",
+            "status": 404
+          }
+        },
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "matchingRules": {
+          "body": {
+            "$": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ]
+            }
+          }
+        },
+        "status": 404
+      }
+    },
+    {
+      "description": "a request to update user information",
+      "providerStates": [
+        {
+          "name": "user with ID 1 exists and can be updated"
+        }
+      ],
+      "request": {
+        "body": {
+          "first_name": "Updated",
+          "last_name": "Name",
+          "mobile_number": "9999999999"
+        },
+        "headers": {
+          "Accept": "application/json",
+          "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.valid.token",
+          "Content-Type": "application/json"
+        },
+        "method": "PUT",
+        "path": "/users/1"
+      },
+      "response": {
+        "body": {
+          "blocked": false,
+          "confirmed": true,
+          "email": "test@example.com",
+          "first_name": "Updated",
+          "gender": "MALE",
+          "id": 1,
+          "last_name": "Name",
+          "mobile_number": "9999999999",
+          "role": {
+            "id": 1,
+            "name": "Authenticated",
+            "type": "authenticated"
+          },
+          "username": "testuser"
+        },
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "matchingRules": {
+          "body": {
+            "$": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ]
+            }
+          }
+        },
+        "status": 200
+      }
+    },
+    {
+      "description": "a request to update user with invalid data",
+      "providerStates": [
+        {
+          "name": "user with ID 1 exists but receives invalid update data"
+        }
+      ],
+      "request": {
+        "body": {
+          "email": "invalid-email-format",
+          "mobile_number": "invalid-phone"
+        },
+        "headers": {
+          "Accept": "application/json",
+          "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.valid.token",
+          "Content-Type": "application/json"
+        },
+        "method": "PUT",
+        "path": "/users/1"
+      },
+      "response": {
+        "body": {
+          "error": {
+            "details": {
+              "errors": [
+                {
+                  "message": "Email format is invalid",
+                  "path": [
+                    "email"
+                  ]
+                },
+                {
+                  "message": "Mobile number format is invalid",
+                  "path": [
+                    "mobile_number"
+                  ]
+                }
+              ]
+            },
+            "message": "Validation failed",
+            "name": "ValidationError",
+            "status": 400
+          }
+        },
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "matchingRules": {
+          "body": {
+            "$": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ]
+            }
+          }
+        },
+        "status": 400
+      }
+    },
+    {
+      "description": "a request to update user without authentication",
+      "providerStates": [
+        {
+          "name": "user is not authenticated"
+        }
+      ],
+      "request": {
+        "body": {
+          "first_name": "Updated",
+          "last_name": "Name"
+        },
+        "headers": {
+          "Accept": "application/json",
+          "Content-Type": "application/json"
+        },
+        "method": "PUT",
+        "path": "/users/1"
+      },
+      "response": {
+        "body": {
+          "error": {
+            "message": "Unauthorized",
+            "name": "UnauthorizedError",
+            "status": 401
+          }
+        },
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "matchingRules": {
+          "body": {
+            "$": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ]
+            }
+          }
+        },
+        "status": 401
+      }
+    },
+    {
+      "description": "a token validation request with invalid JWT",
+      "providerStates": [
+        {
+          "name": "token is invalid or expired"
+        }
+      ],
+      "request": {
+        "headers": {
+          "Accept": "application/json",
+          "Authorization": "Bearer invalid.jwt.token"
+        },
+        "method": "GET",
+        "path": "/auth/me"
+      },
+      "response": {
+        "body": {
+          "error": {
+            "message": "Invalid token",
+            "name": "UnauthorizedError",
+            "status": 401
+          }
+        },
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "matchingRules": {
+          "body": {
+            "$": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ]
+            }
+          }
+        },
+        "status": 401
+      }
+    },
+    {
+      "description": "a token validation request with valid JWT",
+      "providerStates": [
+        {
+          "name": "user is authenticated with valid token"
+        }
+      ],
+      "request": {
+        "headers": {
+          "Accept": "application/json",
+          "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.valid.token"
+        },
+        "method": "GET",
+        "path": "/auth/me"
+      },
+      "response": {
+        "body": {
+          "blocked": false,
+          "confirmed": true,
+          "email": "test@example.com",
+          "first_name": "Test",
+          "gender": "MALE",
+          "id": 1,
+          "last_name": "User",
+          "mobile_number": "1234567890",
+          "username": "testuser"
+        },
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "matchingRules": {
+          "body": {
+            "$": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ]
+            }
+          }
+        },
+        "status": 200
+      }
+    }
+  ],
+  "metadata": {
+    "pact-js": {
+      "version": "15.0.1"
+    },
+    "pactRust": {
+      "ffi": "0.4.28",
+      "models": "1.3.5"
+    },
+    "pactSpecification": {
+      "version": "3.0.0"
+    }
+  },
+  "provider": {
+    "name": "lms-backend"
+  }
+}

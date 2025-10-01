@@ -1,0 +1,23 @@
+# Reports
+security/reports/**/*.html
+security/reports/**/*.json
+security/reports/**/*.xml
+
+# Logs
+*.log
+
+# Environment variables
+.env
+.env.local
+
+# Temporary files
+*.tmp
+*.temp
+
+# JWT tokens
+security/context/jwt-token.txt
+
+# Keep directory structure
+!security/reports/html/.gitkeep
+!security/reports/json/.gitkeep
+!security/reports/xml/.gitkeep

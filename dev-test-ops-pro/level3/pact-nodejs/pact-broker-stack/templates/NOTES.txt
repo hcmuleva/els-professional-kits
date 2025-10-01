@@ -1,0 +1,10 @@
+Pact Broker has been installed.
+
+If using sslip.io, access it at:
+  http://{{ .Values.hostPrefix }}.{{ .Values.localIP }}.sslip.io/
+
+Broker service:
+  kubectl port-forward svc/{{ include "pact-broker-stack.broker.fullname" . }} 9292:9292
+
+Postgres service:
+  kubectl port-forward svc/{{ include "pact-broker-stack.postgres.fullname" . }} 5432:5432

@@ -1,0 +1,83 @@
+{
+  "test_name": "K6 Performance Test - Level 1: Basic Authentication",
+  "timestamp": "2025-09-27T08:30:54.697Z",
+  "base_url": "http://localhost:1337/api",
+  "options": {
+    "stages": [
+      {"duration":"3s","target":10},
+      {"duration":"10s","target":10},
+      {"duration":"3s","target":0}
+    ],
+    "thresholds": {
+      "get_user_duration": ["p(95)<300"],
+      "http_req_duration": ["p(95)<500"],
+      "http_req_failed": ["rate<0.01"],
+      "login_duration": ["p(95)<400"],
+      "registration_duration": ["p(95)<600"]
+    },
+    "summaryTrendStats": [
+      "avg",
+      "min",
+      "med",
+      "max",
+      "p(95)",
+      "p(99)"
+    ],
+    "scenarios": {},
+    "systemTags": ["check","error","error_code","expected_response","group","method","name","proto","scenario","service","status","subproto","tls_version","url"]
+  },
+  "duration": 5415.524473166667,
+  "success_rate": 100,
+  "avg_response_time": 101.00649999999999,
+  "p95_response_time": 199.87829999999988,
+  "p99_response_time": 253.08781999999982,
+  "scenarios": {
+    "registration": {
+      "count": 22,
+      "avg_duration": 144.7230909090909,
+      "p95_duration": 246.73835000000003
+    },
+    "login_username": {
+      "count": 20,
+      "avg_duration": 106.15172500000001,
+      "p95_duration": 165.76539999999994
+    },
+    "login_email": {
+      "count": 20,
+      "avg_duration": 106.15172500000001,
+      "p95_duration": 165.76539999999994
+    },
+    "get_user": {
+      "count": 18,
+      "avg_duration": 36.14127777777779,
+      "p95_duration": 91.24094999999997
+    }
+  },
+  "thresholds": {
+    "http_req_duration": {
+      "p(95)<500": {
+        "ok": true
+      }
+    },
+    "http_req_failed": {
+      "rate<0.01": {
+        "ok": true
+      }
+    },
+    "registration_duration": {
+      "p(95)<600": {
+        "ok": true
+      }
+    },
+    "login_duration": {
+      "p(95)<400": {
+        "ok": true
+      }
+    },
+    "get_user_duration": {
+      "p(95)<300": {
+        "ok": true
+      }
+    }
+  }
+}

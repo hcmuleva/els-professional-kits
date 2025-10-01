@@ -1,0 +1,16 @@
+# Strapi API Endpoints for Security Testing
+# Authentication Endpoints
+http://localhost:1337/api/auth/local
+http://localhost:1337/api/auth/local/register
+http://localhost:1337/api/auth/forgot-password
+http://localhost:1337/api/auth/reset-password
+
+# User Endpoints
+http://localhost:1337/api/users
+http://localhost:1337/api/users/me
+http://localhost:1337/api/users/count
+http://localhost:1337/api/users/:id
+
+# Add your custom content-type endpoints here
+# http://localhost:1337/api/posts
+# http://localhost:1337/api/categories
