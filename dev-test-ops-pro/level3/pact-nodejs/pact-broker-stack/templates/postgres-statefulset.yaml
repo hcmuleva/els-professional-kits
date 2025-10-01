@@ -1,0 +1,64 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ include "pact-broker-stack.postgres.fullname" . }}
+  labels:
+    {{- include "pact-broker-stack.labels" . | nindent 4 }}
+spec:
+  serviceName: {{ include "pact-broker-stack.postgres.fullname" . }}
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ include "pact-broker-stack.postgres.fullname" . }}
+  template:
+    metadata:
+      labels:
+        app: {{ include "pact-broker-stack.postgres.fullname" . }}
+        {{- include "pact-broker-stack.labels" . | nindent 8 }}
+    spec:
+      containers:
+        - name: postgres
+          image: {{ .Values.postgres.image }}
+          imagePullPolicy: {{ .Values.postgres.imagePullPolicy }}
+          ports:
+            - containerPort: 5432
+              name: postgres
+          envFrom:
+            - secretRef:
+                name: {{ include "pact-broker-stack.postgres.fullname" . }}-auth
+          volumeMounts:
+            - name: data
+              mountPath: /var/lib/postgresql/data
+          readinessProbe:
+            exec:
+              command: ["pg_isready","-U","{{ .Values.postgres.auth.username }}"]
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          livenessProbe:
+            exec:
+              command: ["pg_isready","-U","{{ .Values.postgres.auth.username }}"]
+            initialDelaySeconds: 15
+            periodSeconds: 10
+      {{- with .Values.postgres.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.postgres.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.postgres.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+  volumeClaimTemplates:
+    - metadata:
+        name: data
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        {{- if .Values.postgres.storage.storageClassName }}
+        storageClassName: {{ .Values.postgres.storage.storageClassName }}
+        {{- end }}
+        resources:
+          requests:
+            storage: {{ .Values.postgres.storage.size }}

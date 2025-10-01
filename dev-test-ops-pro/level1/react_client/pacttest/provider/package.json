@@ -1,0 +1,50 @@
+{
+  "name": "lms-provider-pact-tests",
+  "version": "1.0.0",
+  "description": "Pact provider verification tests for LMS Backend",
+  "main": "index.js",
+  "scripts": {
+    "test:provider": "jest test/provider.pact.test.js --runInBand",
+    "test:provider:watch": "jest test/provider.pact.test.js --watch --runInBand",
+    "start:mock": "node src/mockProvider.js",
+    "clean:logs": "rm -rf logs/*.log",
+    "test:ci": "npm run test:provider"
+  },
+  "dependencies": {
+    "body-parser": "^1.20.2",
+    "cors": "^2.8.5",
+    "express": "^4.18.2",
+    "undici": "^7.16.0"
+  },
+  "devDependencies": {
+    "@pact-foundation/pact": "^15.0.1",
+    "@pact-foundation/pact-node": "^10.18.0",
+    "dotenv": "^16.3.1",
+    "jest": "^30.1.3",
+    "supertest": "^7.1.4"
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "testMatch": [
+      "**/test/**/*.pact.test.js"
+    ],
+    "setupFilesAfterEnv": [
+      "<rootDir>/test/setup.js"
+    ],
+    "collectCoverageFrom": [
+      "src/**/*.js"
+    ],
+    "coverageDirectory": "coverage",
+    "verbose": true,
+    "testTimeout": 30000
+  },
+  "keywords": [
+    "pact",
+    "provider",
+    "contract-testing",
+    "lms",
+    "verification"
+  ],
+  "author": "LMS Team",
+  "license": "MIT"
+}

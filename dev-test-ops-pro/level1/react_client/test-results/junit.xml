@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="jest tests" tests="19" failures="6" errors="0" time="5.488">
+  <testsuite name="Auth API" errors="0" failures="4" skipped="0" timestamp="2025-09-27T06:37:46" time="3.3" tests="8">
+    <testcase classname="Auth API login function successful login saves JWT and user data to localStorage" name="Auth API login function successful login saves JWT and user data to localStorage" time="0.004">
+      <failure>Error: expect(received).toHaveBeenCalledWith(...expected)
+
+Matcher error: received value must be a mock or spy function
+
+Received has type:  function
+Received has value: [Function setItem]
+    at call (/home/dhruv/work-dhruv/hph/els-work/els/professional/dev-test-devops/level1/react_client/src/api/__tests__/auth.test.js:35:36)
+    at Generator._invoke (/home/dhruv/work-dhruv/hph/els-work/els/professional/dev-test-devops/level1/react_client/src/api/__tests__/auth.test.js:2:1)
+    at Generator.next (/home/dhruv/work-dhruv/hph/els-work/els/professional/dev-test-devops/level1/react_client/src/api/__tests__/auth.test.js:2:1)
+    at asyncGeneratorStep (/home/dhruv/work-dhruv/hph/els-work/els/professional/dev-test-devops/level1/react_client/src/api/__tests__/auth.test.js:2:1)
+    at _next (/home/dhruv/work-dhruv/hph/els-work/els/professional/dev-test-devops/level1/react_client/src/api/__tests__/auth.test.js:2:1)
+    at processTicksAndRejections (node:internal/process/task_queues:95:5)</failure>
+    </testcase>
+    <testcase classname="Auth API login function login failure throws error with response data" name="Auth API login function login failure throws error with response data" time="0.001">
+      <failure>Error: expect(received).not.toHaveBeenCalled()
+
+Matcher error: received value must be a mock or spy function
+
+Received has type:  function
+Received has value: [Function setItem]
+    at call (/home/dhruv/work-dhruv/hph/els-work/els/professional/dev-test-devops/level1/react_client/src/api/__tests__/auth.test.js:53:40)
+    at Generator._invoke (/home/dhruv/work-dhruv/hph/els-work/els/professional/dev-test-devops/level1/react_client/src/api/__tests__/auth.test.js:2:1)
+    at Generator.next (/home/dhruv/work-dhruv/hph/els-work/els/professional/dev-test-devops/level1/react_client/src/api/__tests__/auth.test.js:2:1)
+    at asyncGeneratorStep (/home/dhruv/work-dhruv/hph/els-work/els/professional/dev-test-devops/level1/react_client/src/api/__tests__/auth.test.js:2:1)
+    at _next (/home/dhruv/work-dhruv/hph/els-work/els/professional/dev-test-devops/level1/react_client/src/api/__tests__/auth.test.js:2:1)
+    at processTicksAndRejections (node:internal/process/task_queues:95:5)</failure>
+    </testcase>
+    <testcase classname="Auth API login function login failure without response data throws default error" name="Auth API login function login failure without response data throws default error" time="0">
+    </testcase>
+    <testcase classname="Auth API login function network error throws default error message" name="Auth API login function network error throws default error message" time="0.001">
+    </testcase>
+    <testcase classname="Auth API register function successful registration saves JWT and user data to localStorage" name="Auth API register function successful registration saves JWT and user data to localStorage" time="0.001">
+      <failure>Error: expect(received).toHaveBeenCalledWith(...expected)
+
+Matcher error: received value must be a mock or spy function
+
+Received has type:  function
+Received has value: [Function setItem]
+    at call (/home/dhruv/work-dhruv/hph/els-work/els/professional/dev-test-devops/level1/react_client/src/api/__tests__/auth.test.js:103:36)
+    at Generator._invoke (/home/dhruv/work-dhruv/hph/els-work/els/professional/dev-test-devops/level1/react_client/src/api/__tests__/auth.test.js:2:1)
+    at Generator.next (/home/dhruv/work-dhruv/hph/els-work/els/professional/dev-test-devops/level1/react_client/src/api/__tests__/auth.test.js:2:1)
+    at asyncGeneratorStep (/home/dhruv/work-dhruv/hph/els-work/els/professional/dev-test-devops/level1/react_client/src/api/__tests__/auth.test.js:2:1)
+    at _next (/home/dhruv/work-dhruv/hph/els-work/els/professional/dev-test-devops/level1/react_client/src/api/__tests__/auth.test.js:2:1)
+    at processTicksAndRejections (node:internal/process/task_queues:95:5)</failure>
+    </testcase>
+    <testcase classname="Auth API register function registration failure throws error with response data" name="Auth API register function registration failure throws error with response data" time="0.005">
+      <failure>Error: expect(received).not.toHaveBeenCalled()
+
+Matcher error: received value must be a mock or spy function
+
+Received has type:  function
+Received has value: [Function setItem]
+    at call (/home/dhruv/work-dhruv/hph/els-work/els/professional/dev-test-devops/level1/react_client/src/api/__tests__/auth.test.js:121:40)
+    at Generator._invoke (/home/dhruv/work-dhruv/hph/els-work/els/professional/dev-test-devops/level1/react_client/src/api/__tests__/auth.test.js:2:1)
+    at Generator.next (/home/dhruv/work-dhruv/hph/els-work/els/professional/dev-test-devops/level1/react_client/src/api/__tests__/auth.test.js:2:1)
+    at asyncGeneratorStep (/home/dhruv/work-dhruv/hph/els-work/els/professional/dev-test-devops/level1/react_client/src/api/__tests__/auth.test.js:2:1)
+    at _next (/home/dhruv/work-dhruv/hph/els-work/els/professional/dev-test-devops/level1/react_client/src/api/__tests__/auth.test.js:2:1)
+    at processTicksAndRejections (node:internal/process/task_queues:95:5)</failure>
+    </testcase>
+    <testcase classname="Auth API register function registration failure without response data throws default error" name="Auth API register function registration failure without response data throws default error" time="0">
+    </testcase>
+    <testcase classname="Auth API register function network error throws default error message" name="Auth API register function network error throws default error message" time="0.001">
+    </testcase>
+  </testsuite>
+  <testsuite name="User API" errors="0" failures="2" skipped="0" timestamp="2025-09-27T06:37:46" time="3.322" tests="11">
+    <testcase classname="User API getUsers function successful getUsers returns user data" name="User API getUsers function successful getUsers returns user data" time="0.002">
+    </testcase>
+    <testcase classname="User API getUsers function getUsers throws error when no JWT token found" name="User API getUsers function getUsers throws error when no JWT token found" time="0.002">
+      <failure>Error: expect(received).rejects.toThrow(expected)
+
+Expected substring: &quot;No JWT token found&quot;
+
+Received function did not throw
+    at Object.toThrow (/home/dhruv/work-dhruv/hph/els-work/els/professional/dev-test-devops/level1/react_client/node_modules/expect/build/index.js:285:22)
+    at call (/home/dhruv/work-dhruv/hph/els-work/els/professional/dev-test-devops/level1/react_client/src/api/__tests__/user.test.js:57:40)
+    at Generator._invoke (/home/dhruv/work-dhruv/hph/els-work/els/professional/dev-test-devops/level1/react_client/src/api/__tests__/user.test.js:2:1)
+    at Generator.next (/home/dhruv/work-dhruv/hph/els-work/els/professional/dev-test-devops/level1/react_client/src/api/__tests__/user.test.js:2:1)
+    at asyncGeneratorStep (/home/dhruv/work-dhruv/hph/els-work/els/professional/dev-test-devops/level1/react_client/src/api/__tests__/user.test.js:2:1)
+    at _next (/home/dhruv/work-dhruv/hph/els-work/els/professional/dev-test-devops/level1/react_client/src/api/__tests__/user.test.js:2:1)
+    at /home/dhruv/work-dhruv/hph/els-work/els/professional/dev-test-devops/level1/react_client/src/api/__tests__/user.test.js:2:1
+    at new Promise (&lt;anonymous&gt;)
+    at Object.&lt;anonymous&gt; (/home/dhruv/work-dhruv/hph/els-work/els/professional/dev-test-devops/level1/react_client/src/api/__tests__/user.test.js:2:1)
+    at Promise.then.completed (/home/dhruv/work-dhruv/hph/els-work/els/professional/dev-test-devops/level1/react_client/node_modules/jest-circus/build/utils.js:391:28)
+    at new Promise (&lt;anonymous&gt;)
+    at callAsyncCircusFn (/home/dhruv/work-dhruv/hph/els-work/els/professional/dev-test-devops/level1/react_client/node_modules/jest-circus/build/utils.js:316:10)
+    at _callCircusTest (/home/dhruv/work-dhruv/hph/els-work/els/professional/dev-test-devops/level1/react_client/node_modules/jest-circus/build/run.js:218:40)
+    at processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at _runTest (/home/dhruv/work-dhruv/hph/els-work/els/professional/dev-test-devops/level1/react_client/node_modules/jest-circus/build/run.js:155:3)
+    at _runTestsForDescribeBlock (/home/dhruv/work-dhruv/hph/els-work/els/professional/dev-test-devops/level1/react_client/node_modules/jest-circus/build/run.js:66:9)
+    at _runTestsForDescribeBlock (/home/dhruv/work-dhruv/hph/els-work/els/professional/dev-test-devops/level1/react_client/node_modules/jest-circus/build/run.js:60:9)
+    at _runTestsForDescribeBlock (/home/dhruv/work-dhruv/hph/els-work/els/professional/dev-test-devops/level1/react_client/node_modules/jest-circus/build/run.js:60:9)
+    at run (/home/dhruv/work-dhruv/hph/els-work/els/professional/dev-test-devops/level1/react_client/node_modules/jest-circus/build/run.js:25:3)
+    at runAndTransformResultsToJestFormat (/home/dhruv/work-dhruv/hph/els-work/els/professional/dev-test-devops/level1/react_client/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapterInit.js:170:21)
+    at jestAdapter (/home/dhruv/work-dhruv/hph/els-work/els/professional/dev-test-devops/level1/react_client/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapter.js:82:19)
+    at runTestInternal (/home/dhruv/work-dhruv/hph/els-work/els/professional/dev-test-devops/level1/react_client/node_modules/jest-runner/build/runTest.js:389:16)
+    at runTest (/home/dhruv/work-dhruv/hph/els-work/els/professional/dev-test-devops/level1/react_client/node_modules/jest-runner/build/runTest.js:475:34)
+    at Object.worker (/home/dhruv/work-dhruv/hph/els-work/els/professional/dev-test-devops/level1/react_client/node_modules/jest-runner/build/testWorker.js:133:12)</failure>
+    </testcase>
+    <testcase classname="User API getUsers function getUsers failure throws error with response data" name="User API getUsers function getUsers failure throws error with response data" time="0.001">
+    </testcase>
+    <testcase classname="User API getUsers function getUsers failure without response data throws default error" name="User API getUsers function getUsers failure without response data throws default error" time="0">
+    </testcase>
+    <testcase classname="User API getUsers function network error throws default error message" name="User API getUsers function network error throws default error message" time="0.001">
+    </testcase>
+    <testcase classname="User API createUser function successful createUser returns created user data" name="User API createUser function successful createUser returns created user data" time="0.001">
+    </testcase>
+    <testcase classname="User API createUser function createUser throws error when no JWT token found" name="User API createUser function createUser throws error when no JWT token found" time="0.001">
+      <failure>Error: expect(received).rejects.toThrow(expected)
+
+Expected substring: &quot;No JWT token found&quot;
+
+Received function did not throw
+    at Object.toThrow (/home/dhruv/work-dhruv/hph/els-work/els/professional/dev-test-devops/level1/react_client/node_modules/expect/build/index.js:285:22)
+    at call (/home/dhruv/work-dhruv/hph/els-work/els/professional/dev-test-devops/level1/react_client/src/api/__tests__/user.test.js:136:50)
+    at Generator._invoke (/home/dhruv/work-dhruv/hph/els-work/els/professional/dev-test-devops/level1/react_client/src/api/__tests__/user.test.js:2:1)
+    at Generator.next (/home/dhruv/work-dhruv/hph/els-work/els/professional/dev-test-devops/level1/react_client/src/api/__tests__/user.test.js:2:1)
+    at asyncGeneratorStep (/home/dhruv/work-dhruv/hph/els-work/els/professional/dev-test-devops/level1/react_client/src/api/__tests__/user.test.js:2:1)
+    at _next (/home/dhruv/work-dhruv/hph/els-work/els/professional/dev-test-devops/level1/react_client/src/api/__tests__/user.test.js:2:1)
+    at /home/dhruv/work-dhruv/hph/els-work/els/professional/dev-test-devops/level1/react_client/src/api/__tests__/user.test.js:2:1
+    at new Promise (&lt;anonymous&gt;)
+    at Object.&lt;anonymous&gt; (/home/dhruv/work-dhruv/hph/els-work/els/professional/dev-test-devops/level1/react_client/src/api/__tests__/user.test.js:2:1)
+    at Promise.then.completed (/home/dhruv/work-dhruv/hph/els-work/els/professional/dev-test-devops/level1/react_client/node_modules/jest-circus/build/utils.js:391:28)
+    at new Promise (&lt;anonymous&gt;)
+    at callAsyncCircusFn (/home/dhruv/work-dhruv/hph/els-work/els/professional/dev-test-devops/level1/react_client/node_modules/jest-circus/build/utils.js:316:10)
+    at _callCircusTest (/home/dhruv/work-dhruv/hph/els-work/els/professional/dev-test-devops/level1/react_client/node_modules/jest-circus/build/run.js:218:40)
+    at processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at _runTest (/home/dhruv/work-dhruv/hph/els-work/els/professional/dev-test-devops/level1/react_client/node_modules/jest-circus/build/run.js:155:3)
+    at _runTestsForDescribeBlock (/home/dhruv/work-dhruv/hph/els-work/els/professional/dev-test-devops/level1/react_client/node_modules/jest-circus/build/run.js:66:9)
+    at _runTestsForDescribeBlock (/home/dhruv/work-dhruv/hph/els-work/els/professional/dev-test-devops/level1/react_client/node_modules/jest-circus/build/run.js:60:9)
+    at _runTestsForDescribeBlock (/home/dhruv/work-dhruv/hph/els-work/els/professional/dev-test-devops/level1/react_client/node_modules/jest-circus/build/run.js:60:9)
+    at run (/home/dhruv/work-dhruv/hph/els-work/els/professional/dev-test-devops/level1/react_client/node_modules/jest-circus/build/run.js:25:3)
+    at runAndTransformResultsToJestFormat (/home/dhruv/work-dhruv/hph/els-work/els/professional/dev-test-devops/level1/react_client/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapterInit.js:170:21)
+    at jestAdapter (/home/dhruv/work-dhruv/hph/els-work/els/professional/dev-test-devops/level1/react_client/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapter.js:82:19)
+    at runTestInternal (/home/dhruv/work-dhruv/hph/els-work/els/professional/dev-test-devops/level1/react_client/node_modules/jest-runner/build/runTest.js:389:16)
+    at runTest (/home/dhruv/work-dhruv/hph/els-work/els/professional/dev-test-devops/level1/react_client/node_modules/jest-runner/build/runTest.js:475:34)
+    at Object.worker (/home/dhruv/work-dhruv/hph/els-work/els/professional/dev-test-devops/level1/react_client/node_modules/jest-runner/build/testWorker.js:133:12)</failure>
+    </testcase>
+    <testcase classname="User API createUser function createUser adds role: 1 to user data" name="User API createUser function createUser adds role: 1 to user data" time="0.001">
+    </testcase>
+    <testcase classname="User API createUser function createUser failure throws error with response data" name="User API createUser function createUser failure throws error with response data" time="0.001">
+    </testcase>
+    <testcase classname="User API createUser function createUser failure without response data throws default error" name="User API createUser function createUser failure without response data throws default error" time="0">
+    </testcase>
+    <testcase classname="User API createUser function network error throws default error message" name="User API createUser function network error throws default error message" time="0.001">
+    </testcase>
+  </testsuite>
+</testsuites>

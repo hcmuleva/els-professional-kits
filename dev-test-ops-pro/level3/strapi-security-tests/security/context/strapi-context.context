@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<configuration>
+    <context>
+        <name>Strapi API Context</name>
+        <desc>Security testing context for Strapi APIs</desc>
+        <inscope>true</inscope>
+        <incregexes>http://host.docker.internal:1337/api/.*</incregexes>
+        <tech>
+            <include>Db</include>
+            <include>Db.PostgreSQL</include>
+            <include>Language</include>
+            <include>Language.JavaScript</include>
+            <include>OS</include>
+            <include>OS.Linux</include>
+            <include>SCM</include>
+            <include>WS</include>
+        </tech>
+        <urlparser>
+            <class>org.zaproxy.zap.model.StandardParameterParser</class>
+            <config>{"kvps":"&amp;","kvs":"=","struct":[]}</config>
+        </urlparser>
+        <authentication>
+            <type>1</type>
+            <strategy>EACH_RESP</strategy>
+            <pollurl></pollurl>
+            <polldata></polldata>
+            <pollheaders></pollheaders>
+            <pollfreq>60</pollfreq>
+            <pollunits>REQUESTS</pollunits>
+        </authentication>
+        <users>
+            <user>testuser;true</user>
+        </users>
+        <forceduser>-1</forceduser>
+        <session>
+            <type>0</type>
+        </session>
+        <authorization>
+            <type>0</type>
+            <basic>
+                <header></header>
+                <body></body>
+                <logic>AND</logic>
+                <code>-1</code>
+            </basic>
+        </authorization>
+    </context>
+</configuration>

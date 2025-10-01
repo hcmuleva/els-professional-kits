@@ -1,0 +1,6 @@
+apiVersion: v2
+name: pact-broker-stack
+description: Helm chart for Pact Broker + PostgreSQL (local dev)
+type: application
+version: 0.1.0
+appVersion: "1.0.0"
