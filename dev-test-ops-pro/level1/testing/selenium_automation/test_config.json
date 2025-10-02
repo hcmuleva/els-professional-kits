@@ -1,0 +1,14 @@
+{
+    "url": "http://localhost:3000",
+    "email": "hcm1@a.com",
+    "password": "dddddsds",
+    "locator_type": "By.XPATH",
+    "login_button_locator": "//*[@id=\"root\"]/div/form/button",
+    "email_locator": "//*[@id=\"root\"]/div/form/input[1]",
+    "password_locator": "//*[@id=\"root\"]/div/form/input[2]",
+    "submit_button_locator": "//*[@id=\"root\"]/div/form/button",
+    "login_success_indicator": "//a[contains(text(), 'Logout')]",
+    "login_indicator_type": "element",
+    "logout_success_indicator": "//button[contains(text(), 'Login')]",
+    "logout_indicator_type": "element"
+}
