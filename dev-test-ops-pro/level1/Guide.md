@@ -65,7 +65,6 @@ curl -X POST http://localhost:5002/api/register \
   -H "Content-Type: application/json" \
   -d '{"username":"harish","email":"harisgh@a.com","password":"secret"}'
 
-
 #5. Login
 curl -X POST http://localhost:5002/api/login \
     -H "Content-Type: application/json" \

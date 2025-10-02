@@ -1,7 +1,7 @@
 {
-    "url": "http://localhost:3000",
-    "email": "hcm1@a.com",
-    "password": "dddddsds",
+    "url": "http://localhost:3001",
+    "email": "user1@emeelan.com",
+    "password": "secret",
     "locator_type": "By.XPATH",
     "login_button_locator": "//*[@id=\"root\"]/div/form/button",
     "email_locator": "//*[@id=\"root\"]/div/form/input[1]",
@@ -11,4 +11,4 @@
     "login_indicator_type": "element",
     "logout_success_indicator": "//button[contains(text(), 'Login')]",
     "logout_indicator_type": "element"
-}
+}   
