@@ -209,13 +209,3 @@ pids/
 # Docker
 # ===========================================
 docker-compose.override.yml
-node_modules
-venv
-.env
-*.log
-build
-dist
-.DS_Store
-.idea
-.vscode
-.pytest_cache

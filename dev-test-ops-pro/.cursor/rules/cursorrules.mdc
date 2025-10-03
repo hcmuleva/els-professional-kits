@@ -1,0 +1,10 @@
+---
+description: Exclude secrets and clutter
+globs:
+  exclude:
+    - ".env"
+    - ".env.*"
+    - "node_modules/**"
+    - ".venv/**"
+alwaysApply: true
+---
