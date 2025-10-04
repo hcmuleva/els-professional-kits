@@ -24,9 +24,9 @@ def main():
     
     # Define ports to check
     ports_to_check = [
-        (5432, "PostgreSQL Database"),
-        (5000, "Flask API Server"), 
-        (3000, "React Development Server")
+        (5454, "PostgreSQL Database"),
+        (5050, "Flask API Server"), 
+        (3030, "React Development Server")
     ]
     
     all_available = True
@@ -41,13 +41,13 @@ def main():
         print("\n🚨 PORT CONFLICTS DETECTED!")
         print("Please update the following ports in 'devops/docker-compose.yml':")
         print("\nCurrent configuration:")
-        print("  - PostgreSQL: 5432")
-        print("  - Flask API: 5000") 
-        print("  - React: 3000")
+        print("  - PostgreSQL: 5454")
+        print("  - Flask API: 5050") 
+        print("  - React: 3030")
         print("\n💡 How to fix:")
         print("1. Stop the services using these ports, OR")
         print("2. Modify the port mappings in devops/docker-compose.yml")
-        print("   Example: change '5432:5432' to '5433:5432'")
+        print("   Example: change '5454:5432' to '5455:5432'")
         sys.exit(1)
     else:
         print("🎉 All ports are available! You can start the system.")

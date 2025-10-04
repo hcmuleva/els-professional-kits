@@ -12,7 +12,7 @@ echo "=========================================="
 # Check if Python is available for port checking
 if command -v python3 &> /dev/null; then
     echo "🔍 Checking port availability..."
-    if ! python3 check-ports.py; then
+    if ! python3 ../port-check.py; then
         echo -e "${RED}❌ Port check failed. Please resolve port conflicts.${NC}"
         exit 1
     fi
@@ -42,9 +42,9 @@ if [ $? -eq 0 ]; then
     echo ""
     echo "📊 Services Status:"
     echo "------------------------------------------"
-    echo "• PostgreSQL Database: http://localhost:5432"
-    echo "• Flask API Server:    http://localhost:5000" 
-    echo "• React Client:        http://localhost:3000"
+    echo "• PostgreSQL Database: http://localhost:5454"
+    echo "• Flask API Server:    http://localhost:5050" 
+    echo "• React Client:        http://localhost:3030"
     echo ""
     echo "🔍 To view logs: cd devops && docker-compose logs -f"
     echo "🛑 To stop: cd devops && docker-compose down"
