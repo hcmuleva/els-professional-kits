@@ -1,0 +1,57 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:13
+    container_name: auth_postgres
+    environment:
+      POSTGRES_DB: ${DB_NAME:-appdb}
+      POSTGRES_USER: ${DB_USER:-appuser}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-password}
+    ports:
+      - "${DB_PORT:-5454}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-appuser} -d ${DB_NAME:-appdb}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Flask API Server
+  apiserver:
+    build: ../development/apiserver_1
+    container_name: flask_api
+    ports:
+      - "${API_PORT:-5050}:5050"
+    environment:
+      POSTGRES_HOST: postgres
+      POSTGRES_USER: ${DB_USER:-appuser}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-password}
+      POSTGRES_DB: ${DB_NAME:-appdb}
+      POSTGRES_PORT: 5432
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - ../development/apiserver_1:/app
+    command: python app/app.py
+  # React Client
+  react-client:
+    build: ../development/react_client1
+    container_name: react_app
+    ports:
+      - "${REACT_PORT:-3030}:3030"
+    environment:
+      REACT_APP_API_URL: http://localhost:${API_PORT:-5050}
+    depends_on:
+      - apiserver
+    volumes:
+      - ../development/react_client1:/app
+      - /app/node_modules
+    command: npm start
+
+volumes:
+  postgres_data:

@@ -29,6 +29,9 @@ __pycache__/
 build/
 develop-eggs/
 dist/
+venv/
+.venv
+venv
 downloads/
 eggs/
 .eggs/
@@ -209,13 +212,3 @@ pids/
 # Docker
 # ===========================================
 docker-compose.override.yml
-node_modules
-venv
-.env
-*.log
-build
-dist
-.DS_Store
-.idea
-.vscode
-.pytest_cache
