@@ -148,6 +148,76 @@ def get_users():
     return jsonify([u.to_dict() for u in users]), 200
 
 # -----------------------------
+# User CRUD Operations
+# -----------------------------
+@app.route("/api/users/<int:user_id>", methods=["GET"])
+@token_required
+def get_user(user_id):
+    user = User.query.get(user_id)
+    if not user:
+        return jsonify({"error": "User not found"}), 404
+    return jsonify(user.to_dict()), 200
+
+
+@app.route("/api/users", methods=["POST"])
+@token_required
+def create_user():
+    data = request.get_json(silent=True) or {}
+    username = (data.get("username") or "").strip()
+    email = (data.get("email") or "").strip().lower()
+    password = data.get("password") or ""
+    role = (data.get("role") or "student").strip()
+
+    if not username or not email or not password:
+        return jsonify({"error": "username, email, and password are required"}), 400
+
+    if User.query.filter_by(email=email).first():
+        return jsonify({"error": "Email already exists"}), 409
+
+    new_user = User(
+        username=username,
+        email=email,
+        password_hash=generate_password_hash(password),
+        role=role,
+    )
+    db.session.add(new_user)
+    db.session.commit()
+    return jsonify({"message": "User created", "user": new_user.to_dict()}), 201
+
+
+@app.route("/api/users/<int:user_id>", methods=["PUT"])
+@token_required
+def update_user(user_id):
+    user = User.query.get(user_id)
+    if not user:
+        return jsonify({"error": "User not found"}), 404
+
+    data = request.get_json(silent=True) or {}
+    if "username" in data:
+        user.username = data["username"].strip()
+    if "email" in data:
+        user.email = data["email"].strip().lower()
+    if "password" in data and data["password"]:
+        user.password_hash = generate_password_hash(data["password"])
+    if "role" in data:
+        user.role = data["role"]
+
+    db.session.commit()
+    return jsonify({"message": "User updated", "user": user.to_dict()}), 200
+
+
+@app.route("/api/users/<int:user_id>", methods=["DELETE"])
+@token_required
+def delete_user(user_id):
+    user = User.query.get(user_id)
+    if not user:
+        return jsonify({"error": "User not found"}), 404
+    db.session.delete(user)
+    db.session.commit()
+    return jsonify({"message": "User deleted"}), 200
+
+
+# -----------------------------
 # Entry
 # -----------------------------
 if __name__ == "__main__":
