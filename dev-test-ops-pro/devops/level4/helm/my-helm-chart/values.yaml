@@ -1,0 +1,31 @@
+# Common configuration
+replicaCount: 1
+imagePullPolicy: Never
+
+# React App configuration
+reactApp:
+  name: react-app
+  image: my-react-app
+  containerPort: 80
+  servicePort: 80
+
+# Hello World configuration
+helloApp:
+  name: hello-world
+  image: gcr.io/google-samples/hello-app:1.0
+  containerPort: 8080
+  servicePort: 80
+
+# Ingress configuration
+ingress:
+  enabled: true
+  name: example-ingress
+  className: nginx
+  host: localhost
+  paths:
+    - path: /hello
+      service: hello-world-service
+      port: 80
+    - path: /ui
+      service: react-app-service
+      port: 80
