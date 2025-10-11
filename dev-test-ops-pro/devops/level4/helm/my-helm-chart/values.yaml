@@ -1,27 +1,82 @@
+# ===========================================
 # Common configuration
+# ===========================================
 replicaCount: 1
 imagePullPolicy: Never
 
+# ===========================================
 # React App configuration
+# ===========================================
 reactApp:
   name: react-app
   image: my-react-app
   containerPort: 80
   servicePort: 80
 
+# ===========================================
 # Hello World configuration
+# ===========================================
 helloApp:
   name: hello-world
   image: gcr.io/google-samples/hello-app:1.0
   containerPort: 8080
   servicePort: 80
 
+# ===========================================
+# Postgres configuration (for Strapi)
+# ===========================================
+postgres:
+  enabled: true
+  name: postgres
+  image: postgres:15
+  imagePullPolicy: IfNotPresent
+  containerPort: 5432
+  servicePort: 5432
+  username: postgres
+  password: postgres
+  database: temple
+  readinessProbe:
+    initialDelaySeconds: 5
+    periodSeconds: 5
+
+# ===========================================
+# Strapi v4 (API server) configuration
+# ===========================================
+apiserver:
+  enabled: true
+  name: temple-api
+  image: harishdell/templeserver:1.12
+  imagePullPolicy: IfNotPresent
+  containerPort: 1337
+  servicePort: 1337
+  env:
+    HOST: "0.0.0.0"
+    PORT: "1337"
+    APP_KEYS: "sdsdfdfdfdf=="
+    API_TOKEN_SALT: "dsfdsfdfdsf+hBjr/IyA=="
+    ADMIN_JWT_SECRET: "N/sdfdf+NcRZqSZGg=="
+    TRANSFER_TOKEN_SALT: "ejRh3Y0EZIuiiugDOjG/aA=="
+    JWT_SECRET: "1wSZkXbAtraP54mnahljZQ=="
+    DATABASE_CLIENT: "postgres"
+    DATABASE_HOST: "postgres-service"
+    DATABASE_PORT: "5432"
+    DATABASE_NAME: "temple"
+    DATABASE_USERNAME: "postgres"
+    DATABASE_PASSWORD: "postgres"
+    CENTRALIZED_SERVER: "http://localhost"
+    AWS_ACCESS_KEY_ID: "<set-in-secret>"
+    AWS_ACCESS_SECRET: "<set-in-secret>"
+    AWS_REGION: "us-east-1"
+    AWS_BUCKET: "hphmeelan"
+    ABLY_API_KEY: "xul13A.CNpeww:KkS0rh8M4rJSr5r4gHNGbMijYuxvr90ybz1UQd6uKpw"
+
+# ===========================================
 # Ingress configuration
+# ===========================================
 ingress:
   enabled: true
-  name: example-ingress
+  name: web-suite-ingress
   className: nginx
-  host: localhost
   paths:
     - path: /hello
       service: hello-world-service
@@ -29,3 +84,12 @@ ingress:
     - path: /ui
       service: react-app-service
       port: 80
+    - path: /api
+      service: temple-api-service
+      port: 1337
+    - path: /admin
+      service: temple-api-service
+      port: 1337
+    - path: /i18n
+      service: temple-api-service
+      port: 1337

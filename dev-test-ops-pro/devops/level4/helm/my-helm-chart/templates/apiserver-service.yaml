@@ -1,0 +1,15 @@
+{{- if .Values.apiserver.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.apiserver.name }}-service
+  labels:
+    app: {{ .Values.apiserver.name }}
+spec:
+  selector:
+    app: {{ .Values.apiserver.name }}
+  ports:
+    - port: {{ .Values.apiserver.servicePort }}
+      targetPort: {{ .Values.apiserver.containerPort }}
+      protocol: TCP
+{{- end }}
