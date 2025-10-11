@@ -1,0 +1,37 @@
+# Deployment for your React application
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: react-app-deployment
+  labels:
+    app: react-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: react-app
+  template:
+    metadata:
+      labels:
+        app: react-app
+    spec:
+      containers:
+      - name: react-app
+        image: my-react-app # Use the image built in the previous step
+        imagePullPolicy: Never # Tell Kubernetes not to pull from a registry
+
+        ports:
+        - containerPort: 80
+---
+# Service for your React application
+apiVersion: v1
+kind: Service
+metadata:
+  name: react-app-service
+spec:
+  ports:
+  - port: 80
+    targetPort: 80
+  selector:
+    app: react-app
+

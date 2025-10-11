@@ -1,0 +1,19 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ include "my-react-app.fullname" . }}
+  labels:
+    app: {{ include "my-react-app.name" . }}
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: {{ .Values.ingress.host }}
+      http:
+        paths:
+          - path: /ui
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ include "my-react-app.fullname" . }}
+                port:
+                  number: 80
