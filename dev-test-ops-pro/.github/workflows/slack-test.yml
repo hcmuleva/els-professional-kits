@@ -1,0 +1,21 @@
+name: Slack Test Message
+
+on:
+  push:
+    branches:
+      - "**"  # Run on any branch push
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Send message to Slack
+        uses: slackapi/slack-github-action@v1.27.0
+        with:
+          payload: |
+            {
+              "text": ":rocket: A new commit was pushed by *${{ github.actor }}* to *${{ github.repository }}* on branch *${{ github.ref_name }}*"
+            }
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
