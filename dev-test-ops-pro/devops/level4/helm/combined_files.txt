@@ -1,0 +1,633 @@
+--- FILE: ./my-helm-chart/Chart.yaml ---
+apiVersion: v2
+name: web-suite
+description: React UI + Hello World backend with shared ingress
+type: application
+version: 0.1.0
+appVersion: "1.0"
+
+--- FILE: ./my-helm-chart/templates/hello-deployment.yaml ---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.helloApp.name }}-deployment
+  labels:
+    app: {{ .Values.helloApp.name }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ .Values.helloApp.name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.helloApp.name }}
+    spec:
+      containers:
+      - name: {{ .Values.helloApp.name }}
+        image: {{ .Values.helloApp.image }}
+        imagePullPolicy: {{ .Values.imagePullPolicy }}
+        ports:
+          - containerPort: {{ .Values.helloApp.containerPort }}
+
+--- FILE: ./my-helm-chart/templates/postgres-deployment.yaml ---
+{{- if .Values.postgres.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.postgres.name }}-deployment
+  labels:
+    app: {{ .Values.postgres.name }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ .Values.postgres.name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.postgres.name }}
+    spec:
+      containers:
+        - name: {{ .Values.postgres.name }}
+          image: {{ .Values.postgres.image }}
+          imagePullPolicy: {{ .Values.postgres.imagePullPolicy }}
+          ports:
+            - containerPort: {{ .Values.postgres.containerPort }}
+          env:
+            - name: POSTGRES_USER
+              value: "{{ .Values.postgres.username }}"
+            - name: POSTGRES_PASSWORD
+              value: "{{ .Values.postgres.password }}"
+            - name: POSTGRES_DB
+              value: "{{ .Values.postgres.database }}"
+          readinessProbe:
+            tcpSocket:
+              port: {{ .Values.postgres.containerPort }}
+            initialDelaySeconds: {{ .Values.postgres.readinessProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.postgres.readinessProbe.periodSeconds }}
+{{- end }}
+
+--- FILE: ./my-helm-chart/templates/hello-service.yaml ---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.helloApp.name }}-service
+  labels:
+    app: {{ .Values.helloApp.name }}
+spec:
+  type: NodePort
+  selector:
+    app: {{ .Values.helloApp.name }}
+  ports:
+    - port: {{ .Values.helloApp.servicePort }}
+      targetPort: {{ .Values.helloApp.containerPort }}
+
+--- FILE: ./my-helm-chart/templates/ingress.yaml ---
+{{- if .Values.ingress.enabled }}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ .Values.ingress.name }}
+  annotations:
+    kubernetes.io/ingress.class: {{ .Values.ingress.className | quote }}
+spec:
+  ingressClassName: {{ .Values.ingress.className }}
+  rules:
+  - http:
+      paths:
+      {{- range .Values.ingress.paths }}
+      - path: {{ .path }}
+        pathType: Prefix
+        backend:
+          service:
+            name: {{ .service }}
+            port:
+              number: {{ .port }}
+      {{- end }}
+{{- end }}
+
+--- FILE: ./my-helm-chart/templates/react-service.yaml ---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.reactApp.name }}-service
+  labels:
+    app: {{ .Values.reactApp.name }}
+spec:
+  selector:
+    app: {{ .Values.reactApp.name }}
+  ports:
+    - port: {{ .Values.reactApp.servicePort }}
+      targetPort: {{ .Values.reactApp.containerPort }}
+
+--- FILE: ./my-helm-chart/templates/postgres-service.yaml ---
+{{- if .Values.postgres.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.postgres.name }}-service
+  labels:
+    app: {{ .Values.postgres.name }}
+spec:
+  selector:
+    app: {{ .Values.postgres.name }}
+  ports:
+    - port: {{ .Values.postgres.servicePort }}
+      targetPort: {{ .Values.postgres.containerPort }}
+      protocol: TCP
+{{- end }}
+
+--- FILE: ./my-helm-chart/templates/apiserver-deployment.yaml ---
+{{- if .Values.apiserver.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.apiserver.name }}-deployment
+  labels:
+    app: {{ .Values.apiserver.name }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ .Values.apiserver.name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.apiserver.name }}
+    spec:
+      initContainers:
+        - name: wait-for-postgres
+          image: busybox:1.36
+          command:
+            ['sh', '-c', 'echo "Waiting for Postgres..."; until nc -z {{ .Values.postgres.name }}-service {{ .Values.postgres.servicePort }}; do sleep 2; done; echo "Postgres is up!"']
+      containers:
+        - name: {{ .Values.apiserver.name }}
+          image: {{ .Values.apiserver.image }}
+          imagePullPolicy: {{ .Values.apiserver.imagePullPolicy }}
+          ports:
+            - containerPort: {{ .Values.apiserver.containerPort }}
+          env:
+            {{- range $key, $value := .Values.apiserver.env }}
+            - name: {{ $key }}
+              value: "{{ $value }}"
+            {{- end }}
+{{- end }}
+
+--- FILE: ./my-helm-chart/templates/apiserver-service.yaml ---
+{{- if .Values.apiserver.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.apiserver.name }}-service
+  labels:
+    app: {{ .Values.apiserver.name }}
+spec:
+  selector:
+    app: {{ .Values.apiserver.name }}
+  ports:
+    - port: {{ .Values.apiserver.servicePort }}
+      targetPort: {{ .Values.apiserver.containerPort }}
+      protocol: TCP
+{{- end }}
+
+--- FILE: ./my-helm-chart/templates/react-deployment.yaml ---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.reactApp.name }}-deployment
+  labels:
+    app: {{ .Values.reactApp.name }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ .Values.reactApp.name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.reactApp.name }}
+    spec:
+      containers:
+      - name: {{ .Values.reactApp.name }}
+        image: {{ .Values.reactApp.image }}
+        imagePullPolicy: {{ .Values.imagePullPolicy }}
+        ports:
+          - containerPort: {{ .Values.reactApp.containerPort }}
+
+--- FILE: ./my-helm-chart/values.yaml ---
+# Common configuration
+replicaCount: 1
+imagePullPolicy: Never
+
+# React App configuration
+reactApp:
+  name: react-app
+  image: my-react-app
+  containerPort: 80
+  servicePort: 80
+
+# Hello World configuration
+helloApp:
+  name: hello-world
+  image: gcr.io/google-samples/hello-app:1.0
+  containerPort: 8080
+  servicePort: 80
+
+# Ingress configuration
+ingress:
+  paths:
+    - path: /hello
+      service: hello-world-service
+      port: 80
+    - path: /ui
+      service: react-app-service
+      port: 80
+    - path: /api
+      service: temple-api-service
+      port: 1337
+    - path: /admin
+      service: temple-api-service
+      port: 1337
+    - path: /i18n          
+      service: temple-api-service
+      port: 1337
+
+--- FILE: ./test_output.txt ---
+
+
+--- FILE: ./my-helm-chart/Chart.yaml ---
+
+apiVersion: v2
+name: web-suite
+description: React UI + Hello World backend with shared ingress
+type: application
+version: 0.1.0
+appVersion: "1.0"
+
+
+--- FILE: ./my-helm-chart/templates/hello-deployment.yaml ---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.helloApp.name }}-deployment
+  labels:
+    app: {{ .Values.helloApp.name }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ .Values.helloApp.name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.helloApp.name }}
+    spec:
+      containers:
+      - name: {{ .Values.helloApp.name }}
+        image: {{ .Values.helloApp.image }}
+        imagePullPolicy: {{ .Values.imagePullPolicy }}
+        ports:
+          - containerPort: {{ .Values.helloApp.containerPort }}
+
+
+--- FILE: ./my-helm-chart/templates/postgres-deployment.yaml ---
+
+{{- if .Values.postgres.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.postgres.name }}-deployment
+  labels:
+    app: {{ .Values.postgres.name }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ .Values.postgres.name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.postgres.name }}
+    spec:
+      containers:
+        - name: {{ .Values.postgres.name }}
+          image: {{ .Values.postgres.image }}
+          imagePullPolicy: {{ .Values.postgres.imagePullPolicy }}
+          ports:
+            - containerPort: {{ .Values.postgres.containerPort }}
+          env:
+            - name: POSTGRES_USER
+              value: "{{ .Values.postgres.username }}"
+            - name: POSTGRES_PASSWORD
+              value: "{{ .Values.postgres.password }}"
+            - name: POSTGRES_DB
+              value: "{{ .Values.postgres.database }}"
+          readinessProbe:
+            tcpSocket:
+              port: {{ .Values.postgres.containerPort }}
+            initialDelaySeconds: {{ .Values.postgres.readinessProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.postgres.readinessProbe.periodSeconds }}
+{{- end }}
+
+
+--- FILE: ./my-helm-chart/templates/hello-service.yaml ---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.helloApp.name }}-service
+  labels:
+    app: {{ .Values.helloApp.name }}
+spec:
+  type: NodePort
+  selector:
+    app: {{ .Values.helloApp.name }}
+  ports:
+    - port: {{ .Values.helloApp.servicePort }}
+      targetPort: {{ .Values.helloApp.containerPort }}
+
+
+--- FILE: ./my-helm-chart/templates/ingress.yaml ---
+
+{{- if .Values.ingress.enabled }}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ .Values.ingress.name }}
+  annotations:
+    kubernetes.io/ingress.class: {{ .Values.ingress.className | quote }}
+spec:
+  ingressClassName: {{ .Values.ingress.className }}
+  rules:
+  - http:
+      paths:
+      {{- range .Values.ingress.paths }}
+      - path: {{ .path }}
+        pathType: Prefix
+        backend:
+          service:
+            name: {{ .service }}
+            port:
+              number: {{ .port }}
+      {{- end }}
+{{- end }}
+
+--- FILE: ./tbd.txt ---
+--- FILE: ./my-helm-chart/Chart.yaml ---
+apiVersion: v2
+name: web-suite
+description: React UI + Hello World backend with shared ingress
+type: application
+version: 0.1.0
+appVersion: "1.0"
+
+--- FILE: ./my-helm-chart/templates/hello-deployment.yaml ---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.helloApp.name }}-deployment
+  labels:
+    app: {{ .Values.helloApp.name }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ .Values.helloApp.name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.helloApp.name }}
+    spec:
+      containers:
+      - name: {{ .Values.helloApp.name }}
+        image: {{ .Values.helloApp.image }}
+        imagePullPolicy: {{ .Values.imagePullPolicy }}
+        ports:
+          - containerPort: {{ .Values.helloApp.containerPort }}
+
+--- FILE: ./my-helm-chart/templates/postgres-deployment.yaml ---
+{{- if .Values.postgres.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.postgres.name }}-deployment
+  labels:
+    app: {{ .Values.postgres.name }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ .Values.postgres.name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.postgres.name }}
+    spec:
+      containers:
+        - name: {{ .Values.postgres.name }}
+          image: {{ .Values.postgres.image }}
+          imagePullPolicy: {{ .Values.postgres.imagePullPolicy }}
+          ports:
+            - containerPort: {{ .Values.postgres.containerPort }}
+          env:
+            - name: POSTGRES_USER
+              value: "{{ .Values.postgres.username }}"
+            - name: POSTGRES_PASSWORD
+              value: "{{ .Values.postgres.password }}"
+            - name: POSTGRES_DB
+              value: "{{ .Values.postgres.database }}"
+          readinessProbe:
+            tcpSocket:
+              port: {{ .Values.postgres.containerPort }}
+            initialDelaySeconds: {{ .Values.postgres.readinessProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.postgres.readinessProbe.periodSeconds }}
+{{- end }}
+
+--- FILE: ./my-helm-chart/templates/hello-service.yaml ---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.helloApp.name }}-service
+  labels:
+    app: {{ .Values.helloApp.name }}
+spec:
+  type: NodePort
+  selector:
+    app: {{ .Values.helloApp.name }}
+  ports:
+    - port: {{ .Values.helloApp.servicePort }}
+      targetPort: {{ .Values.helloApp.containerPort }}
+
+--- FILE: ./my-helm-chart/templates/ingress.yaml ---
+{{- if .Values.ingress.enabled }}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ .Values.ingress.name }}
+  annotations:
+    kubernetes.io/ingress.class: {{ .Values.ingress.className | quote }}
+spec:
+  ingressClassName: {{ .Values.ingress.className }}
+  rules:
+  - http:
+      paths:
+      {{- range .Values.ingress.paths }}
+      - path: {{ .path }}
+        pathType: Prefix
+        backend:
+          service:
+            name: {{ .service }}
+            port:
+              number: {{ .port }}
+      {{- end }}
+{{- end }}
+
+--- FILE: ./my-helm-chart/templates/react-service.yaml ---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.reactApp.name }}-service
+  labels:
+    app: {{ .Values.reactApp.name }}
+spec:
+  selector:
+    app: {{ .Values.reactApp.name }}
+  ports:
+    - port: {{ .Values.reactApp.servicePort }}
+      targetPort: {{ .Values.reactApp.containerPort }}
+
+--- FILE: ./my-helm-chart/templates/postgres-service.yaml ---
+{{- if .Values.postgres.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.postgres.name }}-service
+  labels:
+    app: {{ .Values.postgres.name }}
+spec:
+  selector:
+    app: {{ .Values.postgres.name }}
+  ports:
+    - port: {{ .Values.postgres.servicePort }}
+      targetPort: {{ .Values.postgres.containerPort }}
+      protocol: TCP
+{{- end }}
+
+--- FILE: ./my-helm-chart/templates/apiserver-deployment.yaml ---
+{{- if .Values.apiserver.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.apiserver.name }}-deployment
+  labels:
+    app: {{ .Values.apiserver.name }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ .Values.apiserver.name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.apiserver.name }}
+    spec:
+      initContainers:
+        - name: wait-for-postgres
+          image: busybox:1.36
+          command:
+            ['sh', '-c', 'echo "Waiting for Postgres..."; until nc -z {{ .Values.postgres.name }}-service {{ .Values.postgres.servicePort }}; do sleep 2; done; echo "Postgres is up!"']
+      containers:
+        - name: {{ .Values.apiserver.name }}
+          image: {{ .Values.apiserver.image }}
+          imagePullPolicy: {{ .Values.apiserver.imagePullPolicy }}
+          ports:
+            - containerPort: {{ .Values.apiserver.containerPort }}
+          env:
+            {{- range $key, $value := .Values.apiserver.env }}
+            - name: {{ $key }}
+              value: "{{ $value }}"
+            {{- end }}
+{{- end }}
+
+--- FILE: ./my-helm-chart/templates/apiserver-service.yaml ---
+{{- if .Values.apiserver.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.apiserver.name }}-service
+  labels:
+    app: {{ .Values.apiserver.name }}
+spec:
+  selector:
+    app: {{ .Values.apiserver.name }}
+  ports:
+    - port: {{ .Values.apiserver.servicePort }}
+      targetPort: {{ .Values.apiserver.containerPort }}
+      protocol: TCP
+{{- end }}
+
+--- FILE: ./my-helm-chart/templates/react-deployment.yaml ---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.reactApp.name }}-deployment
+  labels:
+    app: {{ .Values.reactApp.name }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ .Values.reactApp.name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.reactApp.name }}
+    spec:
+      containers:
+      - name: {{ .Values.reactApp.name }}
+        image: {{ .Values.reactApp.image }}
+        imagePullPolicy: {{ .Values.imagePullPolicy }}
+        ports:
+          - containerPort: {{ .Values.reactApp.containerPort }}
+
+--- FILE: ./my-helm-chart/values.yaml ---
+# Common configuration
+replicaCount: 1
+imagePullPolicy: Never
+
+# React App configuration
+reactApp:
+  name: react-app
+  image: my-react-app
+  containerPort: 80
+  servicePort: 80
+
+# Hello World configuration
+helloApp:
+  name: hello-world
+  image: gcr.io/google-samples/hello-app:1.0
+  containerPort: 8080
+  servicePort: 80
+
+# Ingress configuration
+ingress:
+  paths:
+    - path: /hello
+      service: hello-world-service
+      port: 80
+    - path: /ui
+      service: react-app-service
+      port: 80
+    - path: /api
+      service: temple-api-service
+      port: 1337
+    - path: /admin
+      service: temple-api-service
+      port: 1337
+    - path: /i18n          
+      service: temple-api-service
+      port: 1337
+
+
