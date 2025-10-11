@@ -1,0 +1,189 @@
+OUTPUT_FILE="combined_files.txt"
+
+# List of binary extensions to skip (space separated in the pattern)
+BINARY_EXTENSIONS="*.png *.jpg *.jpeg *.gif *.pdf *.zip *.tar *.gz *.o *.obj *.exe *.dll *.bin *.ttf *.woff *.woff2 *.class *.jar"
+
+find . -type f ! -name "$OUTPUT_FILE" -print0 | while IFS= read -r -d '' file; do
+    if [ -r "$file" ]; then
+        # Check if the file extension matches any of the binary extensions
+        skip=false
+        for ext in $BINARY_EXTENSIONS; do
+            # Using case insensitive matching for extensions
+            if [[ "$file" =~ \.$ext$ ]]; then
+                skip=true
+                break
+            fi
+        done
+
+        if [ "$skip" = true ]; then
+            echo "--- FILE: $file --- (binary, skipped)"
+        else
+            echo "--- FILE: $file ---"
+            cat "$file"
+            echo ""
+        fi
+    else
+        echo "--- FILE: $file --- (unreadable, skipped)"
+    fi
+done > "$OUTPUT_FILE"
+
+
+Below is for 10 files
+# Test with just 10 files first
+OUTPUT_FILE="test_output.txt"
+touch "$OUTPUT_FILE"
+find . -type f ! -name "$OUTPUT_FILE" ! -path "*/.*" | head -10 | while read file; do
+    echo -e "\n\n--- FILE: $file ---\n"
+    cat "$file" 2>/dev/null || echo "[Error]"
+done > "$OUTPUT_FILE"
+
+
+
+ArgoCD:
+
+
+Part1:
+🚀 Step 1. Install Argo CD
+Run the official install manifest:
+kubectl create namespace argocd
+kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
+Check status:
+kubectl get pods -n argocd
+You should see multiple pods like:
+argocd-server, argocd-repo-server, argocd-application-controller ...
+🌐 Step 2. Expose the Argo CD UI locally
+Since you’re on Docker Desktop, you can use port-forward:
+kubectl port-forward svc/argocd-server -n argocd 8080:443
+Now open your browser →
+🔗 https://localhost:8080
+Login credentials:
+# Username:
+admin
+
+# Password (auto-generated):
+kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d && echo
+🧭 Step 3. Connect Argo CD to your GitHub repo
+From the Argo CD UI →
+Settings → Repositories → Connect Repo using HTTPS
+Or from CLI:
+argocd repo add https://github.com/hcmuleva/els-professional-kits.git \
+  --username YOUR_GITHUB_USERNAME \
+  --password YOUR_GITHUB_TOKEN
+💡 Tip: Use a personal access token (classic) with repo scope from GitHub.
+If your repo is public, you can skip --username/--password.
+🏗️ Step 4. Create an Argo CD Application for your Helm chart
+Create web-suite-app.yaml (this is an ArgoCD Application definition):
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: web-suite
+  namespace: argocd
+spec:
+  project: default
+
+  source:
+    repoURL: 'https://github.com/hcmuleva/els-professional-kits.git'
+    targetRevision: feature/level4      # or main, depending on your branch
+    path: dev-test-ops-pro/devops/level4/helm/my-helm-chart
+
+    helm:
+      valueFiles:
+        - values.yaml                   # or values.local.yaml if you push safe file
+
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: default
+
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+Apply it:
+kubectl apply -f web-suite-app.yaml
+⚙️ Step 5. Verify Deployment via Argo CD UI
+Go to
+🔗 https://localhost:8080
+You’ll see:
+Application: web-suite
+Status: Synced
+Health: Healthy
+Argo CD will automatically install your my-helm-chart in the default namespace.
+🧩 Step 6. Automatic Sync on Git Push
+Every time you commit and push changes to your Helm chart folder (e.g., modify templates or values.yaml), Argo CD detects the change and re-deploys automatically within ~3 minutes (default interval).
+You can also force a sync:
+argocd app sync web-suite
+🧱 Optional Enhancements
+1️⃣ Configure external access (Ingress)
+If you prefer browser access at http://argocd.local:
+kubectl apply -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/ingress/ingress-nginx.yaml
+Or add this to your /etc/hosts:
+127.0.0.1 argocd.local
+2️⃣ Manage Secrets securely
+Use Kubernetes secrets or external secret stores (e.g., SOPS or HashiCorp Vault) instead of pushing keys in Git.
+Argo CD supports SealedSecrets natively.
+✅ Final Architecture Overview
+GitHub Repo (my-helm-chart)
+       ↓
+   Argo CD (monitors branch)
+       ↓
+   Kubernetes (Docker Desktop)
+       ├─ React UI
+       ├─ Hello World
+       ├─ Postgres
+       └─ Strapi v4 API
+🧠 TL;DR Commands Recap
+# Install ArgoCD
+kubectl create ns argocd
+kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
+
+# Forward UI
+kubectl port-forward svc/argocd-server -n argocd 8080:443
+
+# Add Git repo
+argocd repo add https://github.com/hcmuleva/els-professional-kits.git --username <user> --password <token>
+
+# Create application
+kubectl apply -f web-suite-app.yaml
+Would you like me to generate the web-suite-app.yaml manifest fully tailored to your repo’s exact path (dev-test-ops-pro/devops/level4/helm/my-helm-chart) and branch (e.g. feature/level4)?
+I can make it copy-paste ready.
+
+Part2:
+
+
+
+How to get secret for admin 
+kubectl -n argocd get secret argocd-initial-admin-secret \
+  -o jsonpath="{.data.password}" | base64 -d && echo 
+
+  🛠️ Option 1 — Quick patch command (recommended)
+Run this one-liner:
+kubectl -n argocd annotate ingress argocd-ingress \
+  nginx.ingress.kubernetes.io/backend-protocol="HTTP" \
+  --overwrite
+✅ This updates only the annotation (replaces "HTTPS" with "HTTP") without touching other fields.
+Afterward, verify it:
+kubectl -n argocd get ingress argocd-ingress -o yaml | grep backend-protocol
+You should see:
+nginx.ingress.kubernetes.io/backend-protocol: "HTTP"
+🛠️ Option 2 — Edit directly (interactive)
+If you prefer to open the resource in your terminal:
+kubectl -n argocd edit ingress argocd-ingress
+Then scroll to the metadata.annotations: section and change:
+nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
+to:
+nginx.ingress.kubernetes.io/backend-protocol: "HTTP"
+Save and close (in Vim: press Esc, then type :wq).
+🧩 Extra step (important when switching to HTTP)
+If you haven’t yet, also patch the Argo CD ConfigMap to make the server accept plain HTTP:
+kubectl -n argocd patch configmap argocd-cmd-params-cm \
+  --type merge \
+  -p '{"data":{"server.insecure":"true"}}'
+Then restart the ArgoCD server pod:
+kubectl -n argocd rollout restart deployment argocd-server
+Wait until pods are running:
+kubectl -n argocd get pods -w
+✅ Now Argo CD will serve plain HTTP internally, and your ingress will forward HTTP → HTTP instead of HTTP → HTTPS.
+You can access ArgoCD normally at:
+http://argocd.local/
