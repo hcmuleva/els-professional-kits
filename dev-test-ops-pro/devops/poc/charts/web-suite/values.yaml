@@ -61,12 +61,24 @@ ingress:
   className: nginx
   host: react-app.example.com
   paths:
-    - path: /
+    - path: /()(.*)
       service: react-app-service
       port: 80
-    - path: /api
+    - path: /api(/|$)(.*)
       service: temple-api-service
       port: 1337
-    - path: /admin
+    - path: /admin(/|$)(.*)
+      service: temple-api-service
+      port: 1337
+    - path: /i18n(/|$)(.*)
+      service: temple-api-service
+      port: 1337
+    - path: /content-manager(/|$)(.*)
+      service: temple-api-service
+      port: 1337
+    - path: /content-type-builder(/|$)(.*)
+      service: temple-api-service
+      port: 1337
+    - path: /uploads(/|$)(.*)
       service: temple-api-service
       port: 1337

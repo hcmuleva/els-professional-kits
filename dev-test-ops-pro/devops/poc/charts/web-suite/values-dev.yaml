@@ -7,8 +7,20 @@ reactApp:
 
 apiserver:
   image: harishdell/templeserver:1.12
+  env:
+    # Add Strapi URL configuration
+    URL: "http://react-app.example.com"
+    ADMIN_URL: "http://react-app.example.com/admin"
+    STRAPI_ADMIN_CLIENT_URL: "http://react-app.example.com"
+    STRAPI_ADMIN_CLIENT_PREVIEW_SECRET: "your-secret-key"
 postgres:
   storageSize: 2Gi
 
 ingress:
   host: react-app.example.com
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
+    nginx.ingress.kubernetes.io/use-regex: "true"
+    # Add CORS headers
+    nginx.ingress.kubernetes.io/enable-cors: "true"
+    nginx.ingress.kubernetes.io/cors-allow-origin: "http://react-app.example.com"
