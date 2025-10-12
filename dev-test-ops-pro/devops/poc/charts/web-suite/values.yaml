@@ -59,7 +59,7 @@ ingress:
   enabled: true
   name: web-suite-ingress
   className: nginx
-  host: example.com
+  host: react-app.example.com
   paths:
     - path: /
       service: react-app-service
