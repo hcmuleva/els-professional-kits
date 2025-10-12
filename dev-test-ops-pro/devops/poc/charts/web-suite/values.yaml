@@ -1,0 +1,84 @@
+# ===========================================
+# Global Configuration
+# ===========================================
+replicaCount: 1
+imagePullPolicy: Never
+
+# ===========================================
+# React UI Configuration
+# ===========================================
+reactApp:
+  enabled: true
+  name: react-app
+  image: my-react-app:latest
+  containerPort: 80
+  servicePort: 80
+
+# ===========================================
+# Postgres Configuration
+# ===========================================
+postgres:
+  enabled: true
+  name: postgres
+  image: postgres:15
+  imagePullPolicy: Never
+  containerPort: 5432
+  servicePort: 5432
+  username: postgres
+  password: postgres
+  database: temple
+  storageSize: 5Gi
+  readinessProbe:
+    initialDelaySeconds: 5
+    periodSeconds: 5
+
+# ===========================================
+# Strapi v4 (Temple API) Configuration
+# ===========================================
+apiserver:
+  enabled: true
+  name: temple-api
+  image: harishdell/templeserver:1.12
+  imagePullPolicy: IfNotPresent
+  containerPort: 1337
+  servicePort: 1337
+  env:
+    HOST: "0.0.0.0"
+    PORT: "1337"
+    DATABASE_CLIENT: "postgres"
+    DATABASE_HOST: "postgres-service"
+    DATABASE_PORT: "5432"
+    DATABASE_NAME: "temple"
+    DATABASE_USERNAME: "postgres"
+    DATABASE_PASSWORD: "postgres"
+
+# ===========================================
+# Ingress Configuration
+# ===========================================
+ingress:
+  enabled: true
+  name: web-suite-ingress
+  className: nginx
+  host: react-app.example.com
+  paths:
+    - path: /()(.*)
+      service: react-app-service
+      port: 80
+    - path: /api(/|$)(.*)
+      service: temple-api-service
+      port: 1337
+    - path: /admin(/|$)(.*)
+      service: temple-api-service
+      port: 1337
+    - path: /i18n(/|$)(.*)
+      service: temple-api-service
+      port: 1337
+    - path: /content-manager(/|$)(.*)
+      service: temple-api-service
+      port: 1337
+    - path: /content-type-builder(/|$)(.*)
+      service: temple-api-service
+      port: 1337
+    - path: /uploads(/|$)(.*)
+      service: temple-api-service
+      port: 1337

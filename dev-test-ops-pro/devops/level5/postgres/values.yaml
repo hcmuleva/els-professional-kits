@@ -1,0 +1,37 @@
+image:
+  repository: postgres
+  tag: "15"
+  pullPolicy: IfNotPresent
+
+auth:
+  username: postgres
+  password: postgres
+  database: appdb
+  existingSecret: ""   # if you want to inject secret instead of literal values
+
+service:
+  type: ClusterIP
+  port: 5432
+  annotations: {}
+
+persistence:
+  enabled: true
+  accessModes: [ "ReadWriteOnce" ]
+  size: 1Gi
+  storageClassName: "hostpath"
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 256Mi
+  limits:
+    cpu: 500m
+    memory: 512Mi
+
+readinessProbe:
+  initialDelaySeconds: 10
+  periodSeconds: 5
+
+livenessProbe:
+  initialDelaySeconds: 30
+  periodSeconds: 10

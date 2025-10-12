@@ -1,0 +1,53 @@
+{{- if .Values.apiserver.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.apiserver.name }}
+  labels:
+    app: {{ .Values.apiserver.name }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ .Values.apiserver.name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.apiserver.name }}
+    spec:
+      initContainers:
+        - name: wait-for-postgres
+          image: busybox:1.36
+          command:
+            - sh
+            - -c
+            - >
+              echo "Waiting for Postgres...";
+              until nc -z {{ .Values.apiserver.env.DATABASE_HOST }} {{ .Values.apiserver.env.DATABASE_PORT }}; do
+                sleep 2;
+              done;
+              echo "Postgres is up!";
+      containers:
+      - name: {{ .Values.apiserver.name }}
+        image: {{ .Values.apiserver.image }}
+        imagePullPolicy: {{ .Values.apiserver.imagePullPolicy }}
+        env:
+        {{- range $key, $value := .Values.apiserver.env }}
+        - name: {{ $key }}
+          value: "{{ $value }}"
+        {{- end }}
+        ports:
+        - containerPort: {{ .Values.apiserver.containerPort }}
+        readinessProbe:
+          httpGet:
+            path: /_health
+            port: {{ .Values.apiserver.containerPort }}
+          initialDelaySeconds: 15
+          periodSeconds: 10
+        livenessProbe:
+          httpGet:
+            path: /_health
+            port: {{ .Values.apiserver.containerPort }}
+          initialDelaySeconds: 30
+          periodSeconds: 20
+{{- end }}
