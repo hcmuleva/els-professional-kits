@@ -6,10 +6,10 @@ reactApp:
   image: my-react-app:latest
 
 apiserver:
-  image: harishdell/templeserver:dev
+  image: harishdell/templeserver:1.12 
 
 postgres:
   storageSize: 2Gi
 
 ingress:
-  host: dev.example.com
+  host: react-app.example.com
