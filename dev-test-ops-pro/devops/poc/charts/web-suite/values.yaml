@@ -21,7 +21,7 @@ postgres:
   enabled: true
   name: postgres
   image: postgres:15
-  imagePullPolicy: IfNotPresent
+  imagePullPolicy: Never
   containerPort: 5432
   servicePort: 5432
   username: postgres
