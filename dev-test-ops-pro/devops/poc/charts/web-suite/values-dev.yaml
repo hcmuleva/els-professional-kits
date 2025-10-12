@@ -1,6 +1,6 @@
 # Development Environment Overrides
 replicaCount: 1
-imagePullPolicy: Always
+imagePullPolicy: Never
 
 reactApp:
   image: my-react-app:latest
