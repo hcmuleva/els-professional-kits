@@ -1,0 +1,45 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: env(safe-area-inset-top) env(safe-area-inset-right)
+    env(safe-area-inset-bottom) env(safe-area-inset-left);
+  overflow-x: hidden;
+  font-family: sans-serif;
+  background-color: #f9f9f9;
+}
+
+/* #root {
+  padding-top: calc(70px + env(safe-area-inset-top));
+} */
+
+.adm-picker-view-column-wheel {
+  touch-action: none;
+}
+
+/* .adm-card {
+  padding: 0 !important;
+}
+
+.adm-card-body {
+  padding: 0 !important;
+}
+
+.adm-card-header,
+.adm-card-footer {
+  padding: 0 !important;
+}
+
+.no-padding {
+  padding: 0 !important;
+}
+
+.adm-tabs-content,
+.adm-tabs-tab {
+  padding: 0 !important;
+  margin: 0 !important;
+} */

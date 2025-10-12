@@ -1,0 +1,184 @@
+/* UserCard.css - Warm Professional Theme */
+
+.professional-card {
+  /* Base styles are handled in React component for consistency */
+  cursor: pointer;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.professional-card:hover .avatar {
+  transform: scale(1.05);
+}
+
+.professional-card:active {
+  transform: translateY(1px) !important;
+}
+
+.avatar-container {
+  position: relative;
+}
+
+.avatar-container::before {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
+  background: linear-gradient(135deg, #8B4513 0%, #A0522D 100%);
+  border-radius: 20px;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  z-index: -1;
+}
+
+.professional-card:hover .avatar-container::before {
+  opacity: 0.1;
+}
+
+.avatar {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.name {
+  /* Responsive text sizing */
+  font-size: clamp(16px, 4vw, 18px);
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+  max-width: 100%;
+}
+
+.detail-line {
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+  max-width: 100%;
+}
+
+.role-tag {
+  animation: slideInFromRight 0.5s ease-out;
+}
+
+@keyframes slideInFromRight {
+  from {
+    transform: translateX(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .professional-card {
+    padding: 16px !important;
+    margin: 8px 0 !important;
+    gap: 12px !important;
+  }
+  
+  .avatar-container > div {
+    width: 60px !important;
+    height: 60px !important;
+  }
+  
+  .avatar {
+    width: 52px !important;
+    height: 52px !important;
+  }
+  
+  .name {
+    font-size: 16px !important;
+  }
+  
+  .detail-line {
+    font-size: 13px !important;
+  }
+  
+  .role-tag {
+    position: static !important;
+    margin-top: 8px !important;
+    align-self: flex-start !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .professional-card {
+    padding: 14px !important;
+    border-radius: 16px !important;
+  }
+  
+  .avatar-container > div {
+    width: 50px !important;
+    height: 50px !important;
+    border-radius: 14px !important;
+  }
+  
+  .avatar {
+    width: 42px !important;
+    height: 42px !important;
+    border-radius: 10px !important;
+  }
+}
+
+/* Loading state */
+.professional-card.loading {
+  pointer-events: none;
+}
+
+.professional-card.loading .avatar {
+  opacity: 0.6;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 0.6;
+  }
+  50% {
+    opacity: 0.8;
+  }
+}
+
+/* Focus states for accessibility */
+.professional-card:focus-visible {
+  outline: 2px solid #8B4513;
+  outline-offset: 2px;
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .professional-card {
+    border: 2px solid #000 !important;
+  }
+  
+  .name {
+    color: #000 !important;
+  }
+  
+  .detail-line {
+    color: #333 !important;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .professional-card,
+  .avatar,
+  .avatar-container::before,
+  .role-tag {
+    transition: none !important;
+    animation: none !important;
+  }
+  
+  .professional-card:hover {
+    transform: none !important;
+  }
+  
+  .professional-card:hover .avatar {
+    transform: none !important;
+  }
+}
