@@ -7,8 +7,8 @@ spec:
   project: default
   source:
     repoURL: https://github.com/hcmuleva/els-professional-kits.git
-    targetRevision: HEAD
-    path: charts/web-suite
+    targetRevision: feature/apiserver
+    path: dev-test-ops-pro/devops/poc/charts/web-suite
     helm:
       valueFiles:
       - values.yaml

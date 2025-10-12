@@ -3,7 +3,7 @@ replicaCount: 1
 imagePullPolicy: Always
 
 reactApp:
-  image: my-react-app:dev
+  image: my-react-app:latest
 
 apiserver:
   image: harishdell/templeserver:dev
