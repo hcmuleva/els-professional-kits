@@ -1,0 +1,14 @@
+{{- if .Values.reactApp.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.reactApp.name }}-service
+  labels:
+    app: {{ .Values.reactApp.name }}
+spec:
+  selector:
+    app: {{ .Values.reactApp.name }}
+  ports:
+  - port: {{ .Values.reactApp.servicePort }}
+    targetPort: {{ .Values.reactApp.containerPort }}
+{{- end }}

@@ -1,0 +1,26 @@
+# Production Environment Overrides
+replicaCount: 2
+imagePullPolicy: IfNotPresent
+
+reactApp:
+  image: my-react-app:latest
+
+apiserver:
+  image: harishdell/templeserver:latest
+
+postgres:
+  storageSize: 10Gi
+  password: <set-secure-password>
+  
+apiserver:
+  env:
+    DATABASE_PASSWORD: <set-secure-password>
+
+ingress:
+  host: example.com
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+  tls:
+    - secretName: web-suite-tls
+      hosts:
+        - example.com

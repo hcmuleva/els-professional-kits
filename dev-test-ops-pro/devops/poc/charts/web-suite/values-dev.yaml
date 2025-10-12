@@ -1,0 +1,15 @@
+# Development Environment Overrides
+replicaCount: 1
+imagePullPolicy: Always
+
+reactApp:
+  image: my-react-app:dev
+
+apiserver:
+  image: harishdell/templeserver:dev
+
+postgres:
+  storageSize: 2Gi
+
+ingress:
+  host: dev.example.com
