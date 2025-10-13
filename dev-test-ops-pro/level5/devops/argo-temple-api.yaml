@@ -5,19 +5,16 @@ metadata:
   namespace: argocd
 spec:
   project: default
-
   source:
     repoURL: https://github.com/hcmuleva/els-professional-kits.git
     targetRevision: feature/apiserver
-    path: temple-api-chart
+    path: dev-test-ops-pro/level5/devops/temple-api-chart   # ✅ Full relative path
     helm:
       valueFiles:
         - values.yaml
-
   destination:
     server: https://kubernetes.default.svc
     namespace: strapi
-
   syncPolicy:
     automated:
       prune: true
