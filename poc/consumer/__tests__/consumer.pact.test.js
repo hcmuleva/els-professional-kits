@@ -48,7 +48,7 @@ describe("Pact with NodeJS", () => {
         );
         it("can process the JSON response", async () => {
             // Pass the base URL to the API function
-            const user = await getUser(`http://${pactHost}:${pactPort}`);
+            const user = await getUser(`http://${pactHost}:${pactPort}` , 1);
 
             expect(user).toEqual({
                 id: 1,
