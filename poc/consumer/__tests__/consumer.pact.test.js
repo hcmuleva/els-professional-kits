@@ -11,6 +11,7 @@ const { like, integer, string } = Matchers;
 const pactPort = parseInt(process.env.PACT_MOCK_PORT) || 4400;
 const consumerName = process.env.PACT_CONSUMER_NAME || "react-consumer";
 const providerName = process.env.PACT_PROVIDER_NAME || "node-provider";
+const pactHost = process.env.PACT_MOCK_HOST || "127.0.0.1";
 
 const provider = new Pact({
     consumer: consumerName,
@@ -47,7 +48,8 @@ describe("Pact with NodeJS", () => {
         );
         it("can process the JSON response", async () => {
             // Pass the base URL to the API function
-            const user = await getUser(`http://localhost:${pactPort}`);
+            const user = await getUser(`http://${pactHost}:${pactPort}`);
+
             expect(user).toEqual({
                 id: 1,
                 username: "Harish",
