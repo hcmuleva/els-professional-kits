@@ -55,10 +55,10 @@ jobs:
           path: poc/consumer/pacts/     
 
           retention-days: 7
-
+      
       - name: Upload Pact logs
         uses: actions/upload-artifact@v4
-        if: failure()
+        if: always()
         with:
           name: pact-logs
           path: poc/consumer/pact/logs/
