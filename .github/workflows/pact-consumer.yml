@@ -52,7 +52,8 @@ jobs:
         if: always()
         with:
           name: pact-contracts
-          path: poc/consumer/pact/logs/
+          path: poc/consumer/pacts/     
+
           retention-days: 7
 
       - name: Upload Pact logs
