@@ -33,6 +33,8 @@ jobs:
         with:
           node-version: '18'
           cache: 'npm'
+          cache-dependency-path: poc/consumer/package-lock.json  
+          
 
       - name: Install dependencies
         run: npm ci
@@ -50,7 +52,7 @@ jobs:
         if: always()
         with:
           name: pact-contracts
-          path: pact/pacts/
+          path: poc/consumer/pact/logs/
           retention-days: 7
 
       - name: Upload Pact logs
@@ -58,8 +60,9 @@ jobs:
         if: failure()
         with:
           name: pact-logs
-          path: pact/logs/
+          path: poc/consumer/pact/logs/
           retention-days: 7
+          if-no-files-found: ignore
 
       - name: Publish Pacts to Broker
         if: success() && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop')
