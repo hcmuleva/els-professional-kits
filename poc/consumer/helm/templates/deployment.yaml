@@ -1,0 +1,23 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "consumer.fullname" . }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ include "consumer.fullname" . }}
+  template:
+    metadata:
+      labels:
+        app: {{ include "consumer.fullname" . }}
+    spec:
+      containers:
+        - name: consumer
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - containerPort: {{ .Values.containerPort }}
+          env:
+            - name: PROVIDER_BASE_URL
+              value: "http://{{ .Values.providerServiceName }}:{{ .Values.providerServicePort }}"

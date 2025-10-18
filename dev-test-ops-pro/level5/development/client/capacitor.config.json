@@ -1,0 +1,34 @@
+{
+  "appId": "com.emeelan.temple",
+  "appName": "android",
+  "webDir": "build",
+  "server": {
+    "allowNavigation": [
+      "emeelan.com"
+    ]
+  },
+  "plugins": {
+    "CapacitorHttp": {
+      "enabled": true
+    },
+    "SplashScreen": {
+      "launchAutoHide": true,
+      "backgroundColor": "#ffffff",
+      "androidScaleType": "CENTER_CROP",
+      "showSpinner": true,
+      "launchShowDuration": 1000
+    }
+  },
+  "android": {
+    "allowMixedContent": true,
+    "scheme": "temple",
+    "hostname": "emeelan.com"
+  },
+  "ios": {
+    "scheme": "temple",
+    "contentInset": "always",
+    "associatedDomains": [
+      "applinks:emeelan.com"
+    ]
+  }
+}

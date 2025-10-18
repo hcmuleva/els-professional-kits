@@ -1,0 +1,29 @@
+.custom-zoom-control {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  background-color: transparent;
+  padding-bottom: 20px;
+  /* position: absolute; */
+}
+
+.zoom-btn {
+  width: 30px;
+  height: 30px;
+   background: linear-gradient(45deg, #4A90E2, #7B68EE);
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s ease;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+  font-weight: bold;
+}
+
+.zoom-btn:hover {
+  background-color: #444;
+}

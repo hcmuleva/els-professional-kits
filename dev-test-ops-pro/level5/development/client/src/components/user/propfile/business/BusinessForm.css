@@ -1,0 +1,243 @@
+/* BusinessForm.css */
+.container {
+    padding: 12px;
+    background-color: var(--background);
+    min-height: 100vh;
+    box-sizing: border-box;
+    overflow-x: hidden;
+    max-width: 100%;
+  }
+  
+  .form-container {
+    background-color: var(--white);
+    border-radius: 8px;
+    padding: 16px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    margin-bottom: 16px;
+    border: 1px solid var(--accent);
+    box-sizing: border-box;
+  }
+  
+  .form-header {
+    background-color: var(--accent);
+    color: var(--white);
+    padding: 10px 12px;
+    border-radius: 6px;
+    margin-bottom: 16px;
+    font-size: 16px;
+    font-weight: 600;
+    text-align: center;
+  }
+  
+  .section-header {
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 16px;
+    color: var(--text-primary);
+    text-align: center;
+    letter-spacing: 0.5px;
+  }
+  
+  .business-card {
+    background-color: var(--card-bg);
+    border-radius: 8px;
+    padding: 16px;
+    margin-bottom: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    color: #3f3f46;
+    box-sizing: border-box;
+    overflow: hidden;
+  }
+  
+  .business-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+  }
+  
+  .business-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0;
+  }
+  
+  .add-address-button {
+    background-color: var(--accent);
+    border: none;
+    border-radius: 6px;
+    color: var(--white);
+    font-size: 11px;
+    font-weight: 500;
+    height: 28px;
+    padding: 0 10px;
+    cursor: pointer;
+  }
+  
+  .business-details {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+  
+  .business-detail-item {
+    background-color: var(--light-bg);
+    border-radius: 6px;
+    padding: 10px;
+    border: 1px solid var(--border);
+    box-sizing: border-box;
+  }
+  
+  .business-detail-item-full {
+    background-color: var(--light-bg);
+    border-radius: 6px;
+    padding: 10px;
+    border: 1px solid var(--border);
+    grid-column: 1 / -1;
+    box-sizing: border-box;
+  }
+  
+  .detail-label {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    margin-bottom: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  
+  .detail-value {
+    font-size: 12px;
+    font-weight: 500;
+    color: #3f3f46;
+    line-height: 1.4;
+    overflow-wrap: break-word;
+    word-break: break-word;
+  }
+  
+  .address-section {
+    margin-top: 12px;
+  }
+  
+  .address-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+    padding: 6px 0;
+  }
+  
+  .address-title {
+    font-size: 14px;
+    font-weight: 600;
+    margin: 0;
+    color: var(--text-secondary);
+  }
+  
+  .address-card {
+    margin-bottom: 8px;
+    border-radius: 8px;
+    background-color: var(--white);
+    border: 1px solid #e5e7eb;
+    padding: 10px;
+    box-sizing: border-box;
+    overflow: hidden;
+  }
+  
+  .address-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 6px;
+  }
+  
+  .address-type {
+    background: linear-gradient(135deg, var(--success) 0%, #047857 100%);
+    color: var(--white);
+    padding: 3px 6px;
+    border-radius: 4px;
+    font-size: 9px;
+    font-weight: 600;
+    text-transform: uppercase;
+  }
+  
+  .address-actions {
+    display: flex;
+    gap: 6px;
+  }
+  
+  .action-button {
+    padding: 5px 10px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 500;
+    border: none;
+    cursor: pointer;
+  }
+  
+  .edit-address-button {
+    background-color: #3b82f6;
+    color: var(--white);
+  }
+  
+  .delete-address-button {
+    background-color: var(--error);
+    color: var(--white);
+  }
+  
+  .action-buttons {
+    display: flex;
+    gap: 6px;
+    margin-top: 10px;
+  }
+  
+  .edit-button {
+    background-color: color-mix(in srgb, var(--primary) 10%, transparent);
+    color: var(--primary);
+    border: 1px solid color-mix(in srgb, var(--primary) 30%, transparent);
+    border-radius: 8px;
+    font-size: 11px;
+    padding: 5px 10px;
+  }
+  
+  .delete-button {
+    background-color: color-mix(in srgb, var(--error) 10%, transparent);
+    color: var(--error);
+    border: 1px solid color-mix(in srgb, var(--error) 30%, transparent);
+    border-radius: 8px;
+    font-size: 11px;
+    padding: 5px 10px;
+  }
+  
+  .no-business-card {
+    text-align: center;
+    padding: 24px 16px;
+    background-color: var(--white);
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    color: #6b7280;
+  }
+  
+  /* Input styles */
+  .antd-input {
+    --border-radius: 8px;
+    --border: 1px solid var(--border);
+    --background-color: var(--light-bg);
+    --padding-left: 12px;
+    --padding-right: 12px;
+    --font-size: 12px;
+    --placeholder-color: var(--text-secondary);
+    --color: var(--text-primary);
+  }
+  
+  .form-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-primary);
+  }
+  
+  .form-item {
+    margin-bottom: 12px;
+  }

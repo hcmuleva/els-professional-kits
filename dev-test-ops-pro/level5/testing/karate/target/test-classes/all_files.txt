@@ -1,0 +1,124 @@
+--- FILE: ./features/create_business.feature ---
+Feature:
+# This feature is to create a business which expect token, users_permissions_user, and business name.
+
+# Step1: before login register user and same user email id and password use for login
+# Step2: Login with email and password used in register.
+# Step3: Create business and payload is users_permissions_user , business name and authorization in header
+Scenario:
+
+--- FILE: ./features/auth.feature ---
+Feature: Auth API tests with shared setup
+
+Background:
+  * url baseUrl
+  * configure headers = headers
+  * def setupData = callonce read('setup.feature')
+  * def username = setupData.username
+  * def email = setupData.email
+  * def password = setupData.password
+  * def authToken = setupData.token
+
+Scenario: Registration created the user
+  # Verify structure matches expectations
+  Given path 'auth/local'
+  And request { identifier: '#(email)', password: '#(password)' }
+  When method post
+  Then status 200
+
+Scenario: Login returns valid token
+  Given path 'auth/local'
+  And request { identifier: '#(email)', password: '#(password)' }
+  When method post
+  Then status 200
+  And match response.jwt == "#string"
+
+
+Scenario: Login and then get users list in one flow
+
+  # Step 1: Perform login and capture the token
+  Given url baseUrl
+  And path 'auth/local'
+  And request { identifier: '#(email)', password: '#(password)' }
+  When method post
+  Then print 'Login response:', response
+  And status 200
+
+  # Capture the token from the login response
+  * def authToken = response.jwt 
+  * print 'Token received:', authToken
+
+  # Step 2: Use the token to access another endpoint
+  Given url baseUrl
+  And path 'users'
+  # Use the token in the header
+  And header Authorization = 'Bearer ' + authToken  
+  When method get
+  Then status 200
+  * print 'Response received:', response
+  Then status 200
+* def firstUser = response.data[0]
+* match firstUser.id != null
+* match firstUser.username != null
+* match firstUser.email != null
+
+  # # Add your verifications for the users list here
+  # And match each response ==
+  # """
+  # {
+  #   data.username: "#string",
+  #   data.email: "#string",
+  # }
+ # """
+--- FILE: ./features/setup.feature ---
+Feature: Setup user and login to get token
+
+Background:
+  * url baseUrl
+  * configure headers = headers
+
+Scenario: Register and login user
+  * def rand = java.util.UUID.randomUUID().toString()
+  * def username = 'user_' + rand
+  * def email = username + '@a.com'
+  * def password = 'secret'
+
+  # Register
+  Given path 'auth/local/register'
+  And request { username: '#(username)', email: '#(email)', password: '#(password)', role:1}
+  When method post
+  Then status 200
+  * print 'Registration successful for user:', username
+  * print 'Waiting for eventual consistency... 4000 s'
+
+  # Login
+  Given path 'auth/local'
+  And request { identifier: '#(email)', password: '#(password)' }
+  When method post
+  Then status 200
+  * print 'Login successful, token received:', response.token
+
+  # Prepare return object
+  * def result =
+  """
+  {
+    username: '#(username)',
+    email: '#(email)',
+    password: '#(password)',
+    token: '#(response.token)'
+  }
+  """
+  * print 'Setup returning token:', result.token
+
+--- FILE: ./karate-config.js ---
+function fn() {
+  var config = {};
+  // Base URL of your Flask API
+  config.baseUrl = 'http://temple-api.local/api';
+
+  // Default headers
+  config.headers = { 'Content-Type': 'application/json' };
+
+  return config;
+}
+

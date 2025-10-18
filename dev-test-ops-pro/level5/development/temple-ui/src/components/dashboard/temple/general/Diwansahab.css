@@ -1,0 +1,115 @@
+.person-list {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+  }
+  
+  .person-card {
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    overflow: hidden;
+    width: 100%;
+    font-family: 'Arial Unicode MS', 'Arial', sans-serif;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  
+  .card-header {
+    display: flex;
+    padding: 20px;
+    background-color: #f8f8f8;
+    border-bottom: 1px solid #eee;
+  }
+  .avatar-section {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .avatar-placeholder {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    background-color: #e0e0e0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    position: relative; /* Added for image positioning */
+  }
+  
+  .avatar-placeholder img {
+    width: 100%;
+    height: auto; /* Changed from 100% to auto */
+    object-fit: cover;
+    object-position: center top; /* Adjust this to control cropping */
+    position: absolute; /* Allows fine-tuning position */
+    top: 0; /* Adjust this value to move image up/down */
+  }
+  
+  .details-section {
+    flex: 2;
+    padding-left: 20px;
+  }
+  
+  .details-section h2 {
+    margin-top: 0;
+    color: #333;
+    font-size: 24px;
+    color: #FF9933; /* Saffron color for name */
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2); /* Optional: subtle shadow */
+    font-weight: 600;
+  }
+  
+  .timeline-details {
+    margin-top: 10px;
+  }
+  
+  .detail-item {
+    margin-bottom: 8px;
+  }
+  
+  .detail-label {
+    font-weight: bold;
+    margin-right: 10px;
+  }
+  
+  .card-body {
+    padding: 20px;
+  }
+  
+  .brief {
+    margin-bottom: 15px;
+    line-height: 1.6;
+  }
+  
+  .brief:not(.expanded) {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  
+  .poem {
+    font-style: italic;
+    margin: 15px 0;
+    padding-left: 20px;
+    border-left: 3px solid #ddd;
+  }
+  
+  .expand-button {
+    background: none;
+    border: none;
+    color: #0066cc;
+    cursor: pointer;
+    padding: 5px 0;
+    font-size: 14px;
+  }
+  
+  .expand-button:hover {
+    text-decoration: underline;
+  }

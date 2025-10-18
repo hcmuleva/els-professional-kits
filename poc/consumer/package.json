@@ -1,0 +1,18 @@
+{
+    "name": "pact-poc",
+    "scripts": {
+        "test:pact": "dotenv -- jest --runInBand",
+        "pact:publish": "dotenv -- pact-broker publish ./pacts --consumer-app-version $PACT_VERSION --broker-base-url=$PACT_BROKER_URL --broker-username=$PACT_BROKER_USERNAME --broker-password=$PACT_BROKER_PASSWORD"
+    },
+    "devDependencies": {
+        "@babel/preset-env": "^7.28.3",
+        "@pact-foundation/pact": "^15.0.1",
+        "@pact-foundation/pact-node": "^10.18.0",
+        "babel-jest": "^30.2.0",
+        "dotenv": "^17.2.3",
+        "dotenv-cli": "^7.4.2",
+
+        "jest": "^30.2.0"
+    },
+    "type": "module"
+}

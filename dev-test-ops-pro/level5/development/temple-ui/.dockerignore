@@ -1,0 +1,14 @@
+    # Ignore iOS project files and directories
+    ios/
+    *.xcodeproj/
+    *.xcworkspace/
+    xcuserdata/
+    Pods/
+    build/
+
+    # Ignore Android project files and directories
+    android/
+    .gradle/
+    build/
+    local.properties
+    *.iml

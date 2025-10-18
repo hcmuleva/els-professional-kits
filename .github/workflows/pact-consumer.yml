@@ -1,0 +1,97 @@
+name: Pact Consumer Tests
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+      - feature/*
+  pull_request:
+    branches:
+      - main
+      - develop
+
+jobs:
+  pact-consumer-test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: poc/consumer
+    env:
+      NODE_ENV: test
+      PACT_VERSION: ${{ github.sha }}
+      PACT_BROKER_URL: ${{ secrets.PACT_BROKER_URL }}
+      PACT_BROKER_USERNAME: ${{ secrets.PACT_BROKER_USERNAME }}
+      PACT_BROKER_PASSWORD: ${{ secrets.PACT_BROKER_PASSWORD }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: poc/consumer/package-lock.json  
+          
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Create Pact directories
+        run: |
+          mkdir -p pact/logs
+          mkdir -p pact/pacts
+
+      - name: Run Pact tests
+        run: npm run test:pact
+
+      - name: Upload Pact contracts
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: pact-contracts
+          path: poc/consumer/pacts/     
+
+          retention-days: 7
+      
+      - name: Upload Pact logs
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: pact-logs
+          path: poc/consumer/pact/logs/
+          retention-days: 7
+          if-no-files-found: ignore
+
+      - name: Publish Pacts to Broker
+        if: success() && (startsWith(github.ref_name, 'feature/') || github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop')
+
+        run: npm run pact:publish
+
+  can-i-deploy:
+    needs: pact-consumer-test
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop'
+
+    env:
+      PACT_BROKER_URL: ${{ secrets.PACT_BROKER_URL }}
+      PACT_BROKER_TOKEN: ${{ secrets.PACT_BROKER_TOKEN }}
+      PACT_VERSION: ${{ github.sha }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install Pact CLI
+        run: npm install -g @pact-foundation/pact-node
+
+      - name: Can I Deploy?
+        run: |
+          npx pact-broker can-i-deploy \
+            --pacticipant $PACT_CONSUMER_NAME \
+            --version $PACT_VERSION \
+            --to-environment $PACT_TARGET_ENVIRONMENT \
+            --broker-base-url $PACT_BROKER_URL \
+            --broker-token $PACT_BROKER_TOKEN || true

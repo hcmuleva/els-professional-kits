@@ -1,0 +1,27 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.templeui.name }}-deployment
+  labels:
+    app: {{ .Values.templeui.name }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ .Values.templeui.name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.templeui.name }}
+    spec:
+      containers:
+      - name: {{ .Values.templeui.name }}
+        image: "{{ .Values.templeui.image }}:{{ .Values.templeui.tag }}"
+        imagePullPolicy: {{ .Values.imagePullPolicy }}
+        env:
+        {{- range $key, $value := .Values.templeui.env }}
+        - name: {{ $key }}
+          value: "{{ $value }}"
+        {{- end }}
+        ports:
+          - containerPort: {{ .Values.templeui.containerPort }}
