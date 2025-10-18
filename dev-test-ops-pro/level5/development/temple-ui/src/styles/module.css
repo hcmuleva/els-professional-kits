@@ -1,0 +1,15 @@
+.leaflet-control-zoom-in,
+.leaflet-control-zoom-out {
+  background-color: #007bff; /* Your custom color */
+  color: white;
+  font-size: 20px;
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  line-height: 38px;
+}
+
+.leaflet-control-zoom {
+  box-shadow: none;
+  border: none;
+}

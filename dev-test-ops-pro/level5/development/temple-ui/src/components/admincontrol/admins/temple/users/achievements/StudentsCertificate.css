@@ -1,0 +1,109 @@
+.certificate-container {
+    width: 800px;
+    min-height: 600px;
+    margin: 20px auto;
+    padding: 40px;
+    position: relative;
+    border: 15px solid;
+    border-radius: 10px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    font-family: 'Times New Roman', serif;
+    text-align: center;
+    background-image: url('data:image/svg+xml;utf8,<svg width="100" height="100" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><path fill="rgba(0,0,0,0.05)" d="M30,10 L50,30 L70,10 L90,30 L70,50 L90,70 L70,90 L50,70 L30,90 L10,70 L30,50 L10,30 L30,10 Z"/></svg>');
+    background-size: 150px;
+    background-repeat: repeat;
+    background-position: center;
+  }
+  
+  .certificate-header {
+    margin-bottom: 30px;
+  }
+  
+  .certificate-header h1 {
+    font-size: 32px;
+    color: #333;
+    margin-bottom: 10px;
+    text-decoration: underline;
+  }
+  
+  .certificate-header h2 {
+    font-size: 24px;
+    color: #555;
+    margin-top: 5px;
+  }
+  
+  .certificate-icon {
+    font-size: 50px;
+    margin: 15px 0;
+  }
+  
+  .certificate-body {
+    margin: 40px 0;
+  }
+  
+  .student-name {
+    font-size: 36px;
+    margin: 20px 0;
+    color: #222;
+    font-weight: bold;
+  }
+  
+  .achievement {
+    font-size: 28px;
+    margin: 25px 0;
+    color: #444;
+    font-style: italic;
+  }
+  
+  .certificate-text {
+    font-size: 20px;
+    margin: 15px 0;
+    color: #555;
+  }
+  
+  .details-grid {
+    display: flex;
+    justify-content: center;
+    gap: 50px;
+    margin: 30px 0;
+  }
+  
+  .detail-item {
+    text-align: left;
+  }
+  
+  .detail-label {
+    font-weight: bold;
+    margin-right: 10px;
+  }
+  
+  .certificate-footer {
+    margin-top: 50px;
+  }
+  
+  .signature-block {
+    display: inline-block;
+    margin-top: 40px;
+  }
+  
+  .signature-line {
+    width: 200px;
+    height: 1px;
+    background-color: #333;
+    margin: 0 auto 10px;
+  }
+  
+  .signature-name {
+    font-weight: bold;
+    margin-top: 5px;
+  }
+  
+  .certificate-border-decoration {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    right: 20px;
+    bottom: 20px;
+    border: 2px dashed rgba(0, 0, 0, 0.1);
+    pointer-events: none;
+  }

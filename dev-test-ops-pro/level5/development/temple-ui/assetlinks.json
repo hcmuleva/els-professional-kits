@@ -1,0 +1,13 @@
+[
+    {
+      "relation": ["delegate_permission/common.handle_all_urls"],
+      "target": {
+        "namespace": "android_app",
+        "package_name": "com.emeelan.temple",
+        "sha256_cert_fingerprints": [
+          "46:8A:31:63:48:FF:E0:7E:BE:DE:44:EB:D2:AF:FA:9E:FF:92:32:1A:4E:2D:38:76:30:73:E7:CB:63:4D:E3:2C"
+        ]
+      }
+    }
+  ]
+  
