@@ -111,10 +111,16 @@ temple-ui:
     enabled: true
     name: temple-ui-ingress
     className: nginx
-    annotations:
-      nginx.ingress.kubernetes.io/rewrite-target: /
-    paths:
-      - path: /
-        pathType: Prefix
-        service: temple-ui-service
-        port: 80
+    host: temple-ui.local 
+
+    rules:
+      - host: temple-ui.local  # ← ADD THIS
+        http:
+          paths:
+            - path: /
+              pathType: Prefix
+              backend:
+                service:
+                  name: temple-ui-service
+                  port:
+                    number: 80

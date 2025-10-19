@@ -1,0 +1,86 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: Gateway
+metadata:
+  name: monitoring-gateway
+  namespace: istio-system
+spec:
+  selector:
+    istio: ingressgateway
+  servers:
+    - port:
+        number: 80
+        name: http
+        protocol: HTTP
+      hosts:
+        - "kiali.local"
+        - "jaeger.local"
+        - "prometheus.local"
+        - "grafana.local"
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: kiali-vs
+  namespace: istio-system
+spec:
+  hosts:
+    - "kiali.local"
+  gateways:
+    - monitoring-gateway
+  http:
+    - route:
+        - destination:
+            host: kiali.istio-system.svc.cluster.local
+            port:
+              number: 20001
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: jaeger-vs
+  namespace: istio-system
+spec:
+  hosts:
+    - "jaeger.local"
+  gateways:
+    - monitoring-gateway
+  http:
+    - route:
+        - destination:
+            host: tracing.istio-system.svc.cluster.local
+            port:
+              number: 80
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: prometheus-vs
+  namespace: istio-system
+spec:
+  hosts:
+    - "prometheus.local"
+  gateways:
+    - monitoring-gateway
+  http:
+    - route:
+        - destination:
+            host: prometheus.istio-system.svc.cluster.local
+            port:
+              number: 9090
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: grafana-vs
+  namespace: istio-system
+spec:
+  hosts:
+    - "grafana.local"
+  gateways:
+    - monitoring-gateway
+  http:
+    - route:
+        - destination:
+            host: grafana.istio-system.svc.cluster.local
+            port:
+              number: 3000
