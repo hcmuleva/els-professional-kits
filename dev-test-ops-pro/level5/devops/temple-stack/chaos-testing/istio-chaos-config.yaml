@@ -1,0 +1,97 @@
+# ConfigMap to store chaos parameters
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: temple-api-chaos-config
+  namespace: temple-stack
+data:
+  # Failure percentage (0-100)
+  failure-percent: "60"
+  # HTTP status code to return on failure
+  failure-status: "503"
+  # Delay in milliseconds for failed requests
+  failure-delay: "0"
+  # Success percentage (should be 100 - failure-percent)
+  success-percent: "40"
+
+---
+# VirtualService for chaos injection
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: temple-api-chaos
+  namespace: temple-stack
+spec:
+  hosts:
+    - temple-api-service
+    - temple-api.local
+  gateways:
+    - temple-api-gateway   # 👈 critical line to scope only to your API gateway
+  http:
+    - match:
+        - uri:
+            prefix: /api
+      fault:
+        abort:
+          percentage:
+            value: 60.0
+          httpStatus: 503
+      route:
+        - destination:
+            host: temple-api-service
+            port:
+              number: 1337
+    - match:
+        - uri:
+            prefix: /_health
+      route:
+        - destination:
+            host: temple-api-service
+            port:
+              number: 1337
+    - route:
+        - destination:
+            host: temple-api-service
+            port:
+              number: 1337
+
+
+---
+# DestinationRule for traffic policy
+apiVersion: networking.istio.io/v1beta1
+kind: DestinationRule
+metadata:
+  name: temple-api-chaos
+  namespace: temple-stack
+spec:
+  host: temple-api-service
+  trafficPolicy:
+    connectionPool:
+      tcp:
+        maxConnections: 100
+      http:
+        http1MaxPendingRequests: 50
+        http2MaxRequests: 100
+    outlierDetection:
+      consecutiveErrors: 5
+      interval: 30s
+      baseEjectionTime: 30s
+      maxEjectionPercent: 50
+
+---
+# Gateway for external access
+apiVersion: networking.istio.io/v1beta1
+kind: Gateway
+metadata:
+  name: temple-api-gateway
+  namespace: temple-stack
+spec:
+  selector:
+    istio: ingressgateway
+  servers:
+  - port:
+      number: 80
+      name: http
+      protocol: HTTP
+    hosts:
+    - temple-api.local
