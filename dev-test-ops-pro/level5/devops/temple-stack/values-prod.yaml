@@ -1,0 +1,28 @@
+global:
+  imagePullPolicy: IfNotPresent
+  domain: temple.com
+
+postgres:
+  persistence:
+    size: 10Gi
+    storageClassName: "standard"
+  
+  resources:
+    requests:
+      cpu: 500m
+      memory: 1Gi
+    limits:
+      cpu: 2000m
+      memory: 2Gi
+
+temple-api:
+  apiserver:
+    replicaCount: 3
+    imagePullPolicy: IfNotPresent
+
+temple-ui:
+  replicaCount: 3
+  imagePullPolicy: IfNotPresent
+  
+  templeui:
+    tag: "1.1"

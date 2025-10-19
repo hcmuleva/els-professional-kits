@@ -1,0 +1,10 @@
+apiVersion: v2
+name: postgres
+description: Production-ready, reusable PostgreSQL Helm chart for shared DB deployments
+type: application
+version: 1.0.0
+appVersion: "15"
+keywords:
+  - postgres
+  - database
+  - statefulset

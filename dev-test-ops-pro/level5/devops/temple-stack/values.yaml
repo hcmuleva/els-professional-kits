@@ -1,0 +1,120 @@
+# ============================================
+# Temple Stack - Base Configuration
+# ============================================
+
+global:
+  imagePullPolicy: IfNotPresent
+  namespace: temple-stack
+  domain: temple.local
+  
+  database:
+    host: postgres-postgres.database.svc.cluster.local
+    port: 5432
+    name: temple
+    username: postgres
+    password: postgres
+
+postgres:
+  enabled: true
+  
+  image:
+    repository: postgres
+    tag: "15"
+    pullPolicy: IfNotPresent
+
+  auth:
+    username: postgres
+    password: postgres
+    database: temple
+    existingSecret: ""
+
+  service:
+    type: ClusterIP
+    port: 5432
+
+  persistence:
+    enabled: true
+    accessModes: ["ReadWriteOnce"]
+    size: 2Gi
+    storageClassName: "hostpath"
+
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+
+  readinessProbe:
+    initialDelaySeconds: 10
+    periodSeconds: 5
+
+  livenessProbe:
+    initialDelaySeconds: 30
+    periodSeconds: 10
+
+temple-api:
+  enabled: true
+  
+  apiserver:
+    enabled: true
+    name: temple-api
+    image: harishdell/templeserver:1.12
+    imagePullPolicy: IfNotPresent
+    containerPort: 1337
+    servicePort: 1337
+    replicaCount: 1
+
+    env:
+      HOST: "0.0.0.0"
+      PORT: "1337"
+      DATABASE_CLIENT: "postgres"
+      DATABASE_HOST: "postgres-postgres.database.svc.cluster.local"
+      DATABASE_PORT: "5432"
+      DATABASE_NAME: "temple"
+      DATABASE_USERNAME: "postgres"
+      DATABASE_PASSWORD: "postgres"
+      CENTRALIZED_SERVER: "http://temple-api.local"
+
+  ingress:
+    enabled: true
+    host: "temple-api.local"
+    className: nginx
+    annotations:
+      nginx.ingress.kubernetes.io/backend-protocol: "HTTP"
+      nginx.ingress.kubernetes.io/rewrite-target: /
+    tls: []
+
+temple-ui:
+  enabled: true
+  
+  replicaCount: 1
+  imagePullPolicy: IfNotPresent
+  
+  templeui:
+    name: temple-ui
+    image: temple-ui
+    tag: "1.1"
+    containerPort: 80
+    servicePort: 80
+    
+    env:
+      REACT_APP_ABLY_API_KEY: "xul13A.CNpeww:KkS0rh8M4rJSr5r4gHNGbMijYuxvr90ybz1UQd6uKpw"
+      REACT_APP_MAXPAGE: "3"
+      REACT_APP_KRUTRIM_API_KEY: "5MG974Dkz5xHQ70hLzyLZQzMO57B5P9Pos1MOYe3"
+      REACT_APP_GOOGLE_API_KEY: "AIzaSyDNN9LVrNB_WOGhrHG0U1CYsTWIOuaaoI8"
+      REACT_APP_PINCODE: "https://emeelan.com/alumniserver/api"
+      REACT_APP_API_URL: "http://temple-api.local/api"
+
+  ingress:
+    enabled: true
+    name: temple-ui-ingress
+    className: nginx
+    annotations:
+      nginx.ingress.kubernetes.io/rewrite-target: /
+    paths:
+      - path: /
+        pathType: Prefix
+        service: temple-ui-service
+        port: 80
