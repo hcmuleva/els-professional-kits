@@ -1,0 +1,12 @@
+dependencies:
+- name: postgres
+  repository: file://./charts/postgres
+  version: 1.0.0
+- name: temple-api
+  repository: file://./charts/temple-api
+  version: 0.1.0
+- name: temple-ui
+  repository: file://./charts/temple-ui
+  version: 0.1.0
+digest: sha256:d96a9f5aa7b7989410f54f930c4d6d6204a0387fb8b3340d07b7466bf5859129
+generated: "2025-10-19T06:37:57.278834+05:30"
