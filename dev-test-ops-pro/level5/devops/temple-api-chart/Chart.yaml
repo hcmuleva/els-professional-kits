@@ -1,5 +1,0 @@
-apiVersion: v2
-name: temple-api-chart
-description: A Helm chart for deploying a Strapi API server with PostgreSQL.
-version: 0.1.0
-appVersion: "1.12"
