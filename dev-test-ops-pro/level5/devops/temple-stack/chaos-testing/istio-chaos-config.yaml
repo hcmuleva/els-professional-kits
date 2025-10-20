@@ -1,3 +1,5 @@
+
+---
 # ConfigMap to store chaos parameters
 apiVersion: v1
 kind: ConfigMap
@@ -23,38 +25,37 @@ metadata:
   namespace: temple-stack
 spec:
   hosts:
-    - temple-api-service
-    - temple-api.local
+  - temple-api-service
+  - temple-api.local
   gateways:
-    - temple-api-gateway   # 👈 critical line to scope only to your API gateway
+  - temple-api-gateway
   http:
-    - match:
-        - uri:
-            prefix: /api
-      fault:
-        abort:
-          percentage:
-            value: 60.0
-          httpStatus: 503
-      route:
-        - destination:
-            host: temple-api-service
-            port:
-              number: 1337
-    - match:
-        - uri:
-            prefix: /_health
-      route:
-        - destination:
-            host: temple-api-service
-            port:
-              number: 1337
-    - route:
-        - destination:
-            host: temple-api-service
-            port:
-              number: 1337
-
+  - match:
+    - uri:
+        prefix: /api
+    fault:
+      abort:
+        percentage:
+          value: 60.0
+        httpStatus: 503
+    route:
+    - destination:
+        host: temple-api-service
+        port:
+          number: 1337
+  - match:
+    - uri:
+        prefix: /_health
+    route:
+    - destination:
+        host: temple-api-service
+        port:
+          number: 1337
+  - route:
+    - destination:
+        host: temple-api-service
+        port:
+          number: 1337
 
 ---
 # DestinationRule for traffic policy

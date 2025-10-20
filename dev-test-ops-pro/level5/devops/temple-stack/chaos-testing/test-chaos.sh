@@ -2,12 +2,13 @@
 
 # ============================================
 # Chaos Testing Script for Temple API
+# Mac-compatible version (Bash 3.x)
 # ============================================
 
 set -e
 
 # Configuration
-TOTAL=${1:-100}  # Default 100 requests, can be overridden
+TOTAL=${1:-100}
 URL="http://temple-api.local/api/users"
 NAMESPACE="temple-stack"
 
@@ -21,7 +22,11 @@ NC='\033[0m'
 # Counters
 SUCCESS=0
 FAILURES=0
-declare -A STATUS_CODES
+
+# Status code counters (using regular variables instead of associative array)
+STATUS_200=0
+STATUS_503=0
+STATUS_OTHER=0
 
 # Get expected failure rate from ConfigMap
 EXPECTED_FAILURE=$(kubectl get configmap temple-api-chaos-config -n $NAMESPACE -o jsonpath='{.data.failure-percent}' 2>/dev/null || echo "60")
@@ -41,35 +46,29 @@ echo ""
 echo -e "${BLUE}Running test...${NC}"
 echo ""
 
-# Progress bar function
-progress_bar() {
-    local current=$1
-    local total=$2
-    local width=50
-    local percentage=$((current * 100 / total))
-    local completed=$((width * current / total))
-    
-    printf "\rProgress: ["
-    for ((i=0; i<completed; i++)); do printf "█"; done
-    for ((i=completed; i<width; i++)); do printf " "; done
-    printf "] %3d%% (%d/%d)" $percentage $current $total
-}
-
 # Run tests
 echo -n "Testing: "
 for i in $(seq 1 $TOTAL); do
     STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$URL" 2>/dev/null || echo "000")
     
     # Count status codes
-    STATUS_CODES[$STATUS]=$((${STATUS_CODES[$STATUS]:-0} + 1))
-    
-    if [ "$STATUS" == "200" ]; then
-        SUCCESS=$((SUCCESS + 1))
-        echo -n "."
-    else
-        FAILURES=$((FAILURES + 1))
-        echo -n "x"
-    fi
+    case $STATUS in
+        200)
+            STATUS_200=$((STATUS_200 + 1))
+            SUCCESS=$((SUCCESS + 1))
+            echo -n "."
+            ;;
+        503)
+            STATUS_503=$((STATUS_503 + 1))
+            FAILURES=$((FAILURES + 1))
+            echo -n "x"
+            ;;
+        *)
+            STATUS_OTHER=$((STATUS_OTHER + 1))
+            FAILURES=$((FAILURES + 1))
+            echo -n "?"
+            ;;
+    esac
     
     # New line every 50 requests
     if [ $((i % 50)) -eq 0 ]; then
@@ -101,18 +100,18 @@ echo -e "  ${RED}Failed:${NC}            $FAILURES (${FAILURE_PERCENT}%)"
 echo ""
 
 echo -e "${BLUE}Status Code Distribution:${NC}"
-for code in "${!STATUS_CODES[@]}"; do
-    count=${STATUS_CODES[$code]}
-    percent=$((count * 100 / TOTAL))
-    
-    if [ "$code" == "200" ]; then
-        echo -e "  ${GREEN}$code:${NC} $count requests ($percent%)"
-    elif [ "$code" == "503" ]; then
-        echo -e "  ${RED}$code:${NC} $count requests ($percent%)"
-    else
-        echo -e "  ${YELLOW}$code:${NC} $count requests ($percent%)"
-    fi
-done
+if [ $STATUS_200 -gt 0 ]; then
+    PERCENT_200=$((STATUS_200 * 100 / TOTAL))
+    echo -e "  ${GREEN}200:${NC} $STATUS_200 requests ($PERCENT_200%)"
+fi
+if [ $STATUS_503 -gt 0 ]; then
+    PERCENT_503=$((STATUS_503 * 100 / TOTAL))
+    echo -e "  ${RED}503:${NC} $STATUS_503 requests ($PERCENT_503%)"
+fi
+if [ $STATUS_OTHER -gt 0 ]; then
+    PERCENT_OTHER=$((STATUS_OTHER * 100 / TOTAL))
+    echo -e "  ${YELLOW}Other:${NC} $STATUS_OTHER requests ($PERCENT_OTHER%)"
+fi
 echo ""
 
 # Compare with expected values
@@ -121,13 +120,17 @@ echo -e "${BLUE}Expected vs Actual:${NC}"
 SUCCESS_DIFF=$((SUCCESS_PERCENT - EXPECTED_SUCCESS))
 FAILURE_DIFF=$((FAILURE_PERCENT - EXPECTED_FAILURE))
 
-if [ ${SUCCESS_DIFF#-} -le 10 ]; then
+# Get absolute value for comparison
+SUCCESS_DIFF_ABS=${SUCCESS_DIFF#-}
+FAILURE_DIFF_ABS=${FAILURE_DIFF#-}
+
+if [ $SUCCESS_DIFF_ABS -le 10 ]; then
     echo -e "  Success Rate:   ${GREEN}✓ Within tolerance${NC} (Expected: ${EXPECTED_SUCCESS}%, Actual: ${SUCCESS_PERCENT}%)"
 else
     echo -e "  Success Rate:   ${YELLOW}⚠ Outside tolerance${NC} (Expected: ${EXPECTED_SUCCESS}%, Actual: ${SUCCESS_PERCENT}%)"
 fi
 
-if [ ${FAILURE_DIFF#-} -le 10 ]; then
+if [ $FAILURE_DIFF_ABS -le 10 ]; then
     echo -e "  Failure Rate:   ${GREEN}✓ Within tolerance${NC} (Expected: ${EXPECTED_FAILURE}%, Actual: ${FAILURE_PERCENT}%)"
 else
     echo -e "  Failure Rate:   ${YELLOW}⚠ Outside tolerance${NC} (Expected: ${EXPECTED_FAILURE}%, Actual: ${FAILURE_PERCENT}%)"
@@ -142,8 +145,12 @@ echo -n "  ["
 success_bars=$((SUCCESS * 50 / TOTAL))
 failure_bars=$((FAILURES * 50 / TOTAL))
 
-for ((i=0; i<success_bars; i++)); do echo -n "${GREEN}█${NC}"; done
-for ((i=0; i<failure_bars; i++)); do echo -n "${RED}█${NC}"; done
+for ((i=0; i<success_bars; i++)); do 
+    printf "${GREEN}█${NC}"
+done
+for ((i=0; i<failure_bars; i++)); do 
+    printf "${RED}█${NC}"
+done
 
 echo "]"
 echo ""
@@ -168,7 +175,7 @@ echo ""
 TIMESTAMP=$(date +%Y%m%d_%H%M%S)
 RESULT_FILE="chaos-test-results-${TIMESTAMP}.txt"
 
-cat > "$RESULT_FILE" <<EOF
+cat > "$RESULT_FILE" <<ENDOFFILE
 Chaos Test Results - $(date)
 ═══════════════════════════════════════════════════
 
@@ -183,14 +190,14 @@ Results:
   Failed:            $FAILURES (${FAILURE_PERCENT}%)
 
 Status Codes:
-$(for code in "${!STATUS_CODES[@]}"; do
-    echo "  $code: ${STATUS_CODES[$code]} ($(( ${STATUS_CODES[$code]} * 100 / TOTAL ))%)"
-done)
+  200: $STATUS_200 ($(( STATUS_200 * 100 / TOTAL ))%)
+  503: $STATUS_503 ($(( STATUS_503 * 100 / TOTAL ))%)
+  Other: $STATUS_OTHER ($(( STATUS_OTHER * 100 / TOTAL ))%)
 
 Comparison:
   Success: Expected ${EXPECTED_SUCCESS}%, Got ${SUCCESS_PERCENT}% (Diff: ${SUCCESS_DIFF}%)
   Failure: Expected ${EXPECTED_FAILURE}%, Got ${FAILURE_PERCENT}% (Diff: ${FAILURE_DIFF}%)
-EOF
+ENDOFFILE
 
 echo -e "${BLUE}Results saved to: ${RESULT_FILE}${NC}"
 echo ""

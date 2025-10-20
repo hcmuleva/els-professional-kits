@@ -1,86 +1,83 @@
-apiVersion: networking.istio.io/v1alpha3
-kind: Gateway
+apiVersion: networking.k8s.io/v1
+kind: Ingress
 metadata:
-  name: monitoring-gateway
+  name: kiali-ingress
   namespace: istio-system
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
 spec:
-  selector:
-    istio: ingressgateway
-  servers:
-    - port:
-        number: 80
-        name: http
-        protocol: HTTP
-      hosts:
-        - "kiali.local"
-        - "jaeger.local"
-        - "prometheus.local"
-        - "grafana.local"
----
-apiVersion: networking.istio.io/v1alpha3
-kind: VirtualService
-metadata:
-  name: kiali-vs
-  namespace: istio-system
-spec:
-  hosts:
-    - "kiali.local"
-  gateways:
-    - monitoring-gateway
-  http:
-    - route:
-        - destination:
-            host: kiali.istio-system.svc.cluster.local
+  ingressClassName: nginx
+  rules:
+  - host: kiali.local
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: kiali
             port:
               number: 20001
 ---
-apiVersion: networking.istio.io/v1alpha3
-kind: VirtualService
+apiVersion: networking.k8s.io/v1
+kind: Ingress
 metadata:
-  name: jaeger-vs
+  name: jaeger-ingress
   namespace: istio-system
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
 spec:
-  hosts:
-    - "jaeger.local"
-  gateways:
-    - monitoring-gateway
-  http:
-    - route:
-        - destination:
-            host: tracing.istio-system.svc.cluster.local
+  ingressClassName: nginx
+  rules:
+  - host: jaeger.local
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: tracing
             port:
               number: 80
 ---
-apiVersion: networking.istio.io/v1alpha3
-kind: VirtualService
+apiVersion: networking.k8s.io/v1
+kind: Ingress
 metadata:
-  name: prometheus-vs
+  name: grafana-ingress
   namespace: istio-system
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
 spec:
-  hosts:
-    - "prometheus.local"
-  gateways:
-    - monitoring-gateway
-  http:
-    - route:
-        - destination:
-            host: prometheus.istio-system.svc.cluster.local
-            port:
-              number: 9090
----
-apiVersion: networking.istio.io/v1alpha3
-kind: VirtualService
-metadata:
-  name: grafana-vs
-  namespace: istio-system
-spec:
-  hosts:
-    - "grafana.local"
-  gateways:
-    - monitoring-gateway
-  http:
-    - route:
-        - destination:
-            host: grafana.istio-system.svc.cluster.local
+  ingressClassName: nginx
+  rules:
+  - host: grafana.local
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: grafana
             port:
               number: 3000
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: prometheus-ingress
+  namespace: istio-system
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+spec:
+  ingressClassName: nginx
+  rules:
+  - host: prometheus.local
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: prometheus
+            port:
+              number: 9090
