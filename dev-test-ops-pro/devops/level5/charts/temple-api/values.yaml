@@ -1,0 +1,19 @@
+image:
+  repository: harishdell/templeserver
+  tag: "1.12"
+  pullPolicy: IfNotPresent
+
+service:
+  port: 1337
+
+env: {}           # non-sensitive env (DATABASE_*, CENTRALIZED_SERVER, TRUST_PROXY, etc.)
+secretRef:
+  enabled: false  # set true in umbrella values; name below must exist in ns
+  name: temple-api-secrets
+
+waitForPostgres:
+  enabled: true
+  host: postgres
+  port: 5432
+
+resources: {}

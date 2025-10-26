@@ -1,0 +1,64 @@
+global:
+  namespace: pact-stack-dev
+  environment: dev
+  storageClass: "hostpath"
+  ingressSubdomain: "dev.apps.example.com"
+  tlsSecretName: ""
+
+postgres:
+  auth:
+    password: "dev123"
+  
+  persistence:
+    size: 5Gi
+  
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+  
+  securityContext:
+    enabled: false  # Relaxed for local development
+
+fabric-pact-broker:
+  replicaCount: 1
+  
+  image:
+    tag: "latest"
+    pullPolicy: Always
+  
+  database:
+    password: "dev123"
+  
+  basicAuth:
+    enabled: true
+    username: admin
+    password: "admin123"
+  
+  ingress:
+    enabled: true
+    annotations:
+      nginx.ingress.kubernetes.io/ssl-redirect: "false"
+    subdomain: "dev.apps.example.com"
+  
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+  
+  autoscaling:
+    enabled: false
+  
+  configMap:
+    PACT_BROKER_LOG_LEVEL: "DEBUG"
+    PACT_BROKER_SQL_LOG_LEVEL: "DEBUG"
+    PACT_BROKER_ALLOW_PUBLIC_READ: "true"  # More permissive for dev
+  
+  podSecurityContext: {}
+  securityContext: {}

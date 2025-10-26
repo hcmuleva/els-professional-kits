@@ -1,0 +1,46 @@
+---
+# Sealed Secret for PostgreSQL Database Credentials
+# These credentials are used by BOTH postgres and pact-broker
+apiVersion: bitnami.com/v1alpha1
+kind: SealedSecret
+metadata:
+  name: pact-stack-db-auth  # Matches: {{ .Release.Name }}-db-auth
+  namespace: pact-stack      # MUST match your deployment namespace
+  labels:
+    app.kubernetes.io/name: postgres
+    app.kubernetes.io/component: database
+spec:
+  encryptedData:
+    # These keys MUST match what's expected in secret.yaml
+    POSTGRES_DB: <ENCRYPTED_VALUE_HERE>
+    POSTGRES_USER: <ENCRYPTED_VALUE_HERE>
+    POSTGRES_PASSWORD: <ENCRYPTED_VALUE_HERE>
+  template:
+    metadata:
+      name: pact-stack-db-auth
+      namespace: pact-stack
+    type: Opaque
+
+---
+# Sealed Secret for Pact Broker Basic Authentication
+apiVersion: bitnami.com/v1alpha1
+kind: SealedSecret
+metadata:
+  name: pact-stack-fabric-pact-broker-auth  # Matches: {{ include "fabric-pact-broker.fullname" . }}-auth
+  namespace: pact-stack                      # MUST match your deployment namespace
+  labels:
+    app.kubernetes.io/name: fabric-pact-broker
+    app.kubernetes.io/component: broker
+spec:
+  encryptedData:
+    # Keys MUST match auth-secret.yaml template
+    username: <ENCRYPTED_VALUE_HERE>
+    password: <ENCRYPTED_VALUE_HERE>
+    readonly-username: <ENCRYPTED_VALUE_HERE>  # Optional
+    readonly-password: <ENCRYPTED_VALUE_HERE>  # Optional
+  template:
+    metadata:
+      name: pact-stack-fabric-pact-broker-auth
+      namespace: pact-stack
+    type: Opaque
+---

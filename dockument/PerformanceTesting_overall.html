@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Performance Guide</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      line-height: 1.6;
+      background: #f4f6f8;
+      margin: 0;
+      padding: 0;
+    }
+    header {
+      background: #2c3e50;
+      color: #fff;
+      padding: 20px;
+      text-align: center;
+    }
+    h1 { margin: 0; }
+    .tab-container {
+      margin: 20px auto;
+      max-width: 1200px;
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    .tabs {
+      display: flex;
+      border-bottom: 2px solid #ddd;
+    }
+    .tab {
+      flex: 1;
+      text-align: center;
+      padding: 14px;
+      cursor: pointer;
+      font-weight: bold;
+      background: #ecf0f1;
+      border-right: 1px solid #ddd;
+      transition: 0.3s;
+    }
+    .tab:last-child { border-right: none; }
+    .tab:hover { background: #dfe6e9; }
+    .tab.active {
+      background: #fff;
+      border-bottom: 2px solid #2c3e50;
+      color: #2c3e50;
+    }
+    .tab-content {
+      display: none;
+      padding: 20px;
+    }
+    .tab-content.active { display: block; }
+    pre, code {
+      background: #f1f1f1;
+      padding: 10px;
+      border-radius: 5px;
+      overflow-x: auto;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 15px 0;
+    }
+    table th, table td {
+      border: 1px solid #ccc;
+      padding: 8px;
+      text-align: left;
+    }
+    table th {
+      background: #ecf0f1;
+    }
+    .highlight {
+      color: #2c3e50;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Performance Testing Guide</h1>
+    <p>K6 + Karate Functional Testing Package</p>
+  </header>
+
+  <div class="tab-container">
+    <div class="tabs">
+      <div class="tab active" onclick="openTab('quickref')">Performance Testing Quick Reference</div>
+      <div class="tab" onclick="openTab('completepkg')">Complete Testing Package</div>
+    </div>
+
+    <div id="quickref" class="tab-content active">
+      <h2>🚀 Performance Testing Quick Reference Card</h2>
+      <h3>Quick Commands</h3>
+      <pre><code># Install K6
+brew install k6      # macOS
+choco install k6     # Windows
+sudo apt-get install k6  # Linux
+
+# Run tests
+k6 run performance/level1-basic.js
+k6 run performance/level2-datadriven.js
+k6 run performance/level3-advanced.js
+</code></pre>
+
+      <h3>📊 Three Levels At-A-Glance</h3>
+      <table>
+        <tr><th>Level</th><th>VUs</th><th>Duration</th><th>RPS</th><th>Scenarios</th><th>Goal</th></tr>
+        <tr><td>1</td><td>10</td><td>2m</td><td>2-5</td><td>1</td><td>Learn basics</td></tr>
+        <tr><td>2</td><td>50</td><td>5m</td><td>6-15</td><td>3</td><td>Data-driven</td></tr>
+        <tr><td>3</td><td>200</td><td>17m</td><td>10-50</td><td>4</td><td>Production</td></tr>
+      </table>
+
+      <h3>🎯 Performance Thresholds</h3>
+      <pre><code>Level 1: Response Time (p95) &lt; 500ms | Error Rate &lt; 1%
+Level 2: Response Time (p95) &lt; 800ms | Error Rate &lt; 2%
+Level 3: Response Time (p95) &lt; 1000ms | Error Rate &lt; 5%
+</code></pre>
+
+      <p><em>Full reference includes metrics, checks, troubleshooting, schedules, and tips…</em></p>
+    </div>
+
+    <div id="completepkg" class="tab-content">
+      <h2>🎉 Complete Testing Package</h2>
+      <p>A <span class="highlight">production-ready framework</span> combining Functional Testing (Karate) + Performance Testing (K6).</p>
+
+      <h3>📦 Package Contents</h3>
+      <ul>
+        <li><b>Functional Testing Suite (Karate)</b> – Level 1, 2, 3 scenarios</li>
+        <li><b>Performance Testing Suite (K6)</b> – Level 1 load, Level 2 data-driven, Level 3 stress</li>
+        <li><b>Documentation Suite</b> – Guides, mappings, troubleshooting, best practices</li>
+      </ul>
+
+      <h3>📊 Testing Matrix</h3>
+      <table>
+        <tr><th>Aspect</th><th>Functional (Karate)</th><th>Performance (K6)</th></tr>
+        <tr><td>Purpose</td><td>Correctness</td><td>Speed & Load</td></tr>
+        <tr><td>Execution</td><td>Sequential</td><td>Concurrent</td></tr>
+        <tr><td>Users</td><td>1</td><td>10-200</td></tr>
+        <tr><td>Output</td><td>Pass/Fail</td><td>Metrics</td></tr>
+      </table>
+
+      <h3>🚀 Steps to Start</h3>
+      <pre><code># Functional tests
+mvn test
+
+# Performance tests
+k6 run performance/level1-basic.js
+</code></pre>
+
+      <p><b>Outcome:</b> ✅ Functional + Performance assurance, ✅ Production readiness, ✅ Confidence to deploy.</p>
+    </div>
+  </div>
+
+  <script>
+    function openTab(tabId) {
+      const contents = document.querySelectorAll('.tab-content');
+      const tabs = document.querySelectorAll('.tab');
+      contents.forEach(c => c.classList.remove('active'));
+      tabs.forEach(t => t.classList.remove('active'));
+      document.getElementById(tabId).classList.add('active');
+      event.currentTarget.classList.add('active');
+    }
+  </script>
+</body>
+</html>

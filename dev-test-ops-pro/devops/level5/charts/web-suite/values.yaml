@@ -1,0 +1,85 @@
+global:
+  imagePullPolicy: IfNotPresent
+
+ingress:
+  enabled: true
+  className: nginx
+  host: dev.web-suite.local       # overridden per env
+  paths:
+    - path: /ui
+      service: react-ui
+      port: 80
+    - path: /api
+      service: temple-api
+      port: 1337
+    - path: /admin
+      service: temple-api
+      port: 1337
+    - path: /i18n
+      service: temple-api
+      port: 1337
+    - path: /hello
+      service: hello-world
+      port: 80
+
+reactUi:
+  enabled: true
+  image:
+    repository: my-react-app
+    tag: latest
+    pullPolicy: {{ .Values.global.imagePullPolicy | default "IfNotPresent" }}
+
+templeApi:
+  enabled: true
+  image:
+    repository: harishdell/templeserver
+    tag: "1.12"
+    pullPolicy: {{ .Values.global.imagePullPolicy | default "IfNotPresent" }}
+  service:
+    port: 1337
+  env:
+    HOST: "0.0.0.0"
+    PORT: "1337"
+    CENTRALIZED_SERVER: "http://dev.web-suite.local"  # overridden per env
+    TRUST_PROXY: "true"
+    DATABASE_CLIENT: "postgres"
+    DATABASE_HOST: "postgres"        # service name of postgres subchart
+    DATABASE_PORT: "5432"
+    DATABASE_NAME: "temple"
+    DATABASE_USERNAME: "postgres"
+    DATABASE_PASSWORD: "postgres"
+  waitForPostgres:
+    enabled: true
+    host: postgres
+    port: 5432
+  secretRef:                 # use a Secret for sensitive keys (created per-namespace)
+    enabled: true
+    name: temple-api-secrets # contains APP_KEYS, ADMIN_JWT_SECRET, JWT_SECRET, etc.
+
+postgres:
+  enabled: true
+  image:
+    repository: postgres
+    tag: "15"
+    pullPolicy: {{ .Values.global.imagePullPolicy | default "IfNotPresent" }}
+  auth:
+    username: postgres
+    password: postgres
+    database: temple
+  persistence:
+    enabled: true
+    accessModes: [ "ReadWriteOnce" ]
+    size: 1Gi
+    storageClassName: "docker-desktop"  # override per cluster if needed
+  service:
+    port: 5432
+
+helloWorld:
+  enabled: true
+  image:
+    repository: gcr.io/google-samples/hello-app
+    tag: "1.0"
+    pullPolicy: {{ .Values.global.imagePullPolicy | default "IfNotPresent" }}
+  service:
+    port: 80
+  containerPort: 8080

@@ -1,0 +1,6 @@
+apiVersion: v2
+name: fabric-pact-broker
+description: A Helm chart for deploying the Pact Broker application
+type: application
+version: 0.1.0
+appVersion: "2.110.0"  # adjust based on pactfoundation/pact-broker image tag

@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Developer Level Decision Matrix</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            width: 100%;
+        }
+        
+        .decision-matrix {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.8em;
+            margin-bottom: 10px;
+            animation: pulse 2s infinite;
+        }
+        
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+        
+        .levels-container {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0;
+        }
+        
+        .level {
+            padding: 30px;
+            border-right: 1px solid #eee;
+            position: relative;
+            opacity: 0;
+            transform: translateY(50px);
+            animation: slideIn 0.8s ease forwards;
+            min-height: 600px;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .level:last-child {
+            border-right: none;
+        }
+        
+        .level-1 { 
+            animation-delay: 0.2s; 
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        }
+        .level-2 { 
+            animation-delay: 0.4s; 
+            background: linear-gradient(135deg, #e9ecef 0%, #dee2e6 100%);
+        }
+        .level-3 { 
+            animation-delay: 0.6s; 
+            background: linear-gradient(135deg, #dee2e6 0%, #ced4da 100%);
+        }
+        
+        .level-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid rgba(0,0,0,0.1);
+        }
+        
+        .level-number {
+            width: 50px;
+            height: 50px;
+            background: #4facfe;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-right: 15px;
+            font-size: 1.4em;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        
+        .level-2 .level-number {
+            background: #00f2fe;
+        }
+        
+        .level-3 .level-number {
+            background: #667eea;
+        }
+        
+        .level-title {
+            font-size: 1.6em;
+            font-weight: 700;
+            color: #2d3436;
+        }
+        
+        .level-subtitle {
+            font-size: 1.1em;
+            color: #636e72;
+            margin-top: 5px;
+            font-weight: 500;
+        }
+        
+        .criteria-list {
+            list-style: none;
+            flex-grow: 1;
+        }
+        
+        .criteria {
+            padding: 15px 0;
+            border-bottom: 1px dashed #ddd;
+            opacity: 0;
+            transform: translateX(-20px);
+            animation: fadeInLeft 0.6s ease forwards;
+            display: flex;
+            align-items: flex-start;
+        }
+        
+        .criteria:last-child {
+            border-bottom: none;
+        }
+        
+        .checkmark {
+            color: #00b894;
+            font-weight: bold;
+            margin-right: 12px;
+            display: inline-block;
+            animation: bounce 0.5s ease;
+            font-size: 1.2em;
+            min-width: 25px;
+        }
+        
+        .criteria-text {
+            line-height: 1.5;
+        }
+        
+        .tech-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            margin-top: 8px;
+        }
+        
+        .tech-tag {
+            background: rgba(79, 172, 254, 0.1);
+            color: #4facfe;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 0.8em;
+            font-weight: 600;
+        }
+        
+        .level-2 .tech-tag {
+            background: rgba(0, 242, 254, 0.1);
+            color: #00a8ff;
+        }
+        
+        .level-3 .tech-tag {
+            background: rgba(102, 126, 234, 0.1);
+            color: #667eea;
+        }
+        
+        .controls {
+            text-align: center;
+            padding: 25px;
+            background: #f8f9fa;
+            border-top: 1px solid #eee;
+        }
+        
+        .animate-btn {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 30px;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            box-shadow: 0 4px 15px rgba(79, 172, 254, 0.3);
+        }
+        
+        .animate-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(79, 172, 254, 0.4);
+        }
+        
+        .progress-path {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 30px;
+            background: #f1f2f6;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        .path-node {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeInUp 0.6s ease forwards;
+        }
+        
+        .path-node .level-number {
+            width: 40px;
+            height: 40px;
+            margin-bottom: 10px;
+        }
+        
+        .path-label {
+            font-size: 0.9em;
+            font-weight: 600;
+            color: #636e72;
+        }
+        
+        .path-connector {
+            flex-grow: 1;
+            height: 3px;
+            background: linear-gradient(90deg, #4facfe, #00f2fe, #667eea);
+            margin: 0 20px;
+            position: relative;
+            opacity: 0;
+            animation: growWidth 1s ease forwards;
+            animation-delay: 1s;
+        }
+        
+        /* Animations */
+        @keyframes slideIn {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes fadeInLeft {
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes growWidth {
+            from {
+                transform: scaleX(0);
+            }
+            to {
+                transform: scaleX(1);
+                opacity: 1;
+            }
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-8px); }
+            60% { transform: translateY(-4px); }
+        }
+        
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .levels-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .level {
+                border-right: none;
+                border-bottom: 1px solid #eee;
+                min-height: auto;
+            }
+            
+            .progress-path {
+                flex-direction: column;
+                gap: 20px;
+            }
+            
+            .path-connector {
+                width: 3px;
+                height: 40px;
+                margin: 10px 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="decision-matrix">
+            <div class="header">
+                <h1>🚀 Developer Level Decision Matrix</h1>
+                <p>Choose the right development maturity level for your project</p>
+            </div>
+            
+            <div class="progress-path">
+                <div class="path-node" style="animation-delay: 0.7s">
+                    <div class="level-number">1</div>
+                    <div class="path-label">Foundation</div>
+                </div>
+                <div class="path-connector"></div>
+                <div class="path-node" style="animation-delay: 0.9s">
+                    <div class="level-number">2</div>
+                    <div class="path-label">Integration</div>
+                </div>
+                <div class="path-connector"></div>
+                <div class="path-node" style="animation-delay: 1.1s">
+                    <div class="level-number">3</div>
+                    <div class="path-label">Advanced</div>
+                </div>
+            </div>
+            
+            <div class="levels-container">
+                <!-- Level 1 -->
+                <div class="level level-1">
+                    <div class="level-header">
+                        <div class="level-number">1</div>
+                        <div>
+                            <div class="level-title">Developer Level 1</div>
+                            <div class="level-subtitle">Basic Setup & Foundation</div>
+                        </div>
+                    </div>
+                    <ul class="criteria-list">
+                        <li class="criteria" style="animation-delay: 0.3s">
+                            <span class="checkmark">✅</span>
+                            <div class="criteria-text">
+                                <strong>React Client Setup</strong> - Basic React application structure
+                                <div class="tech-tags">
+                                    <span class="tech-tag">React</span>
+                                    <span class="tech-tag">Vite</span>
+                                    <span class="tech-tag">TypeScript</span>
+                                </div>
+                            </div>
+                        </li>
+                        <li class="criteria" style="animation-delay: 0.4s">
+                            <span class="checkmark">✅</span>
+                            <div class="criteria-text">
+                                <strong>Visual Studio Code</strong> - Development environment setup
+                                <div class="tech-tags">
+                                    <span class="tech-tag">VS Code</span>
+                                    <span class="tech-tag">Extensions</span>
+                                </div>
+                            </div>
+                        </li>
+                        <li class="criteria" style="animation-delay: 0.5s">
+                            <span class="checkmark">✅</span>
+                            <div class="criteria-text">
+                                <strong>Database Configuration</strong> - Basic database setup
+                                <div class="tech-tags">
+                                    <span class="tech-tag">PostgreSQL</span>
+                                    <span class="tech-tag">MongoDB</span>
+                                </div>
+                            </div>
+                        </li>
+                        <li class="criteria" style="animation-delay: 0.6s">
+                            <span class="checkmark">✅</span>
+                            <div class="criteria-text">
+                                <strong>API Server</strong> - Starter kit with basic endpoints
+                                <div class="tech-tags">
+                                    <span class="tech-tag">Node.js</span>
+                                    <span class="tech-tag">Express</span>
+                                    <span class="tech-tag">REST</span>
+                                </div>
+                            </div>
+                        </li>
+                        <li class="criteria" style="animation-delay: 0.7s">
+                            <span class="checkmark">✅</span>
+                            <div class="criteria-text">
+                                <strong>Starter Kit Code</strong> - Pre-configured project template
+                                <div class="tech-tags">
+                                    <span class="tech-tag">Boilerplate</span>
+                                    <span class="tech-tag">Templates</span>
+                                </div>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+                
+                <!-- Level 2 -->
+                <div class="level level-2">
+                    <div class="level-header">
+                        <div class="level-number">2</div>
+                        <div>
+                            <div class="level-title">Developer Level 2</div>
+                            <div class="level-subtitle">Integration & Enhancement</div>
+                        </div>
+                    </div>
+                    <ul class="criteria-list">
+                        <li class="criteria" style="animation-delay: 0.8s">
+                            <span class="checkmark">✅</span>
+                            <div class="criteria-text">
+                                <strong>Git CI Integration</strong> - Automated build and deployment
+                                <div class="tech-tags">
+                                    <span class="tech-tag">GitHub Actions</span>
+                                    <span class="tech-tag">GitLab CI</span>
+                                    <span class="tech-tag">Jenkins</span>
+                                </div>
+                            </div>
+                        </li>
+                        <li class="criteria" style="animation-delay: 0.9s">
+                            <span class="checkmark">✅</span>
+                            <div class="criteria-text">
+                                <strong>Unit Test Cases</strong> - Comprehensive test coverage
+                                <div class="tech-tags">
+                                    <span class="tech-tag">Jest</span>
+                                    <span class="tech-tag">React Testing</span>
+                                    <span class="tech-tag">Mocha</span>
+                                </div>
+                            </div>
+                        </li>
+                        <li class="criteria" style="animation-delay: 1.0s">
+                            <span class="checkmark">✅</span>
+                            <div class="criteria-text">
+                                <strong>Starter Kit Enhancement</strong> - Extended functionality
+                                <div class="tech-tags">
+                                    <span class="tech-tag">Advanced Features</span>
+                                    <span class="tech-tag">Best Practices</span>
+                                </div>
+                            </div>
+                        </li>
+                        <li class="criteria" style="animation-delay: 1.1s">
+                            <span class="checkmark">✅</span>
+                            <div class="criteria-text">
+                                <strong>REST API Enhancement</strong> - Advanced API features
+                                <div class="tech-tags">
+                                    <span class="tech-tag">API Security</span>
+                                    <span class="tech-tag">Rate Limiting</span>
+                                    <span class="tech-tag">Documentation</span>
+                                </div>
+                            </div>
+                        </li>
+                        <li class="criteria" style="animation-delay: 1.2s">
+                            <span class="checkmark">✅</span>
+                            <div class="criteria-text">
+                                <strong>Code Quality Tools</strong> - Static analysis integration
+                                <div class="tech-tags">
+                                    <span class="tech-tag">ESLint</span>
+                                    <span class="tech-tag">Prettier</span>
+                                    <span class="tech-tag">Husky</span>
+                                </div>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+                
+                <!-- Level 3 -->
+                <div class="level level-3">
+                    <div class="level-header">
+                        <div class="level-number">3</div>
+                        <div>
+                            <div class="level-title">Developer Level 3</div>
+                            <div class="level-subtitle">Advanced & Enterprise Ready</div>
+                        </div>
+                    </div>
+                    <ul class="criteria-list">
+                        <li class="criteria" style="animation-delay: 1.3s">
+                            <span class="checkmark">✅</span>
+                            <div class="criteria-text">
+                                <strong>SAST Enablement</strong> - Security testing integration
+                                <div class="tech-tags">
+                                    <span class="tech-tag">SonarQube</span>
+                                    <span class="tech-tag">Snyk</span>
+                                    <span class="tech-tag">CodeQL</span>
+                                </div>
+                            </div>
+                        </li>
+                        <li class="criteria" style="animation-delay: 1.4s">
+                            <span class="checkmark">✅</span>
+                            <div class="criteria-text">
+                                <strong>Pact Test Cases</strong> - Consumer-driven contract testing
+                                <div class="tech-tags">
+                                    <span class="tech-tag">Pact JS</span>
+                                    <span class="tech-tag">Contract Testing</span>
+                                </div>
+                            </div>
+                        </li>
+                        <li class="criteria" style="animation-delay: 1.5s">
+                            <span class="checkmark">✅</span>
+                            <div class="criteria-text">
+                                <strong>PACT Broker</strong> - Contract management platform
+                                <div class="tech-tags">
+                                    <span class="tech-tag">Pact Broker</span>
+                                    <span class="tech-tag">Docker</span>
+                                </div>
+                            </div>
+                        </li>
+                        <li class="criteria" style="animation-delay: 1.6s">
+                            <span class="checkmark">✅</span>
+                            <div class="criteria-text">
+                                <strong>GraphQL Implementation</strong> - Advanced API layer
+                                <div class="tech-tags">
+                                    <span class="tech-tag">GraphQL</span>
+                                    <span class="tech-tag">Apollo</span>
+                                    <span class="tech-tag">Schema</span>
+                                </div>
+                            </div>
+                        </li>
+                        <li class="criteria" style="animation-delay: 1.7s">
+                            <span class="checkmark">✅</span>
+                            <div class="criteria-text">
+                                <strong>Advanced Monitoring</strong> - Performance and error tracking
+                                <div class="tech-tags">
+                                    <span class="tech-tag">Prometheus</span>
+                                    <span class="tech-tag">Grafana</span>
+                                    <span class="tech-tag">Sentry</span>
+                                </div>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="controls">
+                <button class="animate-btn" onclick="restartAnimation()">
+                    🔄 Replay Animation
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Initial animation on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(animateElements, 500);
+        });
+        
+        function animateElements() {
+            const elements = document.querySelectorAll('.level, .criteria, .path-node, .path-connector');
+            elements.forEach(el => {
+                el.style.animation = 'none';
+                setTimeout(() => {
+                    el.style.animation = '';
+                }, 10);
+            });
+        }
+        
+        function restartAnimation() {
+            const elements = document.querySelectorAll('.level, .criteria, .path-node, .path-connector');
+            elements.forEach(el => {
+                el.style.opacity = '0';
+                if (el.classList.contains('level')) {
+                    el.style.transform = 'translateY(50px)';
+                } else if (el.classList.contains('criteria')) {
+                    el.style.transform = 'translateX(-20px)';
+                } else if (el.classList.contains('path-node')) {
+                    el.style.transform = 'translateY(20px)';
+                } else if (el.classList.contains('path-connector')) {
+                    el.style.transform = 'scaleX(0)';
+                }
+            });
+            
+            setTimeout(animateElements, 100);
+        }
+        
+        // Add hover effects
+        document.querySelectorAll('.level').forEach(level => {
+            level.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-10px) scale(1.02)';
+                this.style.transition = 'transform 0.3s ease, box-shadow 0.3s ease';
+                this.style.boxShadow = '0 15px 30px rgba(0,0,0,0.15)';
+            });
+            
+            level.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateY(0) scale(1)';
+                this.style.boxShadow = 'none';
+            });
+        });
+        
+        // Add click to focus effect
+        document.querySelectorAll('.level').forEach(level => {
+            level.addEventListener('click', function() {
+                document.querySelectorAll('.level').forEach(l => {
+                    l.style.opacity = '0.6';
+                    l.style.transform = 'scale(0.95)';
+                });
+                this.style.opacity = '1';
+                this.style.transform = 'scale(1.05)';
+                
+                // Auto-reset after 3 seconds
+                setTimeout(() => {
+                    document.querySelectorAll('.level').forEach(l => {
+                        l.style.opacity = '1';
+                        l.style.transform = 'scale(1)';
+                    });
+                }, 3000);
+            });
+        });
+    </script>
+</body>
+</html>

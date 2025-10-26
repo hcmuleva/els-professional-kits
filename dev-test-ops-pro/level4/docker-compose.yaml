@@ -1,0 +1,36 @@
+version: '3.8'
+services:
+  db:
+    image: postgres:14
+    environment:
+      POSTGRES_USER: pactbroker
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: pactbroker
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    networks:
+      - pact-network
+
+  pact-broker:
+    image: pactfoundation/pact-broker
+    depends_on:
+      - db
+    environment:
+      PACT_BROKER_BASIC_AUTH_USERNAME: admin
+      PACT_BROKER_BASIC_AUTH_PASSWORD: your_secure_password
+
+      PACT_BROKER_DATABASE_URL: postgres://pactbroker:password@db/pactbroker
+      PACT_BROKER_LOG_LEVEL: info
+      Optional: Configure basic authentication for the Pact Broker UI/API
+      PACT_BROKER_USERNAME: admin
+      PACT_BROKER_PASSWORD: your_secure_password
+    ports:
+      - "9292:9292"
+    networks:
+      - pact-network
+
+networks:
+  pact-network:
+
+volumes:
+  db-data:

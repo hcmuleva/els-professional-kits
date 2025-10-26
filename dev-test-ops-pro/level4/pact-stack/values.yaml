@@ -1,0 +1,228 @@
+global:
+  namespace: pact-stack
+  environment: dev
+  createNamespace: true
+  storageClass: "hostpath"  # Override per environment
+  ingressSubdomain: "apps.example.com"  # Set per environment. 
+  tlsSecretName: ""  # Set per environment if using TLS
+  appVersion: ""
+
+# PostgreSQL subchart configuration
+postgres:
+  enabled: true
+  
+  image:
+    repository: postgres
+    tag: "15"
+    pullPolicy: IfNotPresent
+
+  auth:
+    username: postgres
+    # DO NOT hardcode passwords in production - use external secrets
+    password: "CHANGE_ME_IN_OVERLAY"
+    database: pactbroker
+    useSecret: true
+
+  service:
+    type: ClusterIP
+    port: 5432
+
+  persistence:
+    enabled: true
+    size: 10Gi  # Adjust based on environment
+    storageClassName: "hostpath"  # Override per environment
+    mountPath: /var/lib/postgresql/data
+
+  resources:
+    requests:
+      cpu: 250m
+      memory: 512Mi
+    limits:
+      cpu: 1000m
+      memory: 1Gi
+
+  healthChecks:
+    enabled: true
+    readiness:
+      initialDelaySeconds: 10
+      periodSeconds: 5
+    liveness:
+      initialDelaySeconds: 30
+      periodSeconds: 10
+
+  securityContext:
+    enabled: true
+    runAsUser: 999
+    runAsNonRoot: true
+    fsGroup: 999
+    fsGroupChangePolicy: "OnRootMismatch"
+
+  # Backup init container example
+  initContainers: []
+  # - name: restore-backup
+  #   image: postgres:15
+  #   command: ["/bin/sh"]
+  #   args: ["-c", "echo 'Backup restore logic here'"]
+
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+
+# Pact Broker subchart configuration
+fabric-pact-broker:
+  enabled: true
+  
+  replicaCount: 2  # High availability for production
+  initialDelaySeconds: 30
+
+  image:
+    repository: pactfoundation/pact-broker
+    tag: "2.116.0"  # Use specific version for production
+    port: 9292
+    pullPolicy: IfNotPresent
+
+  imagePullSecrets: []
+
+  serviceAccount:
+    create: true
+    annotations: {}
+    name: ""
+
+  podAnnotations:
+    prometheus.io/scrape: "true"
+    prometheus.io/port: "9292"
+    prometheus.io/path: "/metrics"
+
+  podSecurityContext:
+    runAsNonRoot: true
+    runAsUser: 1000
+    fsGroup: 1000
+
+  securityContext:
+    allowPrivilegeEscalation: false
+    capabilities:
+      drop:
+        - ALL
+    readOnlyRootFilesystem: false
+
+  service:
+    type: ClusterIP
+    port: 9292
+
+  # Database configuration - references postgres subchart
+  database:
+    host: "pact-stack-postgres.pact-stack.svc.cluster.local"
+    name: pactbroker
+    username: postgres
+    password: "CHANGE_ME_IN_OVERLAY"
+    useSecret: false
+    existingSecret: ""
+
+  # Basic Auth Configuration - CRITICAL for production
+  basicAuth:
+    enabled: true
+    username: admin
+    password: "CHANGE_ME_IN_OVERLAY"  # Must be changed per environment
+    # Alternative: Use existing secret
+    existingSecret: ""
+    usernameKey: "username"
+    passwordKey: "password"
+
+  # Health checks
+  livenessProbe:
+    httpGet:
+      path: /diagnostic/status/heartbeat
+      port: http
+    initialDelaySeconds: 60
+    periodSeconds: 10
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 3
+
+  readinessProbe:
+    httpGet:
+      path: /diagnostic/status/heartbeat
+      port: http
+    initialDelaySeconds: 30
+    periodSeconds: 10
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 3
+
+  # Ingress configuration
+  ingress:
+    enabled: true
+    annotations:
+      cert-manager.io/cluster-issuer: "letsencrypt-prod"
+      nginx.ingress.kubernetes.io/ssl-redirect: "true"
+      nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+    host: "pact-broker"
+    path: /
+    namespaceInHost: true
+    subdomain: "apps.example.com"
+    tlsSecretName: ""
+
+  # OpenShift Route (if using OpenShift)
+  route:
+    enabled: false
+    insecureEdgeTerminationPolicy: Redirect
+
+  # Resource limits
+  resources:
+    requests:
+      cpu: 250m
+      memory: 512Mi
+    limits:
+      cpu: 1000m
+      memory: 1Gi
+
+  # Horizontal Pod Autoscaling
+  autoscaling:
+    enabled: true
+    maxReplicas: 5
+    targetCPUUtilizationPercentage: 70
+    targetMemoryUtilizationPercentage: 80
+
+  # Environment-specific ConfigMap
+  configMap:
+    PACT_BROKER_LOG_LEVEL: "INFO"
+    PACT_BROKER_SQL_LOG_LEVEL: "WARN"
+    PACT_BROKER_DATABASE_SSLMODE: "prefer"
+    PACT_BROKER_DISABLE_SSL_VERIFICATION: "false"
+    # Webhook configuration
+    PACT_BROKER_WEBHOOK_HTTP_METHOD_WHITELIST: "GET POST PUT PATCH DELETE"
+    PACT_BROKER_WEBHOOK_SCHEME_WHITELIST: "https"
+    # Additional security
+    PACT_BROKER_ALLOW_PUBLIC_READ: "false"
+    PACT_BROKER_ENABLE_PUBLIC_BADGE_ACCESS: "false"
+
+  # Additional environment variables from secrets
+  envFrom: []
+
+  # Labels for topology view
+  vcsInfo:
+    ref: ""
+    repoUrl: ""
+  
+  connectsTo: "pact-stack-postgres"
+  partOf: "pact-stack"
+  runtime: "ruby"
+  component: "broker"
+
+  # Istio service mesh
+  istio: false
+
+  nodeSelector: {}
+  tolerations: []
+  affinity:
+    podAntiAffinity:
+      preferredDuringSchedulingIgnoredDuringExecution:
+        - weight: 100
+          podAffinityTerm:
+            labelSelector:
+              matchExpressions:
+                - key: app.kubernetes.io/name
+                  operator: In
+                  values:
+                    - fabric-pact-broker
+            topologyKey: kubernetes.io/hostname

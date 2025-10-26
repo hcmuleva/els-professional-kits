@@ -1,0 +1,24 @@
+apiVersion: v2
+name: web-suite
+description: Umbrella chart for React UI, Strapi API, Postgres, Hello World
+type: application
+version: 0.1.0
+appVersion: "1.0"
+
+dependencies:
+  - name: react-ui
+    alias: reactUi
+    version: 0.1.0
+    repository: "file://../react-ui"
+  - name: temple-api
+    alias: templeApi
+    version: 0.1.0
+    repository: "file://../temple-api"
+  - name: postgres
+    alias: postgres
+    version: 0.1.0
+    repository: "file://../postgres"
+  - name: hello-world
+    alias: helloWorld
+    version: 0.1.0
+    repository: "file://../hello-world"

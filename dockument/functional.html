@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Karate Starter Kit Guide</title>
+  <style>
+    body {
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0;
+      background: #f9f9f9;
+      color: #333;
+    }
+    header {
+      background: #007bff;
+      color: #fff;
+      padding: 16px;
+      text-align: center;
+      font-size: 20px;
+      font-weight: bold;
+      letter-spacing: 0.5px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    .tab {
+      display: flex;
+      background: #fff;
+      border-bottom: 1px solid #ddd;
+    }
+    .tab button {
+      flex: 1;
+      padding: 14px 16px;
+      border: none;
+      outline: none;
+      cursor: pointer;
+      background: #fff;
+      font-size: 16px;
+      font-weight: 500;
+      transition: background 0.2s, color 0.2s;
+    }
+    .tab button:hover {
+      background: #f0f0f0;
+    }
+    .tab button.active {
+      border-bottom: 3px solid #007bff;
+      color: #007bff;
+      font-weight: bold;
+    }
+    .tabcontent {
+      display: none;
+      padding: 20px;
+      height: calc(100vh - 130px);
+      overflow-y: auto;
+      background: #fff;
+    }
+    h1, h2, h3 {
+      margin-top: 20px;
+      color: #222;
+    }
+    pre {
+      background: #272822;
+      color: #f8f8f2;
+      padding: 12px;
+      border-radius: 6px;
+      overflow-x: auto;
+      line-height: 1.5;
+    }
+    code {
+      background: #eee;
+      padding: 2px 4px;
+      border-radius: 4px;
+      font-size: 90%;
+    }
+    ul {
+      margin: 10px 0 10px 20px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 15px 0;
+      font-size: 15px;
+    }
+    table th, table td {
+      border: 1px solid #ddd;
+      padding: 10px;
+      text-align: left;
+    }
+    table th {
+      background: #f2f2f2;
+    }
+    .note {
+      background: #e7f3fe;
+      border-left: 5px solid #2196F3;
+      padding: 10px;
+      margin: 15px 0;
+      border-radius: 4px;
+    }
+  </style>
+</head>
+<body>
+
+  <header>Karate Starter Kit - Professional Guide</header>
+
+  <div class="tab">
+    <button class="tablinks" onclick="openTab(event, 'Setup')" id="defaultOpen">📘 Setup Guide</button>
+    <button class="tablinks" onclick="openTab(event, 'Reference')">📑 Reference Cards</button>
+    <button class="tablinks" onclick="openTab(event, 'Comparison')">🗂 Level Comparison</button>
+  </div>
+
+  <!-- Setup Guide -->
+  <div id="Setup" class="tabcontent">
+    <h1>Karate Starter Kit Generator - Complete Setup Guide</h1>
+
+    <div class="note">This starter kit generator creates a complete Karate API test automation project with three progressive levels.</div>
+
+    <h2>📦 What's Included</h2>
+    <ul>
+      <li><b>Level 1</b> - Simple Feature files</li>
+      <li><b>Level 2</b> - Maven + Reports</li>
+      <li><b>Level 3</b> - Advanced: CI/CD + Test Data + Utilities</li>
+    </ul>
+
+    <h2>⚙️ Prerequisites</h2>
+    <ul>
+      <li>Java 8+</li>
+      <li>Maven</li>
+      <li>Node.js (optional, if integrating)</li>
+    </ul>
+
+    <h2>🚀 Steps to Generate Project</h2>
+    <pre>
+# Clone generator repo
+git clone https://github.com/karatelabs/karate-starter-kit.git
+cd karate-starter-kit
+
+# Run generator
+./generate-kit.sh
+    </pre>
+
+    <h2>📂 Generated Project Structure</h2>
+    <pre>
+my-karate-project/
+ ├── pom.xml
+ ├── src/test/java
+ │    ├── examples/
+ │    └── runners/
+ ├── src/test/resources/
+ │    └── features/
+ └── reports/
+    </pre>
+
+    <h2>▶️ Run Tests</h2>
+    <pre>
+# Run all tests
+mvn test
+
+# Run specific tag
+mvn test -Dkarate.options="--tags @smoke"
+    </pre>
+
+    <h2>📊 Reports</h2>
+    <ul>
+      <li>HTML Reports → <code>target/karate-reports/karate-summary.html</code></li>
+      <li>JUnit XML → <code>target/surefire-reports/TEST-*.xml</code></li>
+    </ul>
+  </div>
+
+  <!-- Reference Card -->
+  <div id="Reference" class="tabcontent">
+    <h1>Karate Starter Kit - Quick Reference Card</h1>
+
+    <h2>🚀 Quick Commands</h2>
+    <pre>
+# Generate kit (Linux/Mac)
+./generate-kit.sh
+
+# Generate kit (Windows)
+generate-kit.bat
+
+# Install dependencies
+mvn clean install -DskipTests
+
+# Run all tests
+mvn test
+    </pre>
+
+    <h2>🏷 Running by Tag</h2>
+    <pre>
+mvn test -Dkarate.options="--tags @smoke"
+mvn test -Dkarate.options="--tags @regression"
+    </pre>
+
+    <h2>🛠 Directory Structure</h2>
+    <pre>
+src/test/resources/features    → Feature files
+src/test/java/examples         → Example Java classes
+src/test/java/runners          → JUnit runners
+reports                        → Test reports
+    </pre>
+
+    <h2>📊 Reports</h2>
+    <ul>
+      <li><b>HTML:</b> target/karate-reports/karate-summary.html</li>
+      <li><b>JUnit XML:</b> target/surefire-reports/</li>
+    </ul>
+
+    <h2>🔑 Useful Snippets</h2>
+    <pre>
+# GET request
+Given url baseUrl
+When method get
+Then status 200
+
+# POST request with body
+Given url baseUrl + '/login'
+And request { username: 'user', password: 'pass' }
+When method post
+Then status 200
+    </pre>
+  </div>
+
+  <!-- Level Comparison -->
+  <div id="Comparison" class="tabcontent">
+    <h1>Karate Starter Kit - Level Selection Guide</h1>
+
+    <h2>🎯 Choose Your Level</h2>
+    <p>This guide helps you select the right starter kit level based on your needs, experience, and project requirements.</p>
+
+    <h2>📊 Detailed Comparison</h2>
+    <table>
+      <tr><th>Criteria</th><th>Level 1 🟢</th><th>Level 2 🟡</th><th>Level 3 🔴</th></tr>
+      <tr><td><b>Target Users</b></td><td>Beginners</td><td>Intermediate</td><td>Advanced/Production</td></tr>
+      <tr><td><b>Learning Curve</b></td><td>Easy</td><td>Moderate</td><td>Steep</td></tr>
+      <tr><td><b>Setup Time</b></td><td>5 minutes</td><td>10 minutes</td><td>15 minutes</td></tr>
+      <tr><td><b>Test Count</b></td><td>4 scenarios</td><td>5-10 scenarios</td><td>20+ scenarios</td></tr>
+      <tr><td><b>Lines of Code</b></td><td>~80</td><td>~200</td><td>~500+</td></tr>
+      <tr><td><b>Complexity</b></td><td>Simple</td><td>Medium</td><td>Complex</td></tr>
+      <tr><td><b>Maintenance</b></td><td>Low</td><td>Medium</td><td>High</td></tr>
+      <tr><td><b>Reusability</b></td><td>None</td><td>High</td><td>Very High</td></tr>
+    </table>
+
+    <h2>🟢 Level 1 - Basic Authentication</h2>
+    <p><b>Ideal For:</b> Beginners, quick POCs, tutorials</p>
+    <pre>
+4 Test Scenarios:
+├── Register a new user
+├── Login with username
+├── Login with email
+└── Get authenticated user info
+    </pre>
+    <pre>
+Scenario: Register a new user
+  * def username = 'user' + timestamp()
+  * def email = username + '@test.com'
+  
+  Given path '/auth/local/register'
+  And request { "username": "#(username)", "email": "#(email)", "password": "Test@123456" }
+  When method POST
+  Then status 200
+  And match response.jwt == '#string'
+    </pre>
+
+    <h2>🟡 Level 2 - Data Driven Testing</h2>
+    <p><b>Ideal For:</b> Intermediate users, regression, reusable patterns</p>
+    <pre>
+Scenario Outline: Register multiple users
+  * def uniqueUsername = '<username>' + timestamp()
+  * def uniqueEmail = uniqueUsername + '@test.com'
+  
+  Given path '/auth/local/register'
+  And request
+    """
+    {
+      "username": "#(uniqueUsername)",
+      "email": "#(uniqueEmail)",
+      "password": "<password>",
+      "first_name": "<firstName>",
+      "last_name": "<lastName>"
+    }
+    """
+  When method POST
+  Then status 200
+
+  Examples:
+    | username   | password    | firstName | lastName |
+    | john_user  | Pass@123456 | John      | Smith    |
+    | jane_user  | Pass@123456 | Jane      | Doe      |
+    </pre>
+
+    <h2>🔴 Level 3 - Advanced Testing</h2>
+    <p><b>Ideal For:</b> Experienced testers, production suites, CI/CD integration</p>
+    <pre>
+Scenario: Update current user details
+  * def newUsername = randomUsername()
+  
+  Given path '/users/' + currentUserId
+  And header Authorization = 'Bearer ' + jwt
+  And request { "username": "#(newUsername)" }
+  When method PUT
+  Then status 200
+  And match response.username == newUsername
+  And match response.id == currentUserId
+    </pre>
+  </div>
+
+  <script>
+    function openTab(evt, tabName) {
+      var i, tabcontent, tablinks;
+      tabcontent = document.getElementsByClassName("tabcontent");
+      for (i = 0; i < tabcontent.length; i++) {
+        tabcontent[i].style.display = "none";
+      }
+      tablinks = document.getElementsByClassName("tablinks");
+      for (i = 0; i < tablinks.length; i++) {
+        tablinks[i].className = tablinks[i].className.replace(" active", "");
+      }
+      document.getElementById(tabName).style.display = "block";
+      evt.currentTarget.className += " active";
+    }
+    document.getElementById("defaultOpen").click();
+  </script>
+
+</body>
+</html>

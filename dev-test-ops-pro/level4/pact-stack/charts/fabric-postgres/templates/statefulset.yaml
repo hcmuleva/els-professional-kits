@@ -1,0 +1,90 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ include "fabric-postgres.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "fabric-postgres.labels" . | nindent 4 }}
+spec:
+  
+  serviceName: {{ include "fabric-postgres.fullname" . }}
+  replicas: 1
+  selector:
+    matchLabels:
+      {{- include "fabric-postgres.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "fabric-postgres.labels" . | nindent 8 }}
+    spec:
+      {{- if .Values.securityContext.enabled }}
+      securityContext:
+        {{- if .Values.securityContext.runAsUser }}
+        runAsUser: {{ .Values.securityContext.runAsUser }}
+        {{- end }}
+        {{- if .Values.securityContext.runAsNonRoot }}
+        runAsNonRoot: {{ .Values.securityContext.runAsNonRoot }}
+        {{- end }}
+        {{- if .Values.securityContext.fsGroup }}
+        fsGroup: {{ .Values.securityContext.fsGroup }}
+        {{- end }}
+        {{- if .Values.securityContext.fsGroupChangePolicy }}
+        fsGroupChangePolicy: {{ .Values.securityContext.fsGroupChangePolicy }}
+        {{- end }}
+      {{- end }}
+      {{- if .Values.initContainers }}
+      initContainers:
+      {{- toYaml .Values.initContainers | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: postgres
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          {{- if .Values.securityContext.enabled }}
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+          {{- end }}
+          ports:
+            - containerPort: {{ .Values.service.port }}
+              name: postgres
+          envFrom:
+            - secretRef:
+                name: {{ include "fabric-postgres.secretName" . }}  
+
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          readinessProbe:
+            exec:
+              command:
+                - /bin/sh
+                - -c
+                - pg_isready -U $POSTGRES_USER
+            initialDelaySeconds: {{ .Values.healthChecks.readiness.initialDelaySeconds }}
+            periodSeconds: {{ .Values.healthChecks.readiness.periodSeconds }}
+          livenessProbe:
+            exec:
+              command:
+                - /bin/sh
+                - -c
+                - pg_isready -U $POSTGRES_USER
+            initialDelaySeconds: {{ .Values.healthChecks.liveness.initialDelaySeconds }}
+            periodSeconds: {{ .Values.healthChecks.liveness.periodSeconds }}
+          volumeMounts:
+            - name: postgres-data
+              mountPath: {{ .Values.persistence.mountPath }}
+              subPath: postgres
+  volumeClaimTemplates:
+    - metadata:
+        name: postgres-data
+        labels:
+          {{- include "fabric-postgres.labels" . | nindent 10 }}
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        storageClassName: {{ .Values.persistence.storageClassName | quote }}
+        resources:
+          requests:
+            storage: {{ .Values.persistence.size | quote }}

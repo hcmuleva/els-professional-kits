@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Testing Kit Home</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      line-height: 1.6;
+      background: #f4f6f8;
+      margin: 0;
+      padding: 0;
+    }
+    header {
+      background: #2c3e50;
+      color: #fff;
+      padding: 20px;
+      text-align: center;
+    }
+    h1 { margin: 0; }
+    .tab-container {
+      margin: 20px auto;
+      max-width: 1200px;
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    .tabs {
+      display: flex;
+      border-bottom: 2px solid #ddd;
+    }
+    .tab {
+      flex: 1;
+      text-align: center;
+      padding: 14px;
+      cursor: pointer;
+      font-weight: bold;
+      background: #ecf0f1;
+      border-right: 1px solid #ddd;
+      transition: 0.3s;
+    }
+    .tab:last-child { border-right: none; }
+    .tab:hover { background: #dfe6e9; }
+    .tab.active {
+      background: #fff;
+      border-bottom: 2px solid #2c3e50;
+      color: #2c3e50;
+    }
+    .tab-content {
+      display: none;
+      padding: 20px;
+    }
+    .tab-content.active { display: block; }
+    pre, code {
+      background: #f1f1f1;
+      padding: 10px;
+      border-radius: 5px;
+      overflow-x: auto;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 15px 0;
+    }
+    table th, table td {
+      border: 1px solid #ccc;
+      padding: 8px;
+      text-align: left;
+    }
+    table th {
+      background: #ecf0f1;
+    }
+    .highlight {
+      color: #2c3e50;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Testing Kit – Functional + Performance + Security</h1>
+    <p>One-stop guide for QA, Developers, and DevOps to start with Functional, Performance, and Security testing.</p>
+  </header>
+
+  <div class="tab-container">
+    <div class="tabs">
+      <div class="tab active" onclick="openTab('functional')">Functional Testing</div>
+      <div class="tab" onclick="openTab('performance')">Performance Testing</div>
+      <div class="tab" onclick="openTab('security')">Security & CI/CD</div>
+    </div>
+
+    <!-- Functional Testing Tab -->
+    <div id="functional" class="tab-content active">
+      <h2>⚙️ Functional Testing (Karate Framework)</h2>
+      <h3>Objective</h3>
+      <p>Ensure that all business features of the API are working correctly with automated regression tests.</p>
+
+      <h3>Goal</h3>
+      <ul>
+        <li>Automate login, registration, profile, and core APIs.</li>
+        <li>Provide CI-ready test suite.</li>
+        <li>Enable smoke, sanity, regression test categories.</li>
+      </ul>
+
+      <h3>Approach</h3>
+      <ul>
+        <li>Karate DSL for API automation.</li>
+        <li>Feature files organized by module.</li>
+        <li>Tagged execution for selective runs.</li>
+      </ul>
+
+      <h3>Tools & Tech Stack</h3>
+      <ul>
+        <li><b>Karate</b> – API automation</li>
+        <li><b>Java + Maven</b> – Build system</li>
+        <li><b>JUnit / TestNG</b> – Runners</li>
+        <li><b>Allure</b> – Reporting</li>
+      </ul>
+
+      <h3>Sample Runner</h3>
+      <pre><code>package strapi.auth;
+
+import com.intuit.karate.junit5.Karate;
+
+public class AuthRunner {
+    @Karate.Test
+    Karate testAuth() {
+        return Karate.run("login").relativeTo(getClass());
+    }
+    @Karate.Test
+    Karate testLogin() {
+        return Karate.run("login").tags("@smoke").relativeTo(getClass());
+    }
+}</code></pre>
+
+      <h3>Execution</h3>
+      <pre><code># Run all tests
+mvn test
+
+# Run by tag
+mvn test -Dkarate.options="--tags @smoke"</code></pre>
+    </div>
+
+    <!-- Performance Testing Tab -->
+    <div id="performance" class="tab-content">
+      <h2>🚀 Performance Testing (K6 Framework)</h2>
+
+      <h3>Objective</h3>
+      <p>Measure system scalability and stability under real-world traffic conditions.</p>
+
+      <h3>Goal</h3>
+      <ul>
+        <li>Identify performance bottlenecks.</li>
+        <li>Define performance SLAs (Response Time, Throughput, Error Rate).</li>
+        <li>Validate system reliability under load and stress.</li>
+      </ul>
+
+      <h3>Approach</h3>
+      <ul>
+        <li>Use <b>K6</b> for load, stress, soak testing.</li>
+        <li>Scenarios designed as Level 1, 2, 3 progression.</li>
+        <li>Data-driven login and multi-scenario tests.</li>
+      </ul>
+
+      <h3>Quick Commands</h3>
+      <pre><code># Install K6
+brew install k6      # macOS
+choco install k6     # Windows
+sudo apt-get install k6  # Linux
+
+# Run tests
+k6 run performance/level1-basic.js
+k6 run performance/level2-datadriven.js
+k6 run performance/level3-advanced.js</code></pre>
+
+      <h3>Three Levels</h3>
+      <table>
+        <tr><th>Level</th><th>VUs</th><th>Duration</th><th>RPS</th><th>Scenarios</th><th>Goal</th></tr>
+        <tr><td>1</td><td>10</td><td>2m</td><td>2–5</td><td>1</td><td>Learn basics</td></tr>
+        <tr><td>2</td><td>50</td><td>5m</td><td>6–15</td><td>3</td><td>Data-driven</td></tr>
+        <tr><td>3</td><td>200</td><td>17m</td><td>10–50</td><td>4</td><td>Production scale</td></tr>
+      </table>
+
+      <h3>Thresholds</h3>
+      <pre><code>Level 1: Response Time (p95) &lt; 500ms | Error Rate &lt; 1%
+Level 2: Response Time (p95) &lt; 800ms | Error Rate &lt; 2%
+Level 3: Response Time (p95) &lt; 1000ms | Error Rate &lt; 5%</code></pre>
+
+      <h3>Metrics</h3>
+      <ul>
+        <li><b>http_req_duration</b> – Total request time</li>
+        <li><b>http_req_failed</b> – Error ratio</li>
+        <li><b>vus</b> – Virtual users</li>
+        <li><b>checks</b> – Assertion pass rate</li>
+      </ul>
+    </div>
+
+    <!-- Security & CI/CD Tab -->
+    <div id="security" class="tab-content">
+      <h2>🔐 Security Testing + CI/CD Integration</h2>
+
+      <h3>Objective</h3>
+      <p>Integrate SAST, DAST, and Dependency Scanning into CI pipelines for full coverage.</p>
+
+      <h3>CI/CD Tools</h3>
+      <ul>
+        <li><b>GitHub Actions</b>, <b>Jenkins</b>, <b>GitLab CI</b> for pipelines</li>
+        <li><b>SonarQube</b> – Code quality & coverage (SAST)</li>
+        <li><b>OWASP ZAP</b> – Runtime vulnerability scanning (DAST)</li>
+        <li><b>Mend / Checkmarx</b> – Dependency scanning</li>
+      </ul>
+
+      <h3>CI Levels</h3>
+      <ul>
+        <li><b>Unit Tests</b> – run on PRs</li>
+        <li><b>Coverage Checks</b> – enforce min %</li>
+        <li><b>SAST</b> – static code analysis</li>
+        <li><b>DAST</b> – dynamic runtime scan</li>
+        <li><b>Performance Smoke</b> – run nightly</li>
+      </ul>
+
+      <h3>Sample GitHub Workflow</h3>
+      <pre><code>name: CI Pipeline
+on: [push, pull_request]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Setup JDK
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+      - name: Run Functional Tests
+        run: mvn test
+      - name: Run K6 Smoke Test
+        run: k6 run performance/level1-basic.js
+      - name: SonarQube Analysis
+        run: mvn sonar:sonar</code></pre>
+    </div>
+  </div>
+
+  <script>
+    function openTab(tabId) {
+      const contents = document.querySelectorAll('.tab-content');
+      const tabs = document.querySelectorAll('.tab');
+      contents.forEach(c => c.classList.remove('active'));
+      tabs.forEach(t => t.classList.remove('active'));
+      document.getElementById(tabId).classList.add('active');
+      event.currentTarget.classList.add('active');
+    }
+  </script>
+</body>
+</html>

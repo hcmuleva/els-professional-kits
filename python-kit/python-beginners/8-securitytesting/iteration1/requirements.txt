@@ -1,0 +1,44 @@
+# Security Testing Lab - Python Dependencies
+# ==========================================
+
+# Core web framework
+Flask==2.3.3
+
+# HTTP requests for security testing
+requests==2.31.0
+
+# Additional security and utility libraries (optional)
+# Uncomment if you want to extend the examples
+
+# Cryptography libraries
+# pycryptodome==3.19.0
+
+# Image processing (for steganography examples)
+# Pillow==10.1.0
+
+# Scientific computing (for advanced algorithms)
+# numpy==1.25.2
+
+# Web scraping and parsing (for reconnaissance)
+# beautifulsoup4==4.12.2
+
+# Database operations (SQLite3 is built into Python)
+# No additional requirements for basic database operations
+
+# Testing and development
+# pytest==7.4.3
+# pytest-flask==1.3.0
+
+# Code quality
+# flake8==6.1.0
+# black==23.11.0
+
+# Documentation
+# sphinx==7.2.6
+
+# Security scanning (optional, for advanced users)
+# bandit==1.7.5
+
+# Note: This lab is designed to work with minimal dependencies
+# Only Flask and requests are required for core functionality
+# Other packages are optional and can be installed as needed

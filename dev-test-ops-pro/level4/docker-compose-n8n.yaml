@@ -1,0 +1,35 @@
+version: '3.8'
+
+services:
+  n8n:
+    image: docker.n8n.io/n8nio/n8n
+    restart: always
+    ports:
+      - "5678:5678"
+    environment:
+      - DB_TYPE=postgresdb
+      - DB_POSTGRESDB_HOST=postgres
+      - DB_POSTGRESDB_DATABASE=n8n_database
+      - DB_POSTGRESDB_USER=n8n_user
+      - DB_POSTGRESDB_PASSWORD=n8n_password
+      - GENERIC_TIMEZONE=Europe/Berlin # Example timezone, adjust as needed
+      - TZ=Europe/Berlin # Example timezone, adjust as needed
+      # Add other n8n environment variables here as required
+    volumes:
+      - n8n_data:/home/node/.n8n
+    depends_on:
+      - postgres
+
+  postgres:
+    image: postgres:15
+    restart: always
+    environment:
+      - POSTGRES_DB=n8n_database
+      - POSTGRES_USER=n8n_user
+      - POSTGRES_PASSWORD=n8n_password
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  n8n_data:
+  postgres_data:

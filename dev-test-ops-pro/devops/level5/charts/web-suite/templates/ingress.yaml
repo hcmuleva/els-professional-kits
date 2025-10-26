@@ -1,0 +1,27 @@
+{{- if .Values.ingress.enabled }}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ include "web-suite.fullname" . }}-ingress
+  labels:
+    app.kubernetes.io/name: web-suite
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/part-of: web-suite
+  annotations:
+    kubernetes.io/ingress.class: {{ .Values.ingress.className | quote }}
+spec:
+  ingressClassName: {{ .Values.ingress.className }}
+  rules:
+    - host: {{ .Values.ingress.host | quote }}
+      http:
+        paths:
+          {{- range .Values.ingress.paths }}
+          - path: {{ .path }}
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ .service }}
+                port:
+                  number: {{ .port }}
+          {{- end }}
+{{- end }}

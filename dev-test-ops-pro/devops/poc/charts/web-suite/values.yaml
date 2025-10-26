@@ -45,6 +45,7 @@ apiserver:
   env:
     HOST: "0.0.0.0"
     PORT: "1337"
+    CENTRALIZED_SERVER: "http://localhost:1337"
     DATABASE_CLIENT: "postgres"
     DATABASE_HOST: "postgres-service"
     DATABASE_PORT: "5432"

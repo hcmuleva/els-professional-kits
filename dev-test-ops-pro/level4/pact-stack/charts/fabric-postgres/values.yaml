@@ -1,0 +1,53 @@
+global:
+  namespace: default
+  environment: dev
+  createNamespace: false
+  storageClass: "hostpath"
+  tlsSecretName: ""
+image:
+  repository: postgres
+  tag: "15"
+  pullPolicy: IfNotPresent
+
+auth:
+  username: postgres
+  password: dev123
+  database: appdb
+  existingSecret: ""
+service:
+  type: ClusterIP
+  port: 5432
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 256Mi
+  limits:
+    cpu: 500m
+    memory: 512Mi
+persistence:
+  enabled: true
+  size: 2Gi
+  storageClassName: "hostpath" 
+  mountPath: /var/lib/postgresql/data
+
+healthChecks:
+  enabled: true
+  readiness:
+    initialDelaySeconds: 10
+    periodSeconds: 5
+  liveness:
+    initialDelaySeconds: 30
+    periodSeconds: 10
+securityContext:
+  enabled: false  # Disable for Docker Desktop compatibility
+
+initContainers: []
+autoscaling:
+  enabled: false
+  maxReplicas: 100
+  targetCPUUtilizationPercentage: 80
+  # targetMemoryUtilizationPercentage: 80
+nodeSelector: {}
+
+tolerations: []

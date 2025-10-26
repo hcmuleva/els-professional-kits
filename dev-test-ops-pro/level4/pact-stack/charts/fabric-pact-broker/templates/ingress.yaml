@@ -1,0 +1,37 @@
+{{- if .Values.ingress.enabled -}}
+{{- $fullName := include "fabric-pact-broker.fullname" . -}}
+{{- $svcPort := .Values.service.port -}}
+{{- if semverCompare ">=1.14-0" .Capabilities.KubeVersion.GitVersion -}}
+apiVersion: networking.k8s.io/v1 
+
+{{- else -}}
+apiVersion: extensions/v1beta1
+{{- end }}
+kind: Ingress
+metadata:
+  name: {{ $fullName }}
+  labels:
+    {{- include "fabric-pact-broker.labels" . | nindent 4 }}
+  {{- with .Values.ingress.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  {{- if include "fabric-pact-broker.tlsSecretName" . }}
+  tls:
+    - hosts:
+        - {{ include "fabric-pact-broker.host" . }}
+      secretName: {{ include "fabric-pact-broker.tlsSecretName" . }}
+  {{- end }}
+  rules:
+    - host: {{ include "fabric-pact-broker.host" . }}
+      http:
+        paths:
+          - path: {{ .Values.ingress.path }}
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ $fullName }}
+                port:
+                  number: {{ $svcPort }}
+{{- end }}

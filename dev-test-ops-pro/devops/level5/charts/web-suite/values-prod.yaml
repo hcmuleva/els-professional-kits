@@ -1,0 +1,6 @@
+ingress:
+  host: web-suite.local
+
+templeApi:
+  env:
+    CENTRALIZED_SERVER: "https://web-suite.local"

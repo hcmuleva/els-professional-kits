@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Security Assessment Report - Secure Application</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6; color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh; padding: 20px;
+        }
+        .container { 
+            max-width: 1200px; margin: 0 auto; background: white;
+            border-radius: 15px; box-shadow: 0 20px 60px rgba(0,0,0,0.1); overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            color: white; padding: 40px; text-align: center;
+        }
+        .header h1 { font-size: 2.5rem; margin-bottom: 10px; }
+        .risk-assessment { background: #f57c00; color: white; padding: 30px; text-align: center; }
+        .metrics-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; padding: 30px; }
+        .metric-card { background: linear-gradient(135deg, #4FC3F7 0%, #2196F3 100%); color: white; padding: 25px; border-radius: 12px; text-align: center; }
+        .metric-card h3 { margin: 0 0 10px 0; opacity: 0.9; }
+        .metric-card .value { font-size: 2.5em; font-weight: bold; }
+        .severity-breakdown { padding: 30px; background: #f8f9fa; }
+        .severity-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-top: 20px; }
+        .severity-card { padding: 20px; border-radius: 8px; text-align: center; color: white; }
+        .critical { background: linear-gradient(135deg, #d32f2f, #f44336); }
+        .high { background: linear-gradient(135deg, #f57c00, #ff9800); }
+        .medium { background: linear-gradient(135deg, #fbc02d, #ffeb3b); color: #333; }
+        .low { background: linear-gradient(135deg, #388e3c, #4caf50); }
+        .vulnerability { background: white; border-left: 6px solid #f44336; margin: 25px 0; padding: 25px; border-radius: 0 12px 12px 0; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        .vuln-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .vuln-title { font-size: 1.3em; font-weight: bold; color: #333; }
+        .severity-badge { padding: 8px 16px; border-radius: 25px; color: white; font-weight: bold; }
+        .vuln-details { line-height: 1.8; color: #555; }
+        .code { background: #2d3748; color: #e2e8f0; padding: 10px; border-radius: 5px; font-family: monospace; }
+        .fix-recommendation { background: linear-gradient(135deg, #e8f5e8, #c8e6c9); border-left: 4px solid #4caf50; padding: 20px; margin-top: 20px; border-radius: 0 8px 8px 0; }
+        .no-vulnerabilities { text-align: center; padding: 60px; background: linear-gradient(135deg, #e8f5e8, #c8e6c9); border-radius: 12px; color: #2e7d32; margin: 20px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🛡️ Security Assessment Report</h1>
+            <h2>Secure Application</h2>
+            <p>Generated on: 2025-10-26 12:11:29</p>
+            <p>Target: http://localhost:5001</p>
+        </div>
+        
+        <div class="risk-assessment">
+            <h2>Overall Risk Level: 🟠 HIGH RISK</h2>
+            <p>Risk Score: 115 | Risk Percentage: 65.7%</p>
+        </div>
+        
+        <div class="metrics-grid">
+            <div class="metric-card">
+                <h3>Total Vulnerabilities</h3>
+                <div class="value">7</div>
+            </div>
+            <div class="metric-card">
+                <h3>Risk Score</h3>
+                <div class="value">115</div>
+            </div>
+            <div class="metric-card">
+                <h3>Tests Performed</h3>
+                <div class="value">7</div>
+            </div>
+        </div>
+        
+        <div class="severity-breakdown">
+            <h2>Vulnerability Breakdown by Severity</h2>
+            <div class="severity-grid">
+                <div class="severity-card critical">
+                    <h3>🔴 Critical</h3>
+                    <h2>1</h2>
+                </div>
+                <div class="severity-card high">
+                    <h3>🟠 High</h3>
+                    <h2>6</h2>
+                </div>
+                <div class="severity-card medium">
+                    <h3>🟡 Medium</h3>
+                    <h2>0</h2>
+                </div>
+                <div class="severity-card low">
+                    <h3>🟢 Low</h3>
+                    <h2>0</h2>
+                </div>
+            </div>
+        </div><div style="padding: 30px;"><h2>🔍 Detailed Vulnerability Findings</h2>
+        <div class="vulnerability">
+            <div class="vuln-header">
+                <div class="vuln-title">1. SQL Injection (Error-based)</div>
+                <div class="severity-badge" style="background-color: #f57c00">
+                    High
+                </div>
+            </div>
+            <div class="vuln-details">
+                <p><strong>📍 Endpoint:</strong> <code>/login</code></p>
+                <p><strong>🎯 Payload:</strong> <div class="code">admin' OR '1'='1</div></p>
+                <p><strong>📝 Description:</strong> SQL errors exposed, potential for error-based injection</p>
+                <p><strong>⏰ Discovered:</strong> 2025-10-26 12:11:28</p>
+                <div class="fix-recommendation"><strong>🔧 Fix Recommendation:</strong><br>Implement proper error handling and use parameterized queries</div>
+            </div>
+        </div>
+        <div class="vulnerability">
+            <div class="vuln-header">
+                <div class="vuln-title">2. SQL Injection (Error-based)</div>
+                <div class="severity-badge" style="background-color: #f57c00">
+                    High
+                </div>
+            </div>
+            <div class="vuln-details">
+                <p><strong>📍 Endpoint:</strong> <code>/login</code></p>
+                <p><strong>🎯 Payload:</strong> <div class="code">admin' OR '1'='1'--</div></p>
+                <p><strong>📝 Description:</strong> SQL errors exposed, potential for error-based injection</p>
+                <p><strong>⏰ Discovered:</strong> 2025-10-26 12:11:28</p>
+                <div class="fix-recommendation"><strong>🔧 Fix Recommendation:</strong><br>Implement proper error handling and use parameterized queries</div>
+            </div>
+        </div>
+        <div class="vulnerability">
+            <div class="vuln-header">
+                <div class="vuln-title">3. SQL Injection (Error-based)</div>
+                <div class="severity-badge" style="background-color: #f57c00">
+                    High
+                </div>
+            </div>
+            <div class="vuln-details">
+                <p><strong>📍 Endpoint:</strong> <code>/login</code></p>
+                <p><strong>🎯 Payload:</strong> <div class="code">admin' OR 1=1#</div></p>
+                <p><strong>📝 Description:</strong> SQL errors exposed, potential for error-based injection</p>
+                <p><strong>⏰ Discovered:</strong> 2025-10-26 12:11:28</p>
+                <div class="fix-recommendation"><strong>🔧 Fix Recommendation:</strong><br>Implement proper error handling and use parameterized queries</div>
+            </div>
+        </div>
+        <div class="vulnerability">
+            <div class="vuln-header">
+                <div class="vuln-title">4. SQL Injection (Error-based)</div>
+                <div class="severity-badge" style="background-color: #f57c00">
+                    High
+                </div>
+            </div>
+            <div class="vuln-details">
+                <p><strong>📍 Endpoint:</strong> <code>/login</code></p>
+                <p><strong>🎯 Payload:</strong> <div class="code">' OR 'a'='a</div></p>
+                <p><strong>📝 Description:</strong> SQL errors exposed, potential for error-based injection</p>
+                <p><strong>⏰ Discovered:</strong> 2025-10-26 12:11:28</p>
+                <div class="fix-recommendation"><strong>🔧 Fix Recommendation:</strong><br>Implement proper error handling and use parameterized queries</div>
+            </div>
+        </div>
+        <div class="vulnerability">
+            <div class="vuln-header">
+                <div class="vuln-title">5. SQL Injection (Error-based)</div>
+                <div class="severity-badge" style="background-color: #f57c00">
+                    High
+                </div>
+            </div>
+            <div class="vuln-details">
+                <p><strong>📍 Endpoint:</strong> <code>/login</code></p>
+                <p><strong>🎯 Payload:</strong> <div class="code">admin'; DROP TABLE users;--</div></p>
+                <p><strong>📝 Description:</strong> SQL errors exposed, potential for error-based injection</p>
+                <p><strong>⏰ Discovered:</strong> 2025-10-26 12:11:28</p>
+                <div class="fix-recommendation"><strong>🔧 Fix Recommendation:</strong><br>Implement proper error handling and use parameterized queries</div>
+            </div>
+        </div>
+        <div class="vulnerability">
+            <div class="vuln-header">
+                <div class="vuln-title">6. SQL Injection (Error-based)</div>
+                <div class="severity-badge" style="background-color: #f57c00">
+                    High
+                </div>
+            </div>
+            <div class="vuln-details">
+                <p><strong>📍 Endpoint:</strong> <code>/login</code></p>
+                <p><strong>🎯 Payload:</strong> <div class="code">admin' UNION SELECT 1,2,3,4,5--</div></p>
+                <p><strong>📝 Description:</strong> SQL errors exposed, potential for error-based injection</p>
+                <p><strong>⏰ Discovered:</strong> 2025-10-26 12:11:28</p>
+                <div class="fix-recommendation"><strong>🔧 Fix Recommendation:</strong><br>Implement proper error handling and use parameterized queries</div>
+            </div>
+        </div>
+        <div class="vulnerability">
+            <div class="vuln-header">
+                <div class="vuln-title">7. SQL Injection (UNION-based)</div>
+                <div class="severity-badge" style="background-color: #d32f2f">
+                    Critical
+                </div>
+            </div>
+            <div class="vuln-details">
+                <p><strong>📍 Endpoint:</strong> <code>/search</code></p>
+                <p><strong>🎯 Payload:</strong> <div class="code">' UNION SELECT 1,username,password,email FROM users--</div></p>
+                <p><strong>📝 Description:</strong> Data extraction through UNION-based SQL injection</p>
+                <p><strong>⏰ Discovered:</strong> 2025-10-26 12:11:28</p>
+                <div class="fix-recommendation"><strong>🔧 Fix Recommendation:</strong><br>Use parameterized queries and input validation for all search functionality</div>
+            </div>
+        </div></div>
+        <div style="background: #2c3e50; color: white; text-align: center; padding: 30px;">
+            <p>Security Assessment Report | Educational Security Testing Lab</p>
+            <p><em>This report was generated for educational purposes only</em></p>
+        </div>
+    </div>
+</body>
+</html>

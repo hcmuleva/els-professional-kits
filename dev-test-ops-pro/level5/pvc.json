@@ -1,0 +1,53 @@
+{
+    "apiVersion": "v1",
+    "kind": "PersistentVolumeClaim",
+    "metadata": {
+        "annotations": {
+            "pv.kubernetes.io/bind-completed": "yes",
+            "pv.kubernetes.io/bound-by-controller": "yes",
+            "volume.beta.kubernetes.io/storage-provisioner": "docker.io/hostpath",
+            "volume.kubernetes.io/storage-provisioner": "docker.io/hostpath"
+        },
+        "creationTimestamp": "2025-10-21T00:41:37Z",
+        "deletionGracePeriodSeconds": 0,
+        "deletionTimestamp": "2025-10-21T01:07:38Z",
+        "finalizers": [
+            "kubernetes.io/pvc-protection"
+        ],
+        "labels": {
+            "app": "postgres",
+            "app.kubernetes.io/instance": "pact-stack",
+            "app.kubernetes.io/managed-by": "Helm",
+            "app.kubernetes.io/name": "postgres",
+            "app.kubernetes.io/version": "15",
+            "helm.sh/chart": "postgres-1.0.0",
+            "version": "15"
+        },
+        "name": "postgres-data-pact-stack-postgres-0",
+        "namespace": "pact-stack",
+        "resourceVersion": "463741",
+        "uid": "be9d8e0f-0a7e-4eb1-852c-0092cf9297c4"
+    },
+    "spec": {
+        "accessModes": [
+            "ReadWriteOnce"
+        ],
+        "resources": {
+            "requests": {
+                "storage": "2Gi"
+            }
+        },
+        "storageClassName": "hostpath",
+        "volumeMode": "Filesystem",
+        "volumeName": "pvc-be9d8e0f-0a7e-4eb1-852c-0092cf9297c4"
+    },
+    "status": {
+        "accessModes": [
+            "ReadWriteOnce"
+        ],
+        "capacity": {
+            "storage": "2Gi"
+        },
+        "phase": "Bound"
+    }
+}

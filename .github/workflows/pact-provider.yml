@@ -1,0 +1,78 @@
+name: Pact Provider Verification
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+      - feature/*
+  pull_request:
+    branches:
+      - main
+      - develop
+
+jobs:
+  pact-provider-verify:
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: poc/provider
+
+    env:
+      NODE_ENV: test
+      PACT_BROKER_URL: ${{ secrets.PACT_BROKER_URL }}
+      PACT_BROKER_USERNAME: ${{ secrets.PACT_BROKER_USERNAME }}
+      PACT_BROKER_PASSWORD: ${{ secrets.PACT_BROKER_PASSWORD }}
+      PACT_PROVIDER_NAME: node-provider
+      PACT_PROVIDER_VERSION: ${{ github.sha }}      # good practice to use git SHA
+      SERVER_PORT: 4000
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: poc/provider/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run Pact Provider Verification
+        run: npm test
+
+      - name: Publish Verification Result
+        if: success() && (startsWith(github.ref_name, 'feature/') || github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop')
+        run: echo "Verification results automatically published via verifier config"
+  can-i-deploy:
+    needs: pact-provider-verify
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop'
+
+    env:
+      PACT_BROKER_URL: ${{ secrets.PACT_BROKER_URL }}
+      PACT_BROKER_TOKEN: ${{ secrets.PACT_BROKER_TOKEN }}
+      PACT_PROVIDER_NAME: node-provider
+      PACT_PROVIDER_VERSION: ${{ github.sha }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install Pact CLI
+        run: npm install -g @pact-foundation/pact-node
+
+      - name: Can I Deploy?
+        run: |
+          npx pact-broker can-i-deploy \
+            --pacticipant $PACT_PROVIDER_NAME \
+            --version $PACT_PROVIDER_VERSION \
+            --to-environment $PACT_TARGET_ENVIRONMENT \
+            --broker-base-url $PACT_BROKER_URL \
+            --broker-token $PACT_BROKER_TOKEN || true
+
+      

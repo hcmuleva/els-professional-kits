@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Testing Starter Kit - Home</title>
+  <style>
+    body {
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0;
+      background: #f9f9f9;
+      color: #333;
+      line-height: 1.6;
+    }
+    header {
+      background: #007bff;
+      color: #fff;
+      padding: 20px;
+      text-align: center;
+      font-size: 22px;
+      font-weight: bold;
+      letter-spacing: 0.5px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+    nav {
+      display: flex;
+      justify-content: center;
+      background: #fff;
+      border-bottom: 1px solid #ddd;
+    }
+    nav a {
+      padding: 14px 20px;
+      text-decoration: none;
+      color: #333;
+      font-weight: 500;
+      transition: color 0.2s, background 0.2s;
+    }
+    nav a:hover {
+      background: #f0f0f0;
+      color: #007bff;
+    }
+    section {
+      padding: 30px;
+      max-width: 1100px;
+      margin: auto;
+      background: #fff;
+      margin-top: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+    h1, h2, h3 {
+      color: #222;
+    }
+    ul {
+      margin: 10px 0 20px 20px;
+    }
+    .card {
+      margin: 20px 0;
+      padding: 20px;
+      border-left: 5px solid #007bff;
+      background: #fdfdfd;
+      border-radius: 6px;
+      box-shadow: 0 1px 5px rgba(0,0,0,0.05);
+    }
+    footer {
+      margin-top: 40px;
+      padding: 15px;
+      text-align: center;
+      background: #f1f1f1;
+      color: #555;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+  <header>Testing Starter Kit - Home</header>
+
+  <nav>
+    <a href="#">🏠 Home</a>
+    <a href="functional.html">⚡ Functional</a>
+    <a href="performance.html">📊 Performance</a>
+    <a href="security.html">🔒 Security</a>
+  </nav>
+
+  <section>
+    <h1>🚀 Welcome to the Testing Starter Kit</h1>
+    <p>
+      This kit is designed for professionals and teams who want to understand, adopt, 
+      and implement best practices for <b>Functional, Performance, and Security Testing</b>. 
+      It provides a structured approach, tools, and workflows for modern software delivery.
+    </p>
+
+    <div class="card">
+      <h2>⚡ Functional Testing</h2>
+      <h3>Objective:</h3>
+      <ul>
+        <li>Ensure correctness of business logic</li>
+        <li>Verify API and UI workflows</li>
+        <li>Catch regressions quickly</li>
+      </ul>
+      <h3>Approach:</h3>
+      <ul>
+        <li>Scenario-driven (BDD style)</li>
+        <li>Data-driven for reusability</li>
+        <li>Integration with CI/CD pipelines</li>
+      </ul>
+      <h3>Tools & Tech Stack:</h3>
+      <ul>
+        <li><b>Karate</b> for API & UI functional testing</li>
+        <li>JUnit/TestNG for runners</li>
+        <li>Maven/Gradle for build management</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h2>📊 Performance Testing</h2>
+      <h3>Objective:</h3>
+      <ul>
+        <li>Measure system scalability & reliability</li>
+        <li>Identify bottlenecks under load</li>
+        <li>Validate SLAs and response times</li>
+      </ul>
+      <h3>Approach:</h3>
+      <ul>
+        <li>Load, Stress, Spike, and Soak testing</li>
+        <li>CI/CD integration for continuous monitoring</li>
+        <li>Thresholds for automated alerts</li>
+      </ul>
+      <h3>Tools & Tech Stack:</h3>
+      <ul>
+        <li><b>K6</b> for load & performance testing</li>
+        <li>Grafana + InfluxDB for visualization</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h2>🔒 Security Testing</h2>
+      <h3>Objective:</h3>
+      <ul>
+        <li>Identify vulnerabilities before release</li>
+        <li>Secure APIs and applications</li>
+        <li>Ensure compliance with standards</li>
+      </ul>
+      <h3>Approach:</h3>
+      <ul>
+        <li>Shift-left with Static Analysis (SAST)</li>
+        <li>Dynamic runtime scanning (DAST)</li>
+        <li>Automated scanning in CI/CD</li>
+      </ul>
+      <h3>Tools & Tech Stack:</h3>
+      <ul>
+        <li><b>SAST:</b> SonarQube, Checkmarx</li>
+        <li><b>DAST:</b> OWASP ZAP, Burp Suite</li>
+        <li><b>Dependency Scan:</b> Mend (WhiteSource), Snyk</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h2>⚙️ CI/CD Integration</h2>
+      <h3>Continuous Integration (CI):</h3>
+      <ul>
+        <li>Unit Tests (JUnit, TestNG)</li>
+        <li>Code Coverage (JaCoCo, Istanbul)</li>
+        <li>Static Code Analysis (SonarQube, Checkmarx)</li>
+        <li>Dependency & Security Scans (Snyk, Mend)</li>
+      </ul>
+      <h3>Continuous Delivery (CD):</h3>
+      <ul>
+        <li>Deploy to staging/production</li>
+        <li>Run performance smoke tests before release</li>
+        <li>Run security scans before go-live</li>
+      </ul>
+      <h3>CI/CD Tools:</h3>
+      <ul>
+        <li>GitHub Actions</li>
+        <li>Jenkins</li>
+        <li>GitLab CI</li>
+        <li>Azure DevOps</li>
+      </ul>
+    </div>
+  </section>
+
+  <footer>
+    © 2025 Testing Starter Kit | Designed for Professionals to Accelerate Quality
+  </footer>
+</body>
+</html>

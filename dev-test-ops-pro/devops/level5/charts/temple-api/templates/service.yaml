@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: temple-api
+spec:
+  selector: { app.kubernetes.io/name: temple-api }
+  ports:
+    - port: {{ .Values.service.port }}
+      targetPort: {{ .Values.service.port }}

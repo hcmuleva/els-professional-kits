@@ -1,0 +1,198 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "fabric-pact-broker.fullname" . }}
+  {{- if (or (or .Values.vcsInfo.repoUrl .Values.connectsTo) .Values.configMap) }}
+  annotations:
+    {{- if and .Values.vcsInfo.repoUrl }}
+    app.openshift.io/vcs-ref: {{ .Values.vcsInfo.ref | default (include "fabric-pact-broker.version" .) }}
+    app.openshift.io/vcs-uri: {{ trimSuffix ".git" .Values.vcsInfo.repoUrl }}
+    {{- end }}
+    {{- if .Values.connectsTo }}
+    app.openshift.io/connects-to: {{ .Values.connectsTo }}
+    {{- end }}
+    {{- if .Values.configMap }}
+    checksum/config: {{ include (print $.Template.BasePath "/config-map.yaml") . | sha256sum }}
+    {{- end }}
+  {{- end }}
+  labels:
+    {{- include "fabric-pact-broker.labels" . | nindent 4 }}
+spec:
+  {{- if not .Values.autoscaling.enabled }}
+  replicas: {{ .Values.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "fabric-pact-broker.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      annotations:
+        checksum/secret: {{ include (print $.Template.BasePath "/secret.yaml") . | sha256sum }}
+        {{- if .Values.basicAuth.enabled }}
+        checksum/auth-secret: {{ include (print $.Template.BasePath "/auth-secret.yaml") . | sha256sum }}
+        {{- end }}
+        sidecar.istio.io/inject: {{ include "fabric-pact-broker.istio" . | quote }}
+      {{- with .Values.podAnnotations }}
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "fabric-pact-broker.selectorLabels" . | nindent 8 }}
+      
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "fabric-pact-broker.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: {{ .Chart.Name }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+
+          image: "{{ .Values.image.repository }}:{{ include "fabric-pact-broker.version" . }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          {{- if or .Values.configMap .Values.envFrom }}
+          envFrom:
+            {{- if .Values.configMap }}
+            - configMapRef:
+                name: {{ include "fabric-pact-broker.fullname" . }}
+            {{- end }}
+            {{- if .Values.envFrom }}
+            {{- toYaml .Values.envFrom | nindent 12 }}
+            {{- end }}
+          {{- end }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.image.port }}
+              protocol: TCP
+          env:
+            # Database configuration
+            - name: PACT_BROKER_DATABASE_ADAPTER
+              value: postgres
+            - name: PACT_BROKER_DATABASE_HOST
+              value: {{ .Values.database.host }}
+            - name: PACT_BROKER_DATABASE_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "fabric-pact-broker.secretName" . }}
+                  key: POSTGRES_DB
+            - name: PACT_BROKER_DATABASE_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "fabric-pact-broker.secretName" . }}
+                  key: POSTGRES_USER
+            - name: PACT_BROKER_DATABASE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "fabric-pact-broker.secretName" . }}
+                  key: POSTGRES_PASSWORD
+            
+            {{- if .Values.basicAuth.enabled }}
+            # Basic Authentication
+            - name: PACT_BROKER_BASIC_AUTH_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  {{- if .Values.basicAuth.existingSecret }}
+                  name: {{ .Values.basicAuth.existingSecret }}
+                  key: {{ .Values.basicAuth.usernameKey }}
+                  {{- else }}
+                  name: {{ include "fabric-pact-broker.fullname" . }}-auth
+                  key: username
+                  {{- end }}
+            - name: PACT_BROKER_BASIC_AUTH_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  {{- if .Values.basicAuth.existingSecret }}
+                  name: {{ .Values.basicAuth.existingSecret }}
+                  key: {{ .Values.basicAuth.passwordKey }}
+                  {{- else }}
+                  name: {{ include "fabric-pact-broker.fullname" . }}-auth
+                  key: password
+                  {{- end }}
+            - name: PACT_BROKER_BASIC_AUTH_READ_ONLY_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  {{- if .Values.basicAuth.existingSecret }}
+                  name: {{ .Values.basicAuth.existingSecret }}
+                  key: {{ .Values.basicAuth.readOnlyUsernameKey | default "readonly-username" }}
+                  {{- else }}
+                  name: {{ include "fabric-pact-broker.fullname" . }}-auth
+                  key: readonly-username
+                  {{- end }}
+                  optional: true
+            - name: PACT_BROKER_BASIC_AUTH_READ_ONLY_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  {{- if .Values.basicAuth.existingSecret }}
+                  name: {{ .Values.basicAuth.existingSecret }}
+                  key: {{ .Values.basicAuth.readOnlyPasswordKey | default "readonly-password" }}
+                  {{- else }}
+                  name: {{ include "fabric-pact-broker.fullname" . }}-auth
+                  key: readonly-password
+                  {{- end }}
+                  optional: true
+            {{- end }}
+            
+            # Logging
+            - name: PACT_BROKER_LOG_LEVEL
+              value: {{ .Values.configMap.PACT_BROKER_LOG_LEVEL | default "INFO" | quote }}
+            
+            {{- with .Values.env }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
+          
+          livenessProbe:
+            {{- if .Values.livenessProbe }}
+            {{- toYaml .Values.livenessProbe | nindent 12 }}
+            {{- else }}
+            httpGet:
+              path: /diagnostic/status/heartbeat
+              port: http
+            initialDelaySeconds: {{ .Values.initialDelaySeconds }}
+            timeoutSeconds: 5
+            periodSeconds: 10
+            successThreshold: 1
+            failureThreshold: 3
+            {{- end }}
+          
+          readinessProbe:
+            {{- if .Values.readinessProbe }}
+            {{- toYaml .Values.readinessProbe | nindent 12 }}
+            {{- else }}
+            httpGet:
+              path: /diagnostic/status/heartbeat
+              port: http
+            initialDelaySeconds: {{ .Values.initialDelaySeconds }}
+            timeoutSeconds: 5
+            periodSeconds: 10
+            successThreshold: 1
+            failureThreshold: 3
+            {{- end }}
+          
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          
+          {{- if .Values.volumeMounts }}
+          volumeMounts:
+            {{- toYaml .Values.volumeMounts | nindent 12 }}
+          {{- end }}
+      
+      {{- if .Values.volumes }}
+      volumes:
+        {{- toYaml .Values.volumes | nindent 8 }}
+      {{- end }}
+      
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

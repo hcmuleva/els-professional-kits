@@ -1,0 +1,800 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Experiential Learning System - Brochure</title>
+    <style>
+        @media print {
+            body { margin: 0; }
+            .page { page-break-after: always; }
+            .no-print { display: none; }
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f5f5;
+            padding: 20px;
+        }
+
+        .print-button {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #667eea;
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+            z-index: 1000;
+        }
+
+        .print-button:hover {
+            background: #5568d3;
+        }
+
+        .page {
+            width: 210mm;
+            min-height: 297mm;
+            margin: 0 auto 20px;
+            background: white;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* COVER PAGE */
+        .cover {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 60px 40px;
+        }
+
+        .cover-logo {
+            font-size: 80px;
+            margin-bottom: 30px;
+        }
+
+        .cover h1 {
+            font-size: 48px;
+            margin-bottom: 20px;
+            line-height: 1.2;
+        }
+
+        .cover .tagline {
+            font-size: 36px;
+            font-weight: 300;
+            margin-bottom: 40px;
+            border-top: 3px solid rgba(255,255,255,0.3);
+            border-bottom: 3px solid rgba(255,255,255,0.3);
+            padding: 30px 0;
+        }
+
+        .cover .subtitle {
+            font-size: 22px;
+            line-height: 1.6;
+            max-width: 600px;
+            margin-bottom: 50px;
+        }
+
+        .cover .highlights {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 30px;
+            margin-top: 50px;
+        }
+
+        .cover .highlight-box {
+            background: rgba(255,255,255,0.2);
+            padding: 25px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+        }
+
+        .cover .highlight-box h3 {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+
+        .cover .highlight-box p {
+            font-size: 16px;
+            opacity: 0.9;
+        }
+
+        /* CONTENT PAGES */
+        .content-page {
+            padding: 50px 60px;
+        }
+
+        .page-header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding-bottom: 20px;
+            border-bottom: 3px solid #667eea;
+        }
+
+        .page-header h2 {
+            font-size: 36px;
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .page-header .icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+        }
+
+        .page-header p {
+            font-size: 18px;
+            color: #666;
+        }
+
+        .stream-section {
+            margin-bottom: 35px;
+        }
+
+        .stream-title {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 20px;
+            border-radius: 10px;
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+
+        .iterations-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+
+        .iteration-card {
+            background: #f8f9fa;
+            border-left: 4px solid #667eea;
+            padding: 20px;
+            border-radius: 8px;
+        }
+
+        .iteration-card h4 {
+            color: #667eea;
+            font-size: 18px;
+            margin-bottom: 10px;
+        }
+
+        .iteration-card .duration {
+            background: #28a745;
+            color: white;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            display: inline-block;
+            margin-bottom: 10px;
+        }
+
+        .iteration-card ul {
+            list-style: none;
+            padding: 0;
+            font-size: 14px;
+            line-height: 1.8;
+        }
+
+        .iteration-card li::before {
+            content: '✓ ';
+            color: #28a745;
+            font-weight: bold;
+        }
+
+        .value-props-page {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            padding: 50px 60px;
+        }
+
+        .value-props-page h2 {
+            font-size: 42px;
+            text-align: center;
+            margin-bottom: 50px;
+        }
+
+        .value-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 30px;
+        }
+
+        .value-item {
+            background: rgba(255,255,255,0.2);
+            padding: 30px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+        }
+
+        .value-item h3 {
+            font-size: 28px;
+            margin-bottom: 15px;
+        }
+
+        .value-item p {
+            font-size: 16px;
+            line-height: 1.6;
+        }
+
+        .footer {
+            position: absolute;
+            bottom: 30px;
+            left: 60px;
+            right: 60px;
+            text-align: center;
+            color: #999;
+            font-size: 12px;
+            padding-top: 15px;
+            border-top: 1px solid #ddd;
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 30px 0;
+        }
+
+        .comparison-table th {
+            background: #667eea;
+            color: white;
+            padding: 15px;
+            text-align: left;
+            font-size: 16px;
+        }
+
+        .comparison-table td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #ddd;
+            font-size: 14px;
+        }
+
+        .comparison-table tr:nth-child(even) {
+            background: #f8f9fa;
+        }
+
+        .traditional {
+            color: #dc3545;
+        }
+
+        .experiential {
+            color: #28a745;
+            font-weight: 600;
+        }
+
+        .cta-section {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            padding: 40px;
+            border-radius: 15px;
+            text-align: center;
+            margin-top: 40px;
+        }
+
+        .cta-section h3 {
+            font-size: 28px;
+            margin-bottom: 15px;
+        }
+
+        .cta-section p {
+            font-size: 18px;
+            margin-bottom: 20px;
+        }
+
+        .starter-kit-highlight {
+            background: #fff3cd;
+            border-left: 5px solid #ffc107;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+
+        .starter-kit-highlight h4 {
+            color: #856404;
+            margin-bottom: 10px;
+            font-size: 18px;
+        }
+
+        .starter-kit-highlight ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .starter-kit-highlight li {
+            padding: 5px 0;
+            font-size: 14px;
+        }
+
+        .starter-kit-highlight li::before {
+            content: '⚡ ';
+        }
+    </style>
+</head>
+<body>
+    <button class="print-button no-print" onclick="window.print()">🖨️ Print Brochure</button>
+
+    <!-- COVER PAGE -->
+    <div class="page cover">
+        <div class="cover-logo">🚀</div>
+        <h1>Experiential Learning System</h1>
+        <div class="tagline">From Months to Minutes</div>
+        <div class="subtitle">
+            Transform your software engineering expertise through hands-on, iterative learning across Development, Testing, DevOps, and Process Engineering
+        </div>
+
+        <div class="highlights">
+            <div class="highlight-box">
+                <h3>⚡ 8-Week Program</h3>
+                <p>Master skills that traditionally take 6-12 months</p>
+            </div>
+            <div class="highlight-box">
+                <h3>🛠️ Zero Setup Time</h3>
+                <p>Pre-configured environments and starter kits</p>
+            </div>
+            <div class="highlight-box">
+                <h3>🎯 100% Hands-On</h3>
+                <p>Build a complete school management system</p>
+            </div>
+            <div class="highlight-box">
+                <h3>📊 4 Core Streams</h3>
+                <p>Development • Testing • DevOps • Process</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- COMPARISON PAGE -->
+    <div class="page content-page">
+        <div class="page-header">
+            <div class="icon">⚖️</div>
+            <h2>Why Experiential Learning?</h2>
+            <p>See the dramatic difference in learning efficiency</p>
+        </div>
+
+        <table class="comparison-table">
+            <thead>
+                <tr>
+                    <th>Aspect</th>
+                    <th>Traditional Learning</th>
+                    <th>Experiential Learning</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>Time Investment</strong></td>
+                    <td class="traditional">6-12 months</td>
+                    <td class="experiential">8 weeks</td>
+                </tr>
+                <tr>
+                    <td><strong>Setup & Configuration</strong></td>
+                    <td class="traditional">Days or weeks of frustration</td>
+                    <td class="experiential">Minutes with starter kits</td>
+                </tr>
+                <tr>
+                    <td><strong>Learning Approach</strong></td>
+                    <td class="traditional">Theory-heavy, fragmented</td>
+                    <td class="experiential">Hands-on, integrated, iterative</td>
+                </tr>
+                <tr>
+                    <td><strong>Real-World Context</strong></td>
+                    <td class="traditional">Hello World examples</td>
+                    <td class="experiential">Production-grade system</td>
+                </tr>
+                <tr>
+                    <td><strong>Tool Coverage</strong></td>
+                    <td class="traditional">Limited, outdated</td>
+                    <td class="experiential">30+ modern tools & frameworks</td>
+                </tr>
+                <tr>
+                    <td><strong>Templates & Resources</strong></td>
+                    <td class="traditional">Generic or missing</td>
+                    <td class="experiential">Custom templates per iteration</td>
+                </tr>
+                <tr>
+                    <td><strong>Quality Validation</strong></td>
+                    <td class="traditional">Subjective assessment</td>
+                    <td class="experiential">Automated + manual validation</td>
+                </tr>
+                <tr>
+                    <td><strong>Career Readiness</strong></td>
+                    <td class="traditional">Requires additional training</td>
+                    <td class="experiential">Industry-ready from day one</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="cta-section">
+            <h3>🎯 Your Journey: Foundation to Production in 8 Weeks</h3>
+            <p>Each iteration builds upon the previous, ensuring mastery through progressive complexity</p>
+        </div>
+
+        <div class="footer">
+            Experiential Learning System © 2025 | Accelerate Your Software Engineering Career
+        </div>
+    </div>
+
+    <!-- DEVELOPMENT STREAM PAGE -->
+    <div class="page content-page">
+        <div class="page-header">
+            <div class="icon">💻</div>
+            <h2>Development Stream</h2>
+            <p>From Monolith to Microservices to Production-Ready Systems</p>
+        </div>
+
+        <div class="iterations-grid">
+            <div class="iteration-card">
+                <h4>Iteration 1: Foundation</h4>
+                <span class="duration">Week 1-2</span>
+                <ul>
+                    <li>Build MVC monolithic application</li>
+                    <li>Student & Teacher CRUD operations</li>
+                    <li>ReactJS UI fundamentals</li>
+                    <li>Database connectivity & design</li>
+                </ul>
+            </div>
+
+            <div class="iteration-card">
+                <h4>Iteration 2: Integration</h4>
+                <span class="duration">Week 3-4</span>
+                <ul>
+                    <li>Microservices architecture</li>
+                    <li>RESTful API design & implementation</li>
+                    <li>Service discovery & communication</li>
+                    <li>OpenAPI specification</li>
+                </ul>
+            </div>
+
+            <div class="iteration-card">
+                <h4>Iteration 3: Advanced Services</h4>
+                <span class="duration">Week 5-6</span>
+                <ul>
+                    <li>Payment & notification services</li>
+                    <li>JWT authentication & authorization</li>
+                    <li>HashiCorp Vault integration</li>
+                    <li>PACT contract testing</li>
+                </ul>
+            </div>
+
+            <div class="iteration-card">
+                <h4>Iteration 4: Production & Scale</h4>
+                <span class="duration">Week 7-8</span>
+                <ul>
+                    <li>System-of-systems architecture</li>
+                    <li>ELK stack for analytics</li>
+                    <li>PKI & certificate management</li>
+                    <li>Distributed tracing & monitoring</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="starter-kit-highlight">
+            <h4>🎁 Starter Kit Advantages</h4>
+            <ul>
+                <li>Pre-configured IDE with all plugins and extensions</li>
+                <li>Complete project templates with boilerplate code</li>
+                <li>Database schemas and sample data ready to use</li>
+                <li>Service stubs and API contracts provided</li>
+                <li>Step-by-step tutorial videos for quick onboarding</li>
+            </ul>
+        </div>
+
+        <div class="footer">
+            Development Stream | Master Full-Stack Engineering in 8 Weeks
+        </div>
+    </div>
+
+    <!-- TESTING STREAM PAGE -->
+    <div class="page content-page">
+        <div class="page-header">
+            <div class="icon">🧪</div>
+            <h2>Testing Stream</h2>
+            <p>From Manual Testing to Chaos Engineering</p>
+        </div>
+
+        <div class="iterations-grid">
+            <div class="iteration-card">
+                <h4>Iteration 1: Foundation</h4>
+                <span class="duration">Week 1-2</span>
+                <ul>
+                    <li>Test case design fundamentals</li>
+                    <li>Selenium UI automation</li>
+                    <li>Page Object Model pattern</li>
+                    <li>Manual testing best practices</li>
+                </ul>
+            </div>
+
+            <div class="iteration-card">
+                <h4>Iteration 2: Integration</h4>
+                <span class="duration">Week 3-4</span>
+                <ul>
+                    <li>Karate API automation framework</li>
+                    <li>PACT contract testing</li>
+                    <li>Mock services for dependencies</li>
+                    <li>Integration testing strategies</li>
+                </ul>
+            </div>
+
+            <div class="iteration-card">
+                <h4>Iteration 3: Advanced Services</h4>
+                <span class="duration">Week 5-6</span>
+                <ul>
+                    <li>k6 performance testing</li>
+                    <li>OWASP ZAP security scanning</li>
+                    <li>Load, stress & spike testing</li>
+                    <li>Grafana metrics dashboards</li>
+                </ul>
+            </div>
+
+            <div class="iteration-card">
+                <h4>Iteration 4: Production & Scale</h4>
+                <span class="duration">Week 7-8</span>
+                <ul>
+                    <li>Chaos engineering experiments</li>
+                    <li>Capacity & resilience testing</li>
+                    <li>Compliance & accessibility testing</li>
+                    <li>Production readiness validation</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="starter-kit-highlight">
+            <h4>🎁 Starter Kit Advantages</h4>
+            <ul>
+                <li>Jira project with test case templates pre-configured</li>
+                <li>Selenium Page Object Model framework skeleton</li>
+                <li>Karate API test project with sample scenarios</li>
+                <li>k6 performance test scripts and Grafana dashboards</li>
+                <li>OWASP ZAP security scanning configurations</li>
+                <li>Chaos Toolkit with experiment templates</li>
+            </ul>
+        </div>
+
+        <div class="footer">
+            Testing Stream | Master Quality Engineering from Basics to Advanced
+        </div>
+    </div>
+
+    <!-- DEVOPS STREAM PAGE -->
+    <div class="page content-page">
+        <div class="page-header">
+            <div class="icon">🚀</div>
+            <h2>DevOps Stream</h2>
+            <p>From Local Development to Cloud-Native Production</p>
+        </div>
+
+        <div class="iterations-grid">
+            <div class="iteration-card">
+                <h4>Iteration 1: Foundation</h4>
+                <span class="duration">Week 1-2</span>
+                <ul>
+                    <li>Git version control mastery</li>
+                    <li>Branching strategies</li>
+                    <li>Pre-commit hooks & automation</li>
+                    <li>Local build workflows</li>
+                </ul>
+            </div>
+
+            <div class="iteration-card">
+                <h4>Iteration 2: Integration</h4>
+                <span class="duration">Week 3-4</span>
+                <ul>
+                    <li>Docker containerization</li>
+                    <li>Docker Compose orchestration</li>
+                    <li>CI pipeline (GitHub Actions)</li>
+                    <li>Container registry & versioning</li>
+                </ul>
+            </div>
+
+            <div class="iteration-card">
+                <h4>Iteration 3: Advanced Services</h4>
+                <span class="duration">Week 5-6</span>
+                <ul>
+                    <li>Kubernetes fundamentals</li>
+                    <li>Helm package management</li>
+                    <li>ArgoCD GitOps deployment</li>
+                    <li>Auto-scaling & health checks</li>
+                </ul>
+            </div>
+
+            <div class="iteration-card">
+                <h4>Iteration 4: Production & Scale</h4>
+                <span class="duration">Week 7-8</span>
+                <ul>
+                    <li>Terraform infrastructure as code</li>
+                    <li>Prometheus & Grafana monitoring</li>
+                    <li>ELK stack for centralized logging</li>
+                    <li>Cloud deployment & DR planning</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="starter-kit-highlight">
+            <h4>🎁 Starter Kit Advantages</h4>
+            <ul>
+                <li>Git repository with best practices and pre-commit hooks</li>
+                <li>Optimized Dockerfiles and Docker Compose templates</li>
+                <li>Pre-configured CI/CD pipeline YAML files</li>
+                <li>Local Kubernetes cluster setup automation (k3d)</li>
+                <li>Helm charts for all microservices</li>
+                <li>Terraform modules for cloud infrastructure</li>
+            </ul>
+        </div>
+
+        <div class="footer">
+            DevOps Stream | Master CI/CD and Cloud-Native Technologies
+        </div>
+    </div>
+
+    <!-- PROCESS STREAM PAGE -->
+    <div class="page content-page">
+        <div class="page-header">
+            <div class="icon">📊</div>
+            <h2>Process Stream</h2>
+            <p>From Basic Agile to Strategic Business Alignment</p>
+        </div>
+
+        <div class="iterations-grid">
+            <div class="iteration-card">
+                <h4>Iteration 1: Foundation</h4>
+                <span class="duration">Week 1-2</span>
+                <ul>
+                    <li>Agile & Scrum fundamentals</li>
+                    <li>User story creation</li>
+                    <li>Kanban board management</li>
+                    <li>Definition of Done</li>
+                </ul>
+            </div>
+
+            <div class="iteration-card">
+                <h4>Iteration 2: Integration</h4>
+                <span class="duration">Week 3-4</span>
+                <ul>
+                    <li>Requirements traceability matrix</li>
+                    <li>GitHub Flow branching strategy</li>
+                    <li>SonarQube quality gates</li>
+                    <li>Test case to requirement mapping</li>
+                </ul>
+            </div>
+
+            <div class="iteration-card">
+                <h4>Iteration 3: Advanced Services</h4>
+                <span class="duration">Week 5-6</span>
+                <ul>
+                    <li>GitFlow release management</li>
+                    <li>Release train planning</li>
+                    <li>Multi-stage quality gates</li>
+                    <li>Feature flags & versioning</li>
+                </ul>
+            </div>
+
+            <div class="iteration-card">
+                <h4>Iteration 4: Production & Scale</h4>
+                <span class="duration">Week 7-8</span>
+                <ul>
+                    <li>Business traceability to code</li>
+                    <li>Value stream mapping</li>
+                    <li>Compliance & audit documentation</li>
+                    <li>DORA metrics tracking</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="starter-kit-highlight">
+            <h4>🎁 Starter Kit Advantages</h4>
+            <ul>
+                <li>Pre-configured Jira project with workflows</li>
+                <li>User story and acceptance criteria templates</li>
+                <li>Traceability matrix templates and automation</li>
+                <li>Quality gate configurations (SonarQube)</li>
+                <li>Release checklist and planning templates</li>
+                <li>Executive dashboard templates with business KPIs</li>
+            </ul>
+        </div>
+
+        <div class="footer">
+            Process Stream | Connect Technical Excellence to Business Value
+        </div>
+    </div>
+
+    <!-- VALUE PROPOSITION PAGE -->
+    <div class="page value-props-page">
+        <h2>🌟 Why Choose Our Program?</h2>
+        
+        <div class="value-grid">
+            <div class="value-item">
+                <h3>⚡ Accelerated Learning</h3>
+                <p>Compress 6-12 months of learning into 8 focused weeks through experiential, hands-on practice with real-world projects.</p>
+            </div>
+
+            <div class="value-item">
+                <h3>🛠️ Zero Setup Friction</h3>
+                <p>Every iteration includes comprehensive starter kits: pre-configured environments, templates, sample code, and automation scripts.</p>
+            </div>
+
+            <div class="value-item">
+                <h3>🎯 Complete Coverage</h3>
+                <p>Master 30+ industry-standard tools across Development, Testing, DevOps, and Process Engineering in one integrated program.</p>
+            </div>
+
+            <div class="value-item">
+                <h3>📊 Real-World Project</h3>
+                <p>Build a complete school management system from scratch, evolving it through each iteration to production readiness.</p>
+            </div>
+
+            <div class="value-item">
+                <h3>🔄 Iterative Mastery</h3>
+                <p>Each iteration builds progressively on previous knowledge, ensuring deep understanding through practical application.</p>
+            </div>
+
+            <div class="value-item">
+                <h3>✅ Validation & Quality</h3>
+                <p>Hybrid validation approach with automated quality gates and manual reviews ensures you truly master each concept.</p>
+            </div>
+
+            <div class="value-item">
+                <h3>📚 Comprehensive Templates</h3>
+                <p>Access hundreds of ready-to-use templates for documentation, code, configurations, and processes.</p>
+            </div>
+
+            <div class="value-item">
+                <h3>🚀 Career Ready</h3>
+                <p>Graduate with production-grade portfolio demonstrating full-stack capabilities from code to deployment.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- BACK COVER -->
+    <div class="page cover">
+        <div class="cover-logo">✨</div>
+        <h1>Start Your Journey Today</h1>
+        <div class="tagline">Transform Learning from Months to Minutes</div>
+        
+        <div class="subtitle" style="margin-bottom: 60px;">
+            Join thousands of engineers who have accelerated their careers through our experiential learning system
+        </div>
+
+        <div class="highlights">
+            <div class="highlight-box">
+                <h3>📅 8-Week Program</h3>
+                <p>4 Iterations • 4 Streams • 100% Hands-On</p>
+            </div>
+            <div class="highlight-box">
+                <h3>🎁 Complete Starter Kits</h3>
+                <p>Everything configured and ready from day one</p>
+            </div>
+            <div class="highlight-box">
+                <h3>💼 Production Portfolio</h3>
+                <p>Graduate with a complete, deployed system</p>
+            </div>
+            <div class="highlight-box">
+                <h3>🏆 Industry Recognition</h3>
+                <p>Skills validated through automated quality gates</p>
+            </div>
+        </div>
+
+        <div style="margin-top: 80px; font-size: 18px;">
+            <p style="margin-bottom: 15px;">📧 Contact: learning@experientialsystem.com</p>
+            <p style="margin-bottom: 15px;">🌐 Website: www.experientialsystem.com</p>
+            <p>📞 Phone: +1 (555) 123-4567</p>
+        </div>
+    </div>
+
+</body>
+</html>

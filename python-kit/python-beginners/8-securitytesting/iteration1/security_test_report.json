@@ -1,0 +1,70 @@
+{
+  "scan_timestamp": "2025-10-26 12:11:29",
+  "target_url": "http://localhost:5001",
+  "total_vulnerabilities": 7,
+  "vulnerabilities": [
+    {
+      "type": "SQL Injection (Error-based)",
+      "endpoint": "/login",
+      "payload": "admin' OR '1'='1",
+      "description": "SQL errors exposed, potential for error-based injection",
+      "severity": "High",
+      "fix_recommendation": "Implement proper error handling and use parameterized queries",
+      "timestamp": "2025-10-26 12:11:28"
+    },
+    {
+      "type": "SQL Injection (Error-based)",
+      "endpoint": "/login",
+      "payload": "admin' OR '1'='1'--",
+      "description": "SQL errors exposed, potential for error-based injection",
+      "severity": "High",
+      "fix_recommendation": "Implement proper error handling and use parameterized queries",
+      "timestamp": "2025-10-26 12:11:28"
+    },
+    {
+      "type": "SQL Injection (Error-based)",
+      "endpoint": "/login",
+      "payload": "admin' OR 1=1#",
+      "description": "SQL errors exposed, potential for error-based injection",
+      "severity": "High",
+      "fix_recommendation": "Implement proper error handling and use parameterized queries",
+      "timestamp": "2025-10-26 12:11:28"
+    },
+    {
+      "type": "SQL Injection (Error-based)",
+      "endpoint": "/login",
+      "payload": "' OR 'a'='a",
+      "description": "SQL errors exposed, potential for error-based injection",
+      "severity": "High",
+      "fix_recommendation": "Implement proper error handling and use parameterized queries",
+      "timestamp": "2025-10-26 12:11:28"
+    },
+    {
+      "type": "SQL Injection (Error-based)",
+      "endpoint": "/login",
+      "payload": "admin'; DROP TABLE users;--",
+      "description": "SQL errors exposed, potential for error-based injection",
+      "severity": "High",
+      "fix_recommendation": "Implement proper error handling and use parameterized queries",
+      "timestamp": "2025-10-26 12:11:28"
+    },
+    {
+      "type": "SQL Injection (Error-based)",
+      "endpoint": "/login",
+      "payload": "admin' UNION SELECT 1,2,3,4,5--",
+      "description": "SQL errors exposed, potential for error-based injection",
+      "severity": "High",
+      "fix_recommendation": "Implement proper error handling and use parameterized queries",
+      "timestamp": "2025-10-26 12:11:28"
+    },
+    {
+      "type": "SQL Injection (UNION-based)",
+      "endpoint": "/search",
+      "payload": "' UNION SELECT 1,username,password,email FROM users--",
+      "description": "Data extraction through UNION-based SQL injection",
+      "severity": "Critical",
+      "fix_recommendation": "Use parameterized queries and input validation for all search functionality",
+      "timestamp": "2025-10-26 12:11:28"
+    }
+  ]
+}

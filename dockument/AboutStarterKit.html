@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Complete Testing Package</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      background: #f9f9f9;
+      color: #333;
+      line-height: 1.6;
+    }
+    h1, h2, h3 {
+      color: #222;
+    }
+    .tabs {
+      display: flex;
+      background: #222;
+    }
+    .tabs button {
+      flex: 1;
+      padding: 14px;
+      border: none;
+      background: #222;
+      color: #fff;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    .tabs button.active {
+      background: #555;
+    }
+    .tab-content {
+      display: none;
+      padding: 20px;
+      background: #fff;
+    }
+    .sub-tabs {
+      display: flex;
+      margin: 15px 0;
+      border-bottom: 2px solid #ddd;
+    }
+    .sub-tabs button {
+      padding: 10px 16px;
+      border: none;
+      background: #eee;
+      cursor: pointer;
+      margin-right: 5px;
+    }
+    .sub-tabs button.active {
+      background: #ccc;
+      font-weight: bold;
+    }
+    .sub-tab-content {
+      display: none;
+      padding: 15px;
+      background: #fdfdfd;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+    }
+    pre {
+      background: #f4f4f4;
+      padding: 10px;
+      border-left: 3px solid #ccc;
+      overflow-x: auto;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 15px 0;
+    }
+    table, th, td {
+      border: 1px solid #ccc;
+    }
+    th, td {
+      padding: 8px;
+      text-align: left;
+    }
+  </style>
+</head>
+<body>
+
+  <h1 style="text-align:center;">🎉 Complete Testing Package</h1>
+  <p style="text-align:center;"><b>Functional + Performance + Security Testing</b></p>
+
+  <!-- Main Tabs -->
+  <div class="tabs">
+    <button class="tab-btn active" onclick="openTab('functional')">Functional</button>
+    <button class="tab-btn" onclick="openTab('performance')">Performance</button>
+    <button class="tab-btn" onclick="openTab('security')">Security</button>
+  </div>
+
+  <!-- Functional Content -->
+  <div id="functional" class="tab-content" style="display:block;">
+    <h2>📦 Functional Testing Suite (Karate)</h2>
+    <h3>Level 1 - Basic (4 scenarios)</h3>
+    <pre>✓ User registration
+✓ Login with username
+✓ Login with email
+✓ Get user information</pre>
+
+    <h3>Level 2 - Data-Driven (5-10 scenarios)</h3>
+    <pre>✓ Extended registration with fields
+✓ Scenario Outline (4 users)
+✓ Table-based testing (3 users)
+✓ JSON file integration
+✓ Bulk operations</pre>
+
+    <h3>Level 3 - Advanced (20+ scenarios)</h3>
+    <pre>✓ 12 Authentication scenarios
+✓ 8 User CRUD scenarios
+✓ Complete validation
+✓ Error handling
+✓ Authorization testing</pre>
+  </div>
+
+  <!-- Performance Content -->
+  <div id="performance" class="tab-content">
+    <h2>🚀 Performance Testing Suite (K6)</h2>
+
+    <!-- Sub-tabs for performance -->
+    <div class="sub-tabs">
+      <button class="sub-tab-btn active" onclick="openSubTab('load')">Load</button>
+      <button class="sub-tab-btn" onclick="openSubTab('stress')">Stress</button>
+      <button class="sub-tab-btn" onclick="openSubTab('volume')">Volume</button>
+    </div>
+
+    <div id="load" class="sub-tab-content" style="display:block;">
+      <h3>Level 1 - Basic Load Test</h3>
+      <pre>✓ 10 concurrent users
+✓ 2 minute duration
+✓ Basic authentication flows
+✓ Response time validation</pre>
+    </div>
+
+    <div id="stress" class="sub-tab-content">
+      <h3>Level 3 - Advanced Stress Test</h3>
+      <pre>✓ 200 peak concurrent users
+✓ 17 minute duration
+✓ 4 scenarios (baseline, stress, spike, soak)
+✓ Production-like simulation</pre>
+    </div>
+
+    <div id="volume" class="sub-tab-content">
+      <h3>Volume Testing</h3>
+      <pre>✓ Multiple user profiles
+✓ High data throughput
+✓ Large dataset validation
+✓ Database stability checks</pre>
+    </div>
+  </div>
+
+  <!-- Security Content -->
+  <div id="security" class="tab-content">
+    <h2>🔒 Security Testing</h2>
+    <p>Security testing ensures APIs and applications are safe from vulnerabilities and attacks.</p>
+    <ul>
+      <li>✓ Authentication & Authorization checks</li>
+      <li>✓ Token expiration & invalidation</li>
+      <li>✓ SQL Injection prevention</li>
+      <li>✓ Cross-Site Scripting (XSS) validation</li>
+      <li>✓ OWASP Top 10 compliance</li>
+    </ul>
+  </div>
+
+  <script>
+    // Main Tabs
+    function openTab(tabId) {
+      document.querySelectorAll('.tab-content').forEach(c => c.style.display = 'none');
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.getElementById(tabId).style.display = 'block';
+      event.target.classList.add('active');
+    }
+
+    // Sub Tabs for Performance
+    function openSubTab(subId) {
+      document.querySelectorAll('.sub-tab-content').forEach(c => c.style.display = 'none');
+      document.querySelectorAll('.sub-tab-btn').forEach(b => b.classList.remove('active'));
+      document.getElementById(subId).style.display = 'block';
+      event.target.classList.add('active');
+    }
+  </script>
+</body>
+</html>

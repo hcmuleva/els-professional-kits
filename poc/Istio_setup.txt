@@ -1,0 +1,407 @@
+Istio Setup Guide for Docker Desktop (Mac)
+Complete guide to install Istio, configure it with your existing web-suite, and simulate various HTTP response codes.
+Prerequisites
+
+Docker Desktop for Mac (already installed ✓)
+Helm 3 (already installed ✓)
+kubectl configured
+Minimum 8GB RAM allocated to Docker Desktop
+
+Part 1: Install Istio
+Step 1: Download Istio
+bash# Download Istio (latest stable version)
+curl -L https://istio.io/downloadIstio | sh -
+
+# Move to Istio directory
+cd istio-*
+
+# Add istioctl to PATH
+export PATH=$PWD/bin:$PATH
+
+# Verify installation
+istioctl version
+Step 2: Install Istio on Kubernetes
+bash# Install Istio with demo profile (good for local testing)
+istioctl install --set profile=demo -y
+
+# Verify installation
+kubectl get pods -n istio-system
+
+# Expected output: istiod, istio-ingressgateway, istio-egressgateway pods running
+Step 3: Enable Istio Sidecar Injection
+bash# Label your dev namespace for automatic sidecar injection
+kubectl label namespace dev istio-injection=enabled
+
+# Verify label
+kubectl get namespace -L istio-injection
+Step 4: Restart Your Pods to Inject Sidecars
+bash# Restart deployments to inject Istio sidecars
+kubectl rollout restart deployment -n dev
+
+# Verify sidecars are injected (should see 2/2 READY)
+kubectl get pods -n dev
+
+# Expected: Each pod should have 2 containers (app + istio-proxy)
+Part 2: Install Kiali, Prometheus, Grafana (Observability)
+bash# Install observability addons
+kubectl apply -f samples/addons/prometheus.yaml
+kubectl apply -f samples/addons/grafana.yaml
+kubectl apply -f samples/addons/kiali.yaml
+kubectl apply -f samples/addons/jaeger.yaml
+
+# Wait for all pods to be ready
+kubectl get pods -n istio-system -w
+
+# Access Kiali dashboard (traffic visualization)
+istioctl dashboard kiali
+
+# Access Grafana (metrics)
+istioctl dashboard grafana
+
+# Access Jaeger (distributed tracing)
+istioctl dashboard jaeger
+Part 3: Configure Istio Gateway and VirtualService
+Step 1: Create Istio Gateway
+Create file: istio-config/gateway.yaml
+yamlapiVersion: networking.istio.io/v1beta1
+kind: Gateway
+metadata:
+  name: web-suite-gateway
+  namespace: dev
+spec:
+  selector:
+    istio: ingressgateway
+  servers:
+  - port:
+      number: 80
+      name: http
+      protocol: HTTP
+    hosts:
+    - "react-app.example.com"
+    - "localhost"
+Step 2: Create VirtualService
+Create file: istio-config/virtualservice.yaml
+yamlapiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: web-suite-vs
+  namespace: dev
+spec:
+  hosts:
+  - "react-app.example.com"
+  - "localhost"
+  gateways:
+  - web-suite-gateway
+  http:
+  # Route to React UI (root path)
+  - match:
+    - uri:
+        prefix: "/"
+    - uri:
+        exact: "/"
+    route:
+    - destination:
+        host: react-app-service
+        port:
+          number: 80
+      weight: 100
+  
+  # Route to Strapi API
+  - match:
+    - uri:
+        prefix: "/api"
+    - uri:
+        prefix: "/admin"
+    - uri:
+        prefix: "/i18n"
+    route:
+    - destination:
+        host: temple-api-service
+        port:
+          number: 1337
+      weight: 100
+Step 3: Apply Istio Configuration
+bash# Create directory
+mkdir -p istio-config
+
+# Create the files above, then apply
+kubectl apply -f istio-config/gateway.yaml
+kubectl apply -f istio-config/virtualservice.yaml
+
+# Verify
+kubectl get gateway -n dev
+kubectl get virtualservice -n dev
+Part 4: Simulate HTTP Response Codes (Fault Injection)
+Create Fault Injection VirtualService
+Create file: istio-config/fault-injection.yaml
+yamlapiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: web-suite-fault-injection
+  namespace: dev
+spec:
+  hosts:
+  - temple-api-service
+  http:
+  # Simulate 500 errors (20% of requests)
+  - match:
+    - headers:
+        x-test-scenario:
+          exact: "error-500"
+    fault:
+      abort:
+        percentage:
+          value: 100
+        httpStatus: 500
+    route:
+    - destination:
+        host: temple-api-service
+        port:
+          number: 1337
+  
+  # Simulate 404 errors (30% of requests)
+  - match:
+    - headers:
+        x-test-scenario:
+          exact: "error-404"
+    fault:
+      abort:
+        percentage:
+          value: 100
+        httpStatus: 404
+    route:
+    - destination:
+        host: temple-api-service
+        port:
+          number: 1337
+  
+  # Simulate latency (2s delay on 50% of requests)
+  - match:
+    - headers:
+        x-test-scenario:
+          exact: "slow"
+    fault:
+      delay:
+        percentage:
+          value: 50
+        fixedDelay: 2s
+    route:
+    - destination:
+        host: temple-api-service
+        port:
+          number: 1337
+  
+  # Normal traffic (default route)
+  - route:
+    - destination:
+        host: temple-api-service
+        port:
+          number: 1337
+Apply it:
+bashkubectl apply -f istio-config/fault-injection.yaml
+Part 5: Access Applications via Istio Gateway
+Step 1: Get Istio Ingress Gateway Address
+bash# For Docker Desktop, it should be localhost
+export INGRESS_HOST=$(kubectl -n istio-system get service istio-ingressgateway -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
+export INGRESS_PORT=$(kubectl -n istio-system get service istio-ingressgateway -o jsonpath='{.spec.ports[?(@.name=="http2")].port}')
+
+# Usually for Docker Desktop:
+export INGRESS_HOST=localhost
+export INGRESS_PORT=80
+
+echo "Gateway URL: http://$INGRESS_HOST:$INGRESS_PORT"
+Step 2: Port Forward Istio Gateway (if LoadBalancer doesn't work)
+bash# Forward port 8080 to Istio ingress gateway
+kubectl port-forward -n istio-system svc/istio-ingressgateway 8080:80
+
+# Your apps will be accessible at:
+# http://localhost:8080/
+Step 3: Update /etc/hosts (if needed)
+bashsudo nano /etc/hosts
+
+# Add:
+127.0.0.1 react-app.example.com
+Part 6: Test Fault Injection
+Test Normal Requests (200 OK)
+bash# Normal request to React UI
+curl -v http://localhost:8080/
+
+# Normal request to API
+curl -v http://localhost:8080/api/health
+Test 500 Internal Server Error
+bash# Trigger 500 error
+curl -v -H "x-test-scenario: error-500" http://localhost:8080/api/health
+
+# Expected: HTTP/1.1 500 Internal Server Error
+Test 404 Not Found
+bash# Trigger 404 error
+curl -v -H "x-test-scenario: error-404" http://localhost:8080/api/health
+
+# Expected: HTTP/1.1 404 Not Found
+Test Latency Injection
+bash# Trigger slow response (2s delay)
+time curl -H "x-test-scenario: slow" http://localhost:8080/api/health
+
+# Should take ~2 seconds
+Part 7: Generate Load and View in Kiali
+Install Fortio (Load Testing Tool)
+bash# Deploy Fortio in dev namespace
+kubectl apply -f - <<EOF
+apiVersion: v1
+kind: Pod
+metadata:
+  name: fortio
+  namespace: dev
+  labels:
+    app: fortio
+spec:
+  containers:
+  - name: fortio
+    image: fortio/fortio:latest
+    command: ["/bin/sh"]
+    args: ["-c", "while true; do sleep 3600; done"]
+EOF
+
+# Wait for pod to be ready
+kubectl wait --for=condition=ready pod/fortio -n dev --timeout=60s
+Generate Mixed Traffic
+bash# Generate normal traffic (200 OK)
+kubectl exec -n dev fortio -- fortio load -c 2 -qps 10 -t 60s http://temple-api-service:1337/api/health
+
+# Generate 500 errors
+kubectl exec -n dev fortio -- fortio load -c 2 -qps 5 -t 60s -H "x-test-scenario:error-500" http://temple-api-service:1337/api/health
+
+# Generate 404 errors
+kubectl exec -n dev fortio -- fortio load -c 2 -qps 5 -t 60s -H "x-test-scenario:error-404" http://temple-api-service:1337/api/health
+
+# Generate slow requests
+kubectl exec -n dev fortio -- fortio load -c 2 -qps 5 -t 60s -H "x-test-scenario:slow" http://temple-api-service:1337/api/health
+View Traffic in Kiali
+bash# Open Kiali dashboard
+istioctl dashboard kiali
+
+# Navigate to:
+# 1. Graph -> Select "dev" namespace
+# 2. View traffic flow with success rates
+# 3. See 200, 404, 500 status codes in real-time
+Part 8: Advanced Fault Injection Scenarios
+Random Percentage-Based Faults
+Create file: istio-config/random-faults.yaml
+yamlapiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: web-suite-random-faults
+  namespace: dev
+spec:
+  hosts:
+  - temple-api-service
+  http:
+  # 10% of all requests return 500
+  - fault:
+      abort:
+        percentage:
+          value: 10
+        httpStatus: 500
+    route:
+    - destination:
+        host: temple-api-service
+        port:
+          number: 1337
+Apply:
+bashkubectl apply -f istio-config/random-faults.yaml
+Test Random Faults
+bash# Send 100 requests and see ~10 failures
+for i in {1..100}; do
+  curl -s -o /dev/null -w "%{http_code}\n" http://localhost:8080/api/health
+done | sort | uniq -c
+
+# Expected output:
+#  90 200
+#  10 500
+Part 9: Monitoring and Observability
+View Metrics in Prometheus
+bash# Open Prometheus
+istioctl dashboard prometheus
+
+# Query examples:
+# - istio_requests_total
+# - istio_request_duration_milliseconds
+# - istio_request_bytes
+View Dashboards in Grafana
+bash# Open Grafana
+istioctl dashboard grafana
+
+# Pre-built dashboards:
+# - Istio Service Dashboard
+# - Istio Mesh Dashboard
+# - Istio Performance Dashboard
+View Distributed Traces in Jaeger
+bash# Open Jaeger
+istioctl dashboard jaeger
+
+# Search for traces from temple-api-service
+Part 10: Cleanup
+bash# Remove fault injection
+kubectl delete -f istio-config/fault-injection.yaml
+
+# Remove Istio from namespace
+kubectl label namespace dev istio-injection-
+
+# Restart pods to remove sidecars
+kubectl rollout restart deployment -n dev
+
+# Uninstall Istio (optional)
+istioctl uninstall --purge -y
+kubectl delete namespace istio-system
+Verification Checklist
+
+ Istio installed and running in istio-system namespace
+ Sidecars injected (2/2 containers in dev pods)
+ Gateway and VirtualService created
+ Can access apps via Istio gateway (port 8080)
+ Fault injection working (500, 404 errors triggered)
+ Kiali dashboard showing traffic flow
+ Load generation with Fortio successful
+ Metrics visible in Prometheus/Grafana
+
+Troubleshooting
+Pods not getting sidecars
+bash# Check namespace label
+kubectl get namespace dev -o yaml | grep istio-injection
+
+# Manually restart
+kubectl rollout restart deployment -n dev
+Gateway not accessible
+bash# Check gateway service
+kubectl get svc -n istio-system istio-ingressgateway
+
+# Use port-forward if LoadBalancer doesn't work
+kubectl port-forward -n istio-system svc/istio-ingressgateway 8080:80
+Fault injection not working
+bash# Check VirtualService
+kubectl describe virtualservice -n dev
+
+# Check if requests match the header
+curl -v -H "x-test-scenario: error-500" http://localhost:8080/api/health
+Quick Reference Commands
+bash# Check Istio status
+istioctl proxy-status
+
+# Analyze configuration
+istioctl analyze -n dev
+
+# View Envoy config
+istioctl proxy-config routes <pod-name> -n dev
+
+# Dashboard shortcuts
+istioctl dashboard kiali &
+istioctl dashboard grafana &
+istioctl dashboard jaeger &
+
+Next Steps:
+
+Explore traffic splitting (A/B testing, canary deployments)
+Configure circuit breakers
+Set up mTLS for service-to-service encryption
+Implement rate limiting
+Configure request timeouts and retries

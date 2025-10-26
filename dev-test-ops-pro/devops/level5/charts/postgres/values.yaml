@@ -1,0 +1,19 @@
+image:
+  repository: postgres
+  tag: "15"
+  pullPolicy: IfNotPresent
+
+auth:
+  username: postgres
+  password: postgres
+  database: temple
+
+service:
+  port: 5432
+
+persistence:
+  enabled: true
+  size: 1Gi
+  storageClassName: docker-desktop
+
+resources: {}

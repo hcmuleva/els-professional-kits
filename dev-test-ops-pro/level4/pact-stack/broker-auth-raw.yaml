@@ -1,0 +1,11 @@
+apiVersion: v1
+data:
+  password: WU9VUl9BRE1JTl9QQVNTV09SRA==
+  readonly-password: WU9VUl9SRUFET05MWV9QQVNTV09SRA==
+  readonly-username: cmVhZG9ubHk=
+  username: YWRtaW4=
+kind: Secret
+metadata:
+  creationTimestamp: null
+  name: pact-stack-fabric-pact-broker-auth
+  namespace: pact-stack

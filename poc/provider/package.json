@@ -1,0 +1,15 @@
+{
+  "name": "myprovider",
+  "scripts": {
+    "test": "jest",
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^5.1.0"
+  },
+  "devDependencies": {
+    "@pact-foundation/pact": "^15.0.1",
+    "dotenv": "^17.2.3",
+    "jest": "^30.0.5"
+  }
+}

@@ -1,0 +1,1397 @@
+--- FILE: ./Chart.yaml ---
+apiVersion: v2
+name: pact-stack
+description: Umbrella chart for postgres and fabric-pact-broker
+type: application
+version: 1.0.0
+appVersion: "1.0"
+
+dependencies:
+  - name: postgres
+    version: 1.0.0
+    repository: "file://./fabric-postgres"
+    condition: postgres.enabled
+    tags:
+      - database
+  - name: fabric-pact-broker
+    version: 1.0.0
+    repository: "file://./fabric-pact-broker"
+    condition: fabric-pact-broker.enabled
+    tags:
+      - broker
+--- FILE: ./charts/.helmignore ---
+# Patterns to ignore when building packages.
+# This supports shell glob matching, relative path matching, and
+# negation (prefixed with !). Only one pattern per line.
+.DS_Store
+# Common VCS dirs
+.git/
+.gitignore
+.bzr/
+.bzrignore
+.hg/
+.hgignore
+.svn/
+# Common backup files
+*.swp
+*.bak
+*.tmp
+*.orig
+*~
+# Various IDEs
+.project
+.idea/
+*.tmproj
+.vscode/
+
+--- FILE: ./charts/fabric-pact-broker/Chart.yaml ---
+apiVersion: v2
+name: fabric-pact-broker
+description: A Helm chart for deploying the Pact Broker application
+type: application
+version: 0.1.0
+appVersion: "2.110.0"  # adjust based on pactfoundation/pact-broker image tag
+
+--- FILE: ./charts/fabric-pact-broker/.helmignore ---
+# Patterns to ignore when building packages.
+# This supports shell glob matching, relative path matching, and
+# negation (prefixed with !). Only one pattern per line.
+.DS_Store
+# Common VCS dirs
+.git/
+.gitignore
+.bzr/
+.bzrignore
+.hg/
+.hgignore
+.svn/
+# Common backup files
+*.swp
+*.bak
+*.tmp
+*.orig
+*~
+# Various IDEs
+.project
+.idea/
+*.tmproj
+.vscode/
+
+--- FILE: ./charts/fabric-pact-broker/templates/auth-secret.yaml ---
+{{- if and .Values.basicAuth.enabled (not .Values.basicAuth.existingSecret) }}
+apiVersion: v1
+kind: Secret
+metadata:
+  name: {{ include "fabric-pact-broker.fullname" . }}-auth
+  labels:
+    {{- include "fabric-pact-broker.labels" . | nindent 4 }}
+type: Opaque
+stringData:
+  username: {{ .Values.basicAuth.username | quote }}
+  password: {{ .Values.basicAuth.password | quote }}
+  {{- if .Values.basicAuth.readOnlyUsername }}
+  readonly-username: {{ .Values.basicAuth.readOnlyUsername | quote }}
+  {{- end }}
+  {{- if .Values.basicAuth.readOnlyPassword }}
+  readonly-password: {{ .Values.basicAuth.readOnlyPassword | quote }}
+  {{- end }}
+{{- end }}
+--- FILE: ./charts/fabric-pact-broker/templates/deployment.yaml ---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "fabric-pact-broker.fullname" . }}
+  {{- if (or (or .Values.vcsInfo.repoUrl .Values.connectsTo) .Values.configMap) }}
+  annotations:
+    {{- if and .Values.vcsInfo.repoUrl }}
+    app.openshift.io/vcs-ref: {{ .Values.vcsInfo.ref | default (include "fabric-pact-broker.version" .) }}
+    app.openshift.io/vcs-uri: {{ trimSuffix ".git" .Values.vcsInfo.repoUrl }}
+    {{- end }}
+    {{- if .Values.connectsTo }}
+    app.openshift.io/connects-to: {{ .Values.connectsTo }}
+    {{- end }}
+    {{- if .Values.configMap }}
+    checksum/config: {{ include (print $.Template.BasePath "/config-map.yaml") . | sha256sum }}
+    {{- end }}
+  {{- end }}
+  labels:
+    {{- include "fabric-pact-broker.labels" . | nindent 4 }}
+spec:
+  {{- if not .Values.autoscaling.enabled }}
+  replicas: {{ .Values.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "fabric-pact-broker.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      annotations:
+        checksum/secret: {{ include (print $.Template.BasePath "/secret.yaml") . | sha256sum }}
+        {{- if .Values.basicAuth.enabled }}
+        checksum/auth-secret: {{ include (print $.Template.BasePath "/auth-secret.yaml") . | sha256sum }}
+        {{- end }}
+        sidecar.istio.io/inject: {{ include "fabric-pact-broker.istio" . | quote }}
+      {{- with .Values.podAnnotations }}
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "fabric-pact-broker.selectorLabels" . | nindent 8 }}
+      
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "fabric-pact-broker.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: {{ .Chart.Name }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+
+          image: "{{ .Values.image.repository }}:{{ include "fabric-pact-broker.version" . }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          {{- if or .Values.configMap .Values.envFrom }}
+          envFrom:
+            {{- if .Values.configMap }}
+            - configMapRef:
+                name: {{ include "fabric-pact-broker.fullname" . }}
+            {{- end }}
+            {{- if .Values.envFrom }}
+            {{- toYaml .Values.envFrom | nindent 12 }}
+            {{- end }}
+          {{- end }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.image.port }}
+              protocol: TCP
+          env:
+            # Database configuration
+            - name: PACT_BROKER_DATABASE_ADAPTER
+              value: postgres
+            - name: PACT_BROKER_DATABASE_HOST
+              value: {{ .Values.database.host }}
+            - name: PACT_BROKER_DATABASE_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "fabric-pact-broker.secretName" . }}
+                  key: POSTGRES_DB
+            - name: PACT_BROKER_DATABASE_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "fabric-pact-broker.secretName" . }}
+                  key: POSTGRES_USER
+            - name: PACT_BROKER_DATABASE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "fabric-pact-broker.secretName" . }}
+                  key: POSTGRES_PASSWORD
+            
+            {{- if .Values.basicAuth.enabled }}
+            # Basic Authentication
+            - name: PACT_BROKER_BASIC_AUTH_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  {{- if .Values.basicAuth.existingSecret }}
+                  name: {{ .Values.basicAuth.existingSecret }}
+                  key: {{ .Values.basicAuth.usernameKey }}
+                  {{- else }}
+                  name: {{ include "fabric-pact-broker.fullname" . }}-auth
+                  key: username
+                  {{- end }}
+            - name: PACT_BROKER_BASIC_AUTH_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  {{- if .Values.basicAuth.existingSecret }}
+                  name: {{ .Values.basicAuth.existingSecret }}
+                  key: {{ .Values.basicAuth.passwordKey }}
+                  {{- else }}
+                  name: {{ include "fabric-pact-broker.fullname" . }}-auth
+                  key: password
+                  {{- end }}
+            - name: PACT_BROKER_BASIC_AUTH_READ_ONLY_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  {{- if .Values.basicAuth.existingSecret }}
+                  name: {{ .Values.basicAuth.existingSecret }}
+                  key: {{ .Values.basicAuth.readOnlyUsernameKey | default "readonly-username" }}
+                  {{- else }}
+                  name: {{ include "fabric-pact-broker.fullname" . }}-auth
+                  key: readonly-username
+                  {{- end }}
+                  optional: true
+            - name: PACT_BROKER_BASIC_AUTH_READ_ONLY_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  {{- if .Values.basicAuth.existingSecret }}
+                  name: {{ .Values.basicAuth.existingSecret }}
+                  key: {{ .Values.basicAuth.readOnlyPasswordKey | default "readonly-password" }}
+                  {{- else }}
+                  name: {{ include "fabric-pact-broker.fullname" . }}-auth
+                  key: readonly-password
+                  {{- end }}
+                  optional: true
+            {{- end }}
+            
+            # Logging
+            - name: PACT_BROKER_LOG_LEVEL
+              value: {{ .Values.configMap.PACT_BROKER_LOG_LEVEL | default "INFO" | quote }}
+            
+            {{- with .Values.env }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
+          
+          livenessProbe:
+            {{- if .Values.livenessProbe }}
+            {{- toYaml .Values.livenessProbe | nindent 12 }}
+            {{- else }}
+            httpGet:
+              path: /diagnostic/status/heartbeat
+              port: http
+            initialDelaySeconds: {{ .Values.initialDelaySeconds }}
+            timeoutSeconds: 5
+            periodSeconds: 10
+            successThreshold: 1
+            failureThreshold: 3
+            {{- end }}
+          
+          readinessProbe:
+            {{- if .Values.readinessProbe }}
+            {{- toYaml .Values.readinessProbe | nindent 12 }}
+            {{- else }}
+            httpGet:
+              path: /diagnostic/status/heartbeat
+              port: http
+            initialDelaySeconds: {{ .Values.initialDelaySeconds }}
+            timeoutSeconds: 5
+            periodSeconds: 10
+            successThreshold: 1
+            failureThreshold: 3
+            {{- end }}
+          
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          
+          {{- if .Values.volumeMounts }}
+          volumeMounts:
+            {{- toYaml .Values.volumeMounts | nindent 12 }}
+          {{- end }}
+      
+      {{- if .Values.volumes }}
+      volumes:
+        {{- toYaml .Values.volumes | nindent 8 }}
+      {{- end }}
+      
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+--- FILE: ./charts/fabric-pact-broker/templates/config-map.yaml ---
+{{- if .Values.configMap }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "fabric-pact-broker.fullname" . }}
+  labels:
+    {{- include "fabric-pact-broker.labels" . | nindent 4 }}
+data:
+  {{- range $key, $value := .Values.configMap }}
+  {{ $key }}: {{ $value | quote }}
+  {{- end }}
+{{- end }}
+--- FILE: ./charts/fabric-pact-broker/templates/ingress.yaml ---
+{{- if .Values.ingress.enabled -}}
+{{- $fullName := include "fabric-pact-broker.fullname" . -}}
+{{- $svcPort := .Values.service.port -}}
+{{- if semverCompare ">=1.14-0" .Capabilities.KubeVersion.GitVersion -}}
+apiVersion: networking.k8s.io/v1 
+
+{{- else -}}
+apiVersion: extensions/v1beta1
+{{- end }}
+kind: Ingress
+metadata:
+  name: {{ $fullName }}
+  labels:
+    {{- include "fabric-pact-broker.labels" . | nindent 4 }}
+  {{- with .Values.ingress.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  {{- if include "fabric-pact-broker.tlsSecretName" . }}
+  tls:
+    - hosts:
+        - {{ include "fabric-pact-broker.host" . }}
+      secretName: {{ include "fabric-pact-broker.tlsSecretName" . }}
+  {{- end }}
+  rules:
+    - host: {{ include "fabric-pact-broker.host" . }}
+      http:
+        paths:
+          - path: {{ .Values.ingress.path }}
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ $fullName }}
+                port:
+                  number: {{ $svcPort }}
+{{- end }}
+--- FILE: ./charts/fabric-pact-broker/templates/service.yaml ---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "fabric-pact-broker.fullname" . }}
+  labels:
+    {{- include "fabric-pact-broker.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.service.type }}
+  ports:
+    - port: {{ .Values.service.port }}
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    {{- include "fabric-pact-broker.selectorLabels" . | nindent 4 }}
+
+--- FILE: ./charts/fabric-pact-broker/templates/hpa.yaml ---
+{{- if .Values.autoscaling.enabled }}
+apiVersion: autoscaling/v2beta1
+kind: HorizontalPodAutoscaler
+metadata:
+  name: {{ include "fabric-pact-broker.fullname" . }}
+  labels:
+    {{- include "fabric-pact-broker.labels" . | nindent 4 }}
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: {{ include "fabric-pact-broker.fullname" . }}
+  minReplicas: {{ .Values.replicaCount }}
+  maxReplicas: {{ .Values.autoscaling.maxReplicas }}
+  metrics:
+    {{- if .Values.autoscaling.targetCPUUtilizationPercentage }}
+    - type: Resource
+      resource:
+        name: cpu
+        targetAverageUtilization: {{ .Values.autoscaling.targetCPUUtilizationPercentage }}
+    {{- end }}
+    {{- if .Values.autoscaling.targetMemoryUtilizationPercentage }}
+    - type: Resource
+      resource:
+        name: memory
+        targetAverageUtilization: {{ .Values.autoscaling.targetMemoryUtilizationPercentage }}
+    {{- end }}
+{{- end }}
+
+--- FILE: ./charts/fabric-pact-broker/templates/route.yaml ---
+{{- if .Values.route.enabled -}}
+{{- $fullName := include "fabric-pact-broker.fullname" . -}}
+kind: Route
+apiVersion: route.openshift.io/v1
+metadata:
+  name: {{ $fullName }}
+  annotations:
+    argocd.argoproj.io/sync-options: Validate=false
+spec:
+  to:
+    kind: Service
+    name: {{ $fullName }}
+    weight: 100
+  port:
+    targetPort: http
+  tls:
+    termination: edge
+    insecureEdgeTerminationPolicy: {{ .Values.route.insecureEdgeTerminationPolicy }}
+  wildcardPolicy: None
+{{- if .Values.graphql.enabled }}
+---
+kind: Route
+apiVersion: route.openshift.io/v1
+metadata:
+  name: {{ printf "%s-graphql" $fullName }}
+  annotations:
+    argocd.argoproj.io/sync-options: Validate=false
+spec:
+  to:
+    kind: Service
+    name: {{ $fullName }}
+    weight: 100
+  port:
+    targetPort: graphql
+  tls:
+    termination: edge
+    insecureEdgeTerminationPolicy: {{ .Values.route.insecureEdgeTerminationPolicy }}
+  wildcardPolicy: None
+{{- end }}
+{{- end }}
+--- FILE: ./charts/fabric-pact-broker/templates/serviceaccount.yaml ---
+{{- if .Values.serviceAccount.create -}}
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: {{ include "fabric-pact-broker.serviceAccountName" . }}
+  labels:
+    {{- include "fabric-pact-broker.labels" . | nindent 4 }}
+  {{- with .Values.serviceAccount.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+{{- end }}
+
+--- FILE: ./charts/fabric-pact-broker/templates/_helpers.tpl ---
+{{/*
+Expan the name of the chart.
+*/}}
+{{- define "fabric-pact-broker.name" -}}
+{{- default .Chart.Name .Values.nameOverride | trunc 63 | trimSuffix "-" }}
+{{- end }}
+
+{{/*
+Create a default fully qualified app name.
+We truncate at 63 chars because some Kubernetes name fields are limited to this (by the DNS naming spec).
+If release name contains chart name it will be used as a full name.
+*/}}
+{{- define "fabric-pact-broker.fullname" -}}
+{{- if .Values.fullnameOverride }}
+{{- .Values.fullnameOverride | trunc 63 | trimSuffix "-" }}
+{{- else }}
+{{- $name := default .Chart.Name .Values.nameOverride }}
+{{- if contains $name .Release.Name }}
+{{- .Release.Name | trunc 63 | trimSuffix "-" }}
+{{- else }}
+{{- printf "%s-%s" .Release.Name $name | trunc 63 | trimSuffix "-" }}
+{{- end }}
+{{- end }}
+{{- end }}
+
+{{/*
+Create chart name and version as used by the chart label.
+*/}}
+{{- define "fabric-pact-broker.chart" -}}
+{{ printf "%s-%s" .Chart.Name .Chart.Version | replace "+" "_" }}
+{{- end }}
+
+
+{{- define "fabric-pact-broker.version" -}}
+{{ .Values.image.tag | default .Values.global.appVersion | default .Chart.AppVersion }}
+{{- end }}
+
+
+{{/*
+Selector labels
+*/}}
+{{- define "fabric-pact-broker.selectorLabels" -}}
+app.kubernetes.io/name: {{ include "fabric-pact-broker.name" . }}
+app.kubernetes.io/instance: {{ .Release.Name }}
+{{- end }}
+
+{{/*
+Common labels
+*/}}
+{{- define "fabric-pact-broker.istio" -}}
+{{- if .Values.istio -}}
+true
+{{- else -}}
+false
+{{- end }}
+{{- end }}
+{{- define "fabric-pact-broker.labels" -}}
+app: {{ include "fabric-pact-broker.name" .}}
+helm.sh/chart: {{ include "fabric-pact-broker.chart" . }}
+{{ include "fabric-pact-broker.selectorLabels" . }}
+{{- if (include "fabric-pact-broker.version" .) }}
+version: {{ include "fabric-pact-broker.version" . | quote }}
+app.kubernetes.io/version: {{ include "fabric-pact-broker.version" . | quote }}
+{{- end }}
+
+{{- if .Values.component }}
+app.kubernetes.io/component: {{ .Values.component }}
+{{- end }}
+{{- if .Values.partOf }}
+app.kubernetes.io/part-of: {{ .Values.partOf }}
+{{- end }}
+{{- if .Values.runtime }}
+app.openshift.io/runtime: {{ .Values.runtime }}
+{{- end }}
+app.kubernetes.io/managed-by: {{ .Release.Service }}
+{{- end }}
+
+
+{{/*
+Create the name of the service account to use
+*/}}
+{{- define "fabric-pact-broker.serviceAccountName" -}}
+{{- if .Values.serviceAccount.create }}
+{{- default (include "fabric-pact-broker.fullname" .) .Values.serviceAccount.name }}
+{{- else }}
+{{- default "default" .Values.serviceAccount.name }}
+{{- end }}
+{{- end }}
+
+{{- define "fabric-pact-broker.host" -}}
+{{- $chartName := include "fabric-pact-broker.name" . -}}
+{{- $host := default $chartName .Values.ingress.host -}}
+{{- $subdomain := .Values.ingress.subdomain | default .Values.global.ingressSubdomain -}}
+{{- if .Values.ingress.namespaceInHost -}}
+{{- printf "%s-%s.%s" $host .Release.Namespace $subdomain -}}
+{{- else -}}
+{{- printf "%s.%s" $host $subdomain -}}
+{{- end -}}
+{{- end -}}
+
+
+{{- define "fabric-pact-broker.initialDelaySeconds" -}}
+{{- if .Values.initialDelaySeconds -}}
+{{ .Values.initialDelaySeconds }}
+{{- end -}}
+{{- end -}}
+
+
+
+{{/*
+Secret name helper for database credentials
+*/}}
+{{- define "fabric-pact-broker.secretName" -}}
+{{- if .Values.database.existingSecret -}}
+{{- .Values.database.existingSecret -}}
+{{- else -}}
+{{- printf "%s-db-auth" .Release.Name -}}
+{{- end -}}
+{{- end }}
+
+
+
+{{- define "fabric-pact-broker.tlsSecretName" -}}
+{{- $secretName := .Values.ingress.tlsSecretName | default .Values.global.tlsSecretName -}}
+{{- if $secretName }}
+{{- printf "%s" $secretName -}}
+{{- else -}}
+{{- printf "" -}}
+{{- end -}}
+{{- end -}}
+--- FILE: ./charts/fabric-pact-broker/templates/secret.yaml ---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: {{ include "fabric-pact-broker.secretName" . }}
+  labels:
+    {{- include "fabric-pact-broker.labels" . | nindent 4 }}
+type: Opaque
+data:
+  POSTGRES_DB: {{ .Values.database.name | b64enc }}
+  POSTGRES_USER: {{ .Values.database.username | b64enc }}
+  POSTGRES_PASSWORD: {{ .Values.database.password | b64enc }}
+
+--- FILE: ./charts/fabric-pact-broker/values.yaml ---
+## Declare variables to be passed into your templates.
+
+global:
+  appVersion: ""
+  tlsSecretName: ""
+  ingressSubdomain: ""
+
+
+replicaCount: 1
+initialDelaySeconds: 10
+image:
+  repository: pactfoundation/pact-broker
+  tag: latest
+  port: 9292
+  pullPolicy: IfNotPresent
+
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+serviceAccount:
+  ## Specifies whether a service account should be created
+  create: true
+  ## Annotations to add to the service account
+  annotations: {}
+  ## The name of the service account to use.
+  ## If not set and create is true, a name is generated using the fullname template
+  name: ""
+podAnnotations: {}
+podSecurityContext: {}
+  # fsGroup: 2000
+securityContext: {}
+  # capabilities:
+  #   drop:
+  #   - ALL
+  # readOnlyRootFilesystem: true
+  # runAsNonRoot: true
+
+service:
+  type: ClusterIP
+  port: 9292
+livenessProbe: {}
+readinessProbe: {}
+ingress:
+  enabled: true
+  annotations: {}
+  # kubernetes.io/ingress.class: nginx
+  # kubernetes.io/tls-acme: "true"
+  host: "pact-broker.local"
+  path: /
+  namespaceInHost: true
+  subdomain: containers.appdomain.cloud
+  tlsSecretName: ""
+route:
+  enabled: false
+  insecureEdgeTerminationPolicy: Allow
+
+resources: {}
+  ## We usually recommend not to specify default resources and to leave this as a conscious
+  ## choice for the user. This also increases chances charts run on environments with little
+  ## resources, such as Minikube. If you do want to specify resources, uncomment the following
+  ## lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+  # limits:
+  #   cpu: 100m
+  #   memory: 128Mi
+  # requests:
+  #   cpu: 100m
+  #   memory: 128Mi
+autoscaling:
+  enabled: false
+  maxReplicas: 100
+  targetCPUUtilizationPercentage: 80
+  # targetMemoryUtilizationPercentage: 80
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
+
+vcsInfo:
+  ref: ""
+  repoUrl: ""
+connectsTo: ""
+
+partOf: ""
+## The application runtime type.
+## Any of the following values will set default resource limits: golang, js, nodejs, java, openjdk, openliberty, python, spring, dotnet, nginx
+runtime: ""
+## The application component type.
+## Expected values are: frontend, backend, database, integration, cache, queue
+component: ""
+
+configMap: {}
+envFrom: {}
+env: {}
+## Value for the istio sidecar injection annotation
+istio: false
+database:
+  host: pact-suite-postgres.pact-suite.svc.cluster.local
+  name: appdb
+  username: postgres
+  password: dev123
+  useSecret: false
+
+
+
+--- FILE: ./charts/fabric-postgres/Chart.yaml ---
+apiVersion: v2
+name: postgres
+description: PostgreSQL Helm chart
+type: application
+version: 1.0.0
+appVersion: "15"
+--- FILE: ./charts/fabric-postgres/.helmignore ---
+# Patterns to ignore when building packages.
+# This supports shell glob matching, relative path matching, and
+# negation (prefixed with !). Only one pattern per line.
+.DS_Store
+# Common VCS dirs
+.git/
+.gitignore
+.bzr/
+.bzrignore
+.hg/
+.hgignore
+.svn/
+# Common backup files
+*.swp
+*.bak
+*.tmp
+*.orig
+*~
+# Various IDEs
+.project
+.idea/
+*.tmproj
+.vscode/
+
+--- FILE: ./charts/fabric-postgres/templates/service.yaml ---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "fabric-postgres.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "fabric-postgres.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.service.type }}
+  clusterIP: None 
+  ports:
+    - port: {{ .Values.service.port }}
+      targetPort: {{ .Values.service.port }}
+      protocol: TCP
+      name: postgres
+  selector:
+    {{- include "fabric-postgres.labels" . | nindent 4 }}
+--- FILE: ./charts/fabric-postgres/templates/hpa.yaml ---
+{{- if .Values.autoscaling.enabled }}
+apiVersion: autoscaling/v2beta1
+kind: HorizontalPodAutoscaler
+metadata:
+  name: {{ include "fabric-pact-broker.fullname" . }}
+  labels:
+    {{- include "fabric-pact-broker.labels" . | nindent 4 }}
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: {{ include "fabric-pact-broker.fullname" . }}
+  minReplicas: {{ .Values.replicaCount }}
+  maxReplicas: {{ .Values.autoscaling.maxReplicas }}
+  metrics:
+    {{- if .Values.autoscaling.targetCPUUtilizationPercentage }}
+    - type: Resource
+      resource:
+        name: cpu
+        targetAverageUtilization: {{ .Values.autoscaling.targetCPUUtilizationPercentage }}
+    {{- end }}
+    {{- if .Values.autoscaling.targetMemoryUtilizationPercentage }}
+    - type: Resource
+      resource:
+        name: memory
+        targetAverageUtilization: {{ .Values.autoscaling.targetMemoryUtilizationPercentage }}
+    {{- end }}
+{{- end }}
+
+--- FILE: ./charts/fabric-postgres/templates/_helpers.tpl ---
+{{/*
+Expan the name of the chart.
+*/}}
+{{- define "fabric-postgres.name" -}}
+{{- default .Chart.Name .Values.nameOverride | trunc 63 | trimSuffix "-" }}
+{{- end }}
+
+{{/*
+Create a default fully qualified app name.
+We truncate at 63 chars because some Kubernetes name fields are limited to this (by the DNS naming spec).
+If release name contains chart name it will be used as a full name.
+*/}}
+{{- define "fabric-postgres.fullname" -}}
+{{- if .Values.fullnameOverride }}
+{{- .Values.fullnameOverride | trunc 63 | trimSuffix "-" }}
+{{- else }}
+{{- $name := default .Chart.Name .Values.nameOverride }}
+{{- if contains $name .Release.Name }}
+{{- .Release.Name | trunc 63 | trimSuffix "-" }}
+{{- else }}
+{{- printf "%s-%s" .Release.Name $name | trunc 63 | trimSuffix "-" }}
+{{- end }}
+{{- end }}
+{{- end }}
+
+{{/*
+Create chart name and version as used by the chart label.
+*/}}
+{{- define "fabric-postgres.chart" -}}
+{{ printf "%s-%s" .Chart.Name .Chart.Version | replace "+" "_" }}
+{{- end }}
+
+
+{{- define "fabric-postgres.version" -}}
+{{ .Values.image.tag | default .Values.global.appVersion | default .Chart.AppVersion }}
+{{- end }}
+
+
+{{/*
+Selector labels
+*/}}
+{{- define "fabric-postgres.selectorLabels" -}}
+app.kubernetes.io/name: {{ include "fabric-postgres.name" . }}
+app.kubernetes.io/instance: {{ .Release.Name }}
+{{- end }}
+
+{{/*
+Common labels
+*/}}
+
+
+{{- define "fabric-postgres.labels" -}}
+app: {{ include "fabric-postgres.name" .}}
+helm.sh/chart: {{ include "fabric-postgres.chart" . }}
+{{ include "fabric-postgres.selectorLabels" . }}
+{{- if (include "fabric-postgres.version" .) }}
+version: {{ include "fabric-postgres.version" . | quote }}
+app.kubernetes.io/version: {{ include "fabric-postgres.version" . | quote }}
+{{- end }}
+
+{{- if .Values.component }}
+app.kubernetes.io/component: {{ .Values.component }}
+{{- end }}
+{{- if .Values.partOf }}
+app.kubernetes.io/part-of: {{ .Values.partOf }}
+{{- end }}
+{{- if .Values.runtime }}
+app.openshift.io/runtime: {{ .Values.runtime }}
+{{- end }}
+app.kubernetes.io/managed-by: {{ .Release.Service }}
+{{- end }}
+
+
+{{/*
+Create the name of the service account to use
+*/}}
+{{- define "fabric-postgres.serviceAccountName" -}}
+{{- if .Values.serviceAccount.create }}
+{{- default (include "fabric-postgres.fullname" .) .Values.serviceAccount.name }}
+{{- else }}
+{{- default "default" .Values.serviceAccount.name }}
+{{- end }}
+{{- end }}
+
+{{- define "fabric-postgres.host" -}}
+{{- $chartName := include "fabric-pact-broker.name" . -}}
+{{- $host := default $chartName .Values.ingress.host -}}
+{{- $subdomain := .Values.ingress.subdomain | default .Values.global.ingressSubdomain -}}
+{{- if .Values.ingress.namespaceInHost -}}
+{{- printf "%s-%s.%s" $host .Release.Namespace $subdomain -}}
+{{- else -}}
+{{- printf "%s.%s" $host $subdomain -}}
+{{- end -}}
+{{- end -}}
+
+
+{{- define "fabric-postgres.initialDelaySeconds" -}}
+{{- if .Values.initialDelaySeconds -}}
+{{ .Values.initialDelaySeconds }}
+{{- end -}}
+{{- end -}}
+
+
+
+{{/*
+Secret name helper
+*/}}
+{{- define "fabric-postgres.secretName" -}}
+{{ printf "%s-db-auth" .Release.Name }}
+{{- end }}
+
+
+
+{{- define "fabric-postgres.tlsSecretName" -}}
+{{- $secretName := .Values.ingress.tlsSecretName | default .Values.global.tlsSecretName -}}
+{{- if $secretName }}
+{{- printf "%s" $secretName -}}
+{{- else -}}
+{{- printf "" -}}
+{{- end -}}
+{{- end -}}
+
+--- FILE: ./charts/fabric-postgres/templates/statefulset.yaml ---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ include "fabric-postgres.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "fabric-postgres.labels" . | nindent 4 }}
+spec:
+  
+  serviceName: {{ include "fabric-postgres.fullname" . }}
+  replicas: 1
+  selector:
+    matchLabels:
+      {{- include "fabric-postgres.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "fabric-postgres.labels" . | nindent 8 }}
+    spec:
+      {{- if .Values.securityContext.enabled }}
+      securityContext:
+        {{- if .Values.securityContext.runAsUser }}
+        runAsUser: {{ .Values.securityContext.runAsUser }}
+        {{- end }}
+        {{- if .Values.securityContext.runAsNonRoot }}
+        runAsNonRoot: {{ .Values.securityContext.runAsNonRoot }}
+        {{- end }}
+        {{- if .Values.securityContext.fsGroup }}
+        fsGroup: {{ .Values.securityContext.fsGroup }}
+        {{- end }}
+        {{- if .Values.securityContext.fsGroupChangePolicy }}
+        fsGroupChangePolicy: {{ .Values.securityContext.fsGroupChangePolicy }}
+        {{- end }}
+      {{- end }}
+      {{- if .Values.initContainers }}
+      initContainers:
+      {{- toYaml .Values.initContainers | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: postgres
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          {{- if .Values.securityContext.enabled }}
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+          {{- end }}
+          ports:
+            - containerPort: {{ .Values.service.port }}
+              name: postgres
+          envFrom:
+            - secretRef:
+                name: {{ include "fabric-postgres.fullname" . }}-secret
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          readinessProbe:
+            exec:
+              command:
+                - /bin/sh
+                - -c
+                - pg_isready -U $POSTGRES_USER
+            initialDelaySeconds: {{ .Values.healthChecks.readiness.initialDelaySeconds }}
+            periodSeconds: {{ .Values.healthChecks.readiness.periodSeconds }}
+          livenessProbe:
+            exec:
+              command:
+                - /bin/sh
+                - -c
+                - pg_isready -U $POSTGRES_USER
+            initialDelaySeconds: {{ .Values.healthChecks.liveness.initialDelaySeconds }}
+            periodSeconds: {{ .Values.healthChecks.liveness.periodSeconds }}
+          volumeMounts:
+            - name: postgres-data
+              mountPath: {{ .Values.persistence.mountPath }}
+              subPath: postgres
+  volumeClaimTemplates:
+    - metadata:
+        name: postgres-data
+        labels:
+          {{- include "fabric-postgres.labels" . | nindent 10 }}
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        storageClassName: {{ .Values.persistence.storageClassName | quote }}
+        resources:
+          requests:
+            storage: {{ .Values.persistence.size | quote }}
+--- FILE: ./charts/fabric-postgres/templates/secret.yaml ---
+{{- if .Values.auth.useSecret }}
+apiVersion: v1
+kind: Secret
+metadata:
+  name: {{ include "fabric-postgres.fullname" . }}-secret
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "fabric-postgres.labels" . | nindent 4 }}
+type: Opaque
+stringData:
+  POSTGRES_USER: {{ .Values.auth.username | quote }}
+  POSTGRES_PASSWORD: {{ .Values.auth.password | quote }}
+  POSTGRES_DB: {{ .Values.auth.database | quote }}
+{{- end }}
+--- FILE: ./charts/fabric-postgres/values.yaml ---
+global:
+  namespace: default
+  environment: dev
+  createNamespace: false
+  storageClass: "hostpath"
+  tlsSecretName: ""
+image:
+  repository: postgres
+  tag: "15"
+  pullPolicy: IfNotPresent
+
+auth:
+  username: postgres
+  password: dev123
+  database: appdb
+
+service:
+  type: ClusterIP
+  port: 5432
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 256Mi
+  limits:
+    cpu: 500m
+    memory: 512Mi
+persistence:
+  enabled: true
+  size: 2Gi
+  storageClassName: "hostpath" 
+  mountPath: /var/lib/postgresql/data
+auth:
+  username: postgres
+  password: dev123
+  database: appdb
+  useSecret: true  
+healthChecks:
+  enabled: true
+  readiness:
+    initialDelaySeconds: 10
+    periodSeconds: 5
+  liveness:
+    initialDelaySeconds: 30
+    periodSeconds: 10
+securityContext:
+  enabled: false  # Disable for Docker Desktop compatibility
+
+initContainers: []
+autoscaling:
+  enabled: false
+  maxReplicas: 100
+  targetCPUUtilizationPercentage: 80
+  # targetMemoryUtilizationPercentage: 80
+nodeSelector: {}
+
+tolerations: []
+--- FILE: ./README.md ---
+## Pact-Stack is combined of both postgres and pact broker.
+# TBD: 
+1) service account  
+2) tlsSecretName
+3) ingress tlsSecretName and subdomain
+4) replicaCount need to override.
+5) resources need to override 
+6) Prepare documentation of it.
+============
+
+--- FILE: ./values-dev.yaml ---
+global:
+  namespace: pact-stack-dev
+  environment: dev
+  storageClass: "hostpath"
+  ingressSubdomain: "dev.apps.example.com"
+  tlsSecretName: ""
+
+postgres:
+  auth:
+    password: "dev123"
+  
+  persistence:
+    size: 5Gi
+  
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+  
+  securityContext:
+    enabled: false  # Relaxed for local development
+
+fabric-pact-broker:
+  replicaCount: 1
+  
+  image:
+    tag: "latest"
+    pullPolicy: Always
+  
+  database:
+    password: "dev123"
+  
+  basicAuth:
+    enabled: true
+    username: admin
+    password: "admin123"
+  
+  ingress:
+    enabled: true
+    annotations:
+      nginx.ingress.kubernetes.io/ssl-redirect: "false"
+    subdomain: "dev.apps.example.com"
+  
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+  
+  autoscaling:
+    enabled: false
+  
+  configMap:
+    PACT_BROKER_LOG_LEVEL: "DEBUG"
+    PACT_BROKER_SQL_LOG_LEVEL: "DEBUG"
+    PACT_BROKER_ALLOW_PUBLIC_READ: "true"  # More permissive for dev
+  
+  podSecurityContext: {}
+  securityContext: {}
+--- FILE: ./templates/namespace.yaml ---
+{{- if .Values.global.createNamespace }}
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: {{ .Values.global.namespace }}
+  labels:
+    name: {{ .Values.global.namespace }}
+    app.kubernetes.io/managed-by: Helm
+{{- end }}
+--- FILE: ./values.yaml ---
+global:
+  namespace: pact-stack
+  environment: dev
+  createNamespace: true
+  storageClass: "hostpath"  # Override per environment
+  ingressSubdomain: "apps.example.com"  # Set per environment. 
+  tlsSecretName: ""  # Set per environment if using TLS
+  appVersion: ""
+
+# PostgreSQL subchart configuration
+postgres:
+  enabled: true
+  
+  image:
+    repository: postgres
+    tag: "15"
+    pullPolicy: IfNotPresent
+
+  auth:
+    username: postgres
+    # DO NOT hardcode passwords in production - use external secrets
+    password: "CHANGE_ME_IN_OVERLAY"
+    database: pactbroker
+    useSecret: true
+
+  service:
+    type: ClusterIP
+    port: 5432
+
+  persistence:
+    enabled: true
+    size: 10Gi  # Adjust based on environment
+    storageClassName: "hostpath"  # Override per environment
+    mountPath: /var/lib/postgresql/data
+
+  resources:
+    requests:
+      cpu: 250m
+      memory: 512Mi
+    limits:
+      cpu: 1000m
+      memory: 1Gi
+
+  healthChecks:
+    enabled: true
+    readiness:
+      initialDelaySeconds: 10
+      periodSeconds: 5
+    liveness:
+      initialDelaySeconds: 30
+      periodSeconds: 10
+
+  securityContext:
+    enabled: true
+    runAsUser: 999
+    runAsNonRoot: true
+    fsGroup: 999
+    fsGroupChangePolicy: "OnRootMismatch"
+
+  # Backup init container example
+  initContainers: []
+  # - name: restore-backup
+  #   image: postgres:15
+  #   command: ["/bin/sh"]
+  #   args: ["-c", "echo 'Backup restore logic here'"]
+
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+
+# Pact Broker subchart configuration
+fabric-pact-broker:
+  enabled: true
+  
+  replicaCount: 2  # High availability for production
+  initialDelaySeconds: 30
+
+  image:
+    repository: pactfoundation/pact-broker
+    tag: "2.116.0"  # Use specific version for production
+    port: 9292
+    pullPolicy: IfNotPresent
+
+  imagePullSecrets: []
+
+  serviceAccount:
+    create: true
+    annotations: {}
+    name: ""
+
+  podAnnotations:
+    prometheus.io/scrape: "true"
+    prometheus.io/port: "9292"
+    prometheus.io/path: "/metrics"
+
+  podSecurityContext:
+    runAsNonRoot: true
+    runAsUser: 1000
+    fsGroup: 1000
+
+  securityContext:
+    allowPrivilegeEscalation: false
+    capabilities:
+      drop:
+        - ALL
+    readOnlyRootFilesystem: false
+
+  service:
+    type: ClusterIP
+    port: 9292
+
+  # Database configuration - references postgres subchart
+  database:
+    host: "pact-stack-postgres.pact-stack.svc.cluster.local"
+    name: pactbroker
+    username: postgres
+    password: "CHANGE_ME_IN_OVERLAY"
+    useSecret: true
+
+  # Basic Auth Configuration - CRITICAL for production
+  basicAuth:
+    enabled: true
+    username: admin
+    password: "CHANGE_ME_IN_OVERLAY"  # Must be changed per environment
+    # Alternative: Use existing secret
+    existingSecret: ""
+    usernameKey: "username"
+    passwordKey: "password"
+
+  # Health checks
+  livenessProbe:
+    httpGet:
+      path: /diagnostic/status/heartbeat
+      port: http
+    initialDelaySeconds: 60
+    periodSeconds: 10
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 3
+
+  readinessProbe:
+    httpGet:
+      path: /diagnostic/status/heartbeat
+      port: http
+    initialDelaySeconds: 30
+    periodSeconds: 10
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 3
+
+  # Ingress configuration
+  ingress:
+    enabled: true
+    annotations:
+      cert-manager.io/cluster-issuer: "letsencrypt-prod"
+      nginx.ingress.kubernetes.io/ssl-redirect: "true"
+      nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+    host: "pact-broker"
+    path: /
+    namespaceInHost: true
+    subdomain: "apps.example.com"
+    tlsSecretName: ""
+
+  # OpenShift Route (if using OpenShift)
+  route:
+    enabled: false
+    insecureEdgeTerminationPolicy: Redirect
+
+  # Resource limits
+  resources:
+    requests:
+      cpu: 250m
+      memory: 512Mi
+    limits:
+      cpu: 1000m
+      memory: 1Gi
+
+  # Horizontal Pod Autoscaling
+  autoscaling:
+    enabled: true
+    maxReplicas: 5
+    targetCPUUtilizationPercentage: 70
+    targetMemoryUtilizationPercentage: 80
+
+  # Environment-specific ConfigMap
+  configMap:
+    PACT_BROKER_LOG_LEVEL: "INFO"
+    PACT_BROKER_SQL_LOG_LEVEL: "WARN"
+    PACT_BROKER_DATABASE_SSLMODE: "prefer"
+    PACT_BROKER_DISABLE_SSL_VERIFICATION: "false"
+    # Webhook configuration
+    PACT_BROKER_WEBHOOK_HTTP_METHOD_WHITELIST: "GET POST PUT PATCH DELETE"
+    PACT_BROKER_WEBHOOK_SCHEME_WHITELIST: "https"
+    # Additional security
+    PACT_BROKER_ALLOW_PUBLIC_READ: "false"
+    PACT_BROKER_ENABLE_PUBLIC_BADGE_ACCESS: "false"
+
+  # Additional environment variables from secrets
+  envFrom: []
+
+  # Labels for topology view
+  vcsInfo:
+    ref: ""
+    repoUrl: ""
+  
+  connectsTo: "pact-stack-postgres"
+  partOf: "pact-stack"
+  runtime: "ruby"
+  component: "broker"
+
+  # Istio service mesh
+  istio: false
+
+  nodeSelector: {}
+  tolerations: []
+  affinity:
+    podAntiAffinity:
+      preferredDuringSchedulingIgnoredDuringExecution:
+        - weight: 100
+          podAffinityTerm:
+            labelSelector:
+              matchExpressions:
+                - key: app.kubernetes.io/name
+                  operator: In
+                  values:
+                    - fabric-pact-broker
+            topologyKey: kubernetes.io/hostname
+--- FILE: ./sealed-broker-auth.yaml ---
+---
+apiVersion: bitnami.com/v1alpha1
+kind: SealedSecret
+metadata:
+  name: pact-broker-auth-prod
+  namespace: default
+spec:
+  encryptedData:
+    PACT_BROKER_BASIC_AUTH_PASSWORD: AgBa2feQYrXEZeZpcPVyrzyJroGFuc724F4aZLZEDkl+r3byTJFAJBmPK3ZoLw7Cxn+jnWT4G0mAd6oErAcy2+IDz5nQ4nFfp/Gh9wwe7jwxiT1TyQSBA5PANZP547mvnwPovdJdJ3YGI39c4vrlDBWCAZP2sGa34G0RHlkQJ9EGeIeitGm1numpz/UqEowPyAsfDxL37GqHc90e+INhrHKckup0wYZLYioAbfLY4AWjjqOQN99Vm1i6mL/9DxPRf4vjG11asEpzHmUppTCWK5BnOG9ONlZYYONXSwrE+k3s3U6TQL0cz6v1/2Aa80FxbvNbfsNuyMrm3mrZyySS0P+6TVox5orxZUjtlWlsIzQG10Vpbqc/fxWObc+7SYaF8lZYO0BJFOGlwQSZ0RQzqYTOJ0UWKH9RiJL2PIV6P4s0CLSJJUce/IuHRJUFy+fgRTYWbs7FNuyvBAkauZCoZl5+jMrJRUn0inxx4wuGYQpDffrdg7PrFMrrYOVItOEe3uOS8Dz8nTLrn5zhM2U+iesD5b207idqHT5/YIBfCCyritkplezun7Xxn3sjgKzzBTwwv36OHyEeyiTRKUOS1F1afzUqoy09/2ckNcLDYPwiG84Hpe3G6n5KBTGUWnQoPqaZd3Hn5vZ/+UFNQJXMThcpyTF40Hjx23OxV4fVGb73YPQkcqBLLeybzpaqazrgxPDev5rGKSRTrmRFxcfF1A01nGqojNt1/VdVzg==
+    PACT_BROKER_BASIC_AUTH_USERNAME: AgA8mba+NmlprBV8zo+0h8g1NXGck8CetMA68rm2zVEbCIdtYxRNEblAh7WIQflLNVM77VgMrGaykBqPr8ZybLmHHLuuTSekqbuK4+LoAICR4ax7Ji2VbhyFD+BsWuPKCrfLwJGdMlWWAFA+YBx6sAohlC30W7DBDKRxAMA27RIGFJNAlT9FSjQM5957tFeqCJfI8uSKS0xe7HHayWkQQEuEyRszA6KzQMk7vlKI7B4jxF0I4HSnBW+aSl9228n42oAAjuNwO2Sa5IUtd4xgFUsP4QiSPAbFcbXEIiuHW+nNKwJ7Da+pKciprH5/NJhokoybEkg/2fWfS5zk4LjfeZCjfe+cMpbIBDbSWK5fAVDlIzN1zGDtmEDSYDQsrTMvVXjzj6pMPNTrgm9nZZQ/2OvOdmnKr/PkHK3g2zvkTyCq141v8XZbOR3jwlposICeCC2r+uDltHWO0zfZB7+fD1GXX3wa9Y4/4fwgd0GNP5stfzbnfhMy27kp9DL0zM6iaDgCDK0/7VdejLVEMdn1XecsWPUmotsPoCUm9D0PDAuZ9mVOHrK0Br9u20ByeU1B0I/cDwQ6ISg6Rab7ihGnJjKpwM2kTFqZd/zq0v/3SMXo3PeSJvnu2D2jlHPrtcZd+zszxQIsqD4euvkF9aMIQGlqiIIX7TBxodaiBhHXSgNBSMH74vShg7rXekPx4VZ7jJ0OkKig8A==
+  template:
+    metadata:
+      name: pact-broker-auth-prod
+      namespace: default
+

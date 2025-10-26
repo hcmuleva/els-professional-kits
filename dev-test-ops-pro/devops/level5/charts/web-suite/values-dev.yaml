@@ -1,0 +1,9 @@
+ingress:
+  host: dev.web-suite.local
+
+templeApi:
+  env:
+    CENTRALIZED_SERVER: "http://dev.web-suite.local"
+reactUi:
+  image:
+    tag: latest
